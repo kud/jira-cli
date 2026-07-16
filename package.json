@@ -1,0 +1,40 @@
+{
+  "name": "@kud/jira-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Jira on the command line",
+  "bin": {
+    "jira": "dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsup src/index.ts --format esm --dts",
+    "build:watch": "tsup src/index.ts --format esm --dts --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@opentui/core": "0.2.0",
+    "@opentui/react": "0.2.0",
+    "chalk": "^5.3.0",
+    "commander": "^14.0.0",
+    "ink": "^5.0.0",
+    "ink-spinner": "^5.0.0",
+    "ora": "^8.0.0",
+    "react": "^18.2.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
