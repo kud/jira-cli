@@ -179,12 +179,13 @@ export const registerIssueCommands = (program: Command): void => {
     .command("transition <key> [status]")
     .alias("move")
     .description("move an issue, or list available transitions")
+    .option("--resolution <name>", "resolution to set as part of the move")
     .option("--json", "emit JSON")
     .action(
       async (
         key: string,
         status: string | undefined,
-        options: { json?: boolean },
+        options: { json?: boolean; resolution?: string },
       ) => {
         const ctx = context()
         const { transitions } = await ctx.client.getTransitions(key)
@@ -214,7 +215,13 @@ export const registerIssueCommands = (program: Command): void => {
           )
         }
 
-        await ctx.client.transitionIssue(key, match.id)
+        await ctx.client.transitionIssue(
+          key,
+          match.id,
+          options.resolution
+            ? { resolution: { name: options.resolution } }
+            : undefined,
+        )
         if (options.json) return printJson({ key, transition: match })
         process.stdout.write(`${key} → ${match.to?.name ?? match.name}\n`)
       },

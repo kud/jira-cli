@@ -37,11 +37,18 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kud/jira": "0.1.0",
-    "commander": "14.0.1"
+    "@kud/ink-markdown": "0.1.1",
+    "@kud/ink-ui": "0.14.1",
+    "@kud/jira": "0.2.0",
+    "commander": "14.0.1",
+    "ink": "7.0.1",
+    "react": "19.2.5"
   },
   "devDependencies": {
+    "@kud/cli-testing": "0.1.0",
     "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
+    "ink-testing-library": "4.0.0",
     "tsup": "8.5.0",
     "tsx": "4.20.6",
     "typescript": "5.9.3",

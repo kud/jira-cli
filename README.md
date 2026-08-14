@@ -2,7 +2,7 @@
 
 Jira on the command line. Reads issues, comments and **attachments** as plain text, so you can pipe them into anything.
 
-Black and white output, `--json` on every read, stable exit codes. No interactive prompts.
+Black and white output, `--json` on every read, stable exit codes. Every subcommand is plain and pipeable — the interactive view lives behind the bare `jira` command and nowhere else.
 
 ## Install
 
@@ -40,6 +40,20 @@ Descriptions and comments render as Markdown, with embedded files named rather t
 ```sh
 jira issue view ABC-123 --comments
 ```
+
+## The interactive view
+
+Run `jira` with no arguments:
+
+```sh
+jira
+```
+
+Your open issues, newest first. `↑↓` to move, `enter` to open, `a` to include closed ones, `r` to refresh, `q` to quit.
+
+Inside an issue, `←→` switches between description, comments and attachments — descriptions and comments render as real Markdown, and attachments are listed with the comment or description each was embedded in. `t` transitions, `c` comments, `a` assigns to you, `o` opens the browser, `esc` goes back. Writes ask before they act.
+
+Ink is loaded only for this view, via a dynamic import, so `jira issue list | grep` never pays for it. Piped or redirected, bare `jira` prints help instead of opening a UI.
 
 ## Using it alongside the Atlassian MCP
 

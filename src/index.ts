@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { realpathSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 import { Command } from "commander"
 import { isJiraApiError } from "@kud/jira"
 import { registerAttachmentCommands } from "./commands/attachment.js"
@@ -73,9 +75,64 @@ const exitCodeFor = (error: unknown): number => {
   return 1
 }
 
-program.parseAsync(process.argv).catch((error: unknown) => {
+const fail = (error: unknown): never => {
   process.stderr.write(
     `jira: ${error instanceof Error ? error.message : String(error)}\n`,
   )
   process.exit(exitCodeFor(error))
-})
+}
+
+/**
+ * Commander never sees the bare form, so the interactive flags are read from
+ * argv directly. `--screen`'s *value* has to be discounted too, or
+ * `jira --screen list` falls through as an unknown `list` command.
+ */
+export const interactiveArgs = (argv: string[]) => {
+  const rest = argv.slice(2)
+  const screenAt = rest.indexOf("--screen")
+  const screen = screenAt === -1 ? undefined : rest[screenAt + 1]
+  const consumed = new Set(
+    screenAt === -1 ? ["--mock"] : ["--mock", "--screen", screen ?? ""],
+  )
+  return {
+    screen,
+    mock: rest.includes("--mock"),
+    isBare: rest.every((a) => consumed.has(a)),
+  }
+}
+
+const main = async (): Promise<void> => {
+  const { screen, mock, isBare } = interactiveArgs(process.argv)
+
+  if (screen === "list" && isBare) {
+    const { SCREENS } = await import("./tui/index.js")
+    process.stdout.write(`${SCREENS.join("\n")}\n`)
+    return
+  }
+
+  // The TUI is only imported here, so no scriptable command ever pays for
+  // loading React and Ink.
+  if (isBare) {
+    if (!process.stdout.isTTY) {
+      program.outputHelp()
+      return
+    }
+    const { runTui } = await import("./tui/index.js")
+    const [, key] = (screen ?? "").split(":")
+    await runTui({
+      screen: screen?.startsWith("detail") ? "detail" : "issues",
+      mock,
+      ...(key ? { issueKey: key } : {}),
+    })
+    return
+  }
+
+  await program.parseAsync(process.argv)
+}
+
+// Guarded so a test can import this module for `interactiveArgs` without
+// also running the CLI against the test runner's own argv.
+const entry = process.argv[1]
+if (entry && fileURLToPath(import.meta.url) === realpathSync(entry)) {
+  main().catch(fail)
+}
