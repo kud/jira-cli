@@ -1,43 +1,66 @@
 #!/usr/bin/env node
 import { Command } from "commander"
-import chalk from "chalk"
-import { registerIssueCommands } from "./commands/issue/index.js"
-import { registerProjectCommands } from "./commands/project.js"
-import { registerSprintCommands } from "./commands/sprint.js"
-import { registerBoardCommands } from "./commands/board.js"
-import { registerUserCommands } from "./commands/user.js"
-import { registerSearchCommand } from "./commands/search.js"
-import { registerMeCommand } from "./commands/me.js"
-import { registerApiCommand } from "./commands/api.js"
+import { isJiraApiError } from "./api/client.js"
+import { registerAttachmentCommands } from "./commands/attachment.js"
+import { isExitError } from "./commands/context.js"
+import { registerIssueCommands } from "./commands/issue.js"
+import {
+  registerApiCommand,
+  registerFieldsCommand,
+  registerInitCommand,
+  registerSearchCommand,
+} from "./commands/misc.js"
+import { configPath } from "./config.js"
 
 const program = new Command()
 
 program
   .name("jira")
   .description("Jira on the command line")
-  .version("0.1.0")
+  .version("0.2.0")
   .addHelpText(
     "after",
     `
-${chalk.dim("Environment variables:")}
-  ATLASSIAN_BASE_URL      Jira instance URL (e.g. https://myorg.atlassian.net)
-  ATLASSIAN_USER_EMAIL    Your Atlassian account email
-  ATLASSIAN_API_TOKEN     API token from https://id.atlassian.com/manage-profile/security/api-tokens
-    `,
+Setup:
+  export ATLASSIAN_API_TOKEN=...    the only secret, env only
+                                    id.atlassian.com/manage-profile/security/api-tokens
+  jira init --base-url myorg.atlassian.net --email you@example.com
+
+  Everything else lives in ${configPath()}, and any of it can be
+  overridden with ATLASSIAN_BASE_URL / ATLASSIAN_USER_EMAIL.
+
+Examples:
+  jira issue list --mine --status 'In Progress'
+  jira issue view ABC-123 --comments
+  jira attachment list ABC-123
+  jira attachment read ABC-123 error.log | grep -i timeout
+  jira search 'project = ABC AND created >= -7d' --json | jq '.[].key'
+`,
   )
 
 registerIssueCommands(program)
-registerProjectCommands(program)
-registerSprintCommands(program)
-registerBoardCommands(program)
-registerUserCommands(program)
+registerAttachmentCommands(program)
 registerSearchCommand(program)
-registerMeCommand(program)
+registerFieldsCommand(program)
+registerInitCommand(program)
 registerApiCommand(program)
 
-program.parseAsync(process.argv).catch((err: unknown) => {
+/**
+ * Exit codes are part of the contract, since this is meant to be scripted:
+ * 1 for a Jira-side or usage failure, 2 for a broken environment, and 4 when
+ * Jira rejected the credentials — a caller can retry the first, but never the
+ * last two.
+ */
+const exitCodeFor = (error: unknown): number => {
+  if (isExitError(error)) return error.code
+  if (isJiraApiError(error))
+    return error.status === 401 || error.status === 403 ? 4 : 1
+  return 1
+}
+
+program.parseAsync(process.argv).catch((error: unknown) => {
   process.stderr.write(
-    `${chalk.red("error:")} ${err instanceof Error ? err.message : String(err)}\n`,
+    `jira: ${error instanceof Error ? error.message : String(error)}\n`,
   )
-  process.exit(1)
+  process.exit(exitCodeFor(error))
 })
