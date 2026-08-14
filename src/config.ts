@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs"
 import { homedir } from "node:os"
 import { join } from "node:path"
-import { normalizeBaseUrl } from "./api/client.js"
+import { normalizeBaseUrl } from "@kud/jira"
 
 export type CustomFieldRef = { id: string; label: string }
 

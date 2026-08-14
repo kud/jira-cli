@@ -37,6 +37,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@kud/jira": "0.1.0",
     "commander": "14.0.1"
   },
   "devDependencies": {

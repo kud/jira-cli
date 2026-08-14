@@ -6,7 +6,7 @@ import {
   isTextual,
   locateAttachments,
   type LocatedAttachment,
-} from "../api/attachments.js"
+} from "@kud/jira"
 import { table } from "../output/format.js"
 import { context, exitError, printJson } from "./context.js"
 

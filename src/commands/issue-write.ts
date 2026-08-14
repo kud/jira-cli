@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs"
 import type { Command } from "commander"
-import { adfToMarkdown, markdownToAdf } from "../api/adf.js"
+import { adfToMarkdown, markdownToAdf } from "@kud/jira"
 import { table } from "../output/format.js"
 import { context, exitError, printJson } from "./context.js"
 

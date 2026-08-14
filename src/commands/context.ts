@@ -1,4 +1,4 @@
-import { createJiraClient, type JiraClient } from "../api/client.js"
+import { createJiraClient, type JiraClient } from "@kud/jira"
 import { loadConfig, type Config } from "../config.js"
 import { palette, type Palette } from "../output/format.js"
 

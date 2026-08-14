@@ -1,5 +1,5 @@
 import type { Command } from "commander"
-import type { JiraIssue } from "../api/types.js"
+import type { JiraIssue } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
 import { context, printJson } from "./context.js"
 

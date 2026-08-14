@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander"
-import { isJiraApiError } from "./api/client.js"
+import { isJiraApiError } from "@kud/jira"
 import { registerAttachmentCommands } from "./commands/attachment.js"
 import { isExitError } from "./commands/context.js"
 import {
