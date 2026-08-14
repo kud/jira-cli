@@ -93,11 +93,25 @@ const fail = (error: unknown): never => {
  */
 export const interactiveArgs = (argv: string[]) => {
   const rest = argv.slice(2)
-  const screenAt = rest.indexOf("--screen")
-  const screen = screenAt === -1 ? undefined : rest[screenAt + 1]
-  const consumed = new Set(
-    screenAt === -1 ? ["--mock"] : ["--mock", "--screen", screen ?? ""],
-  )
+
+  const inlineAt = rest.findIndex((a) => a.startsWith("--screen="))
+  const spacedAt = rest.indexOf("--screen")
+  const screen =
+    inlineAt !== -1
+      ? rest[inlineAt]?.slice("--screen=".length)
+      : spacedAt === -1
+        ? undefined
+        : rest[spacedAt + 1]
+
+  const consumed = new Set(["--mock"])
+  if (inlineAt !== -1) consumed.add(rest[inlineAt] as string)
+  if (spacedAt !== -1) {
+    consumed.add("--screen")
+    // The *value* has to be consumed too, or `--screen list` leaves a bare
+    // `list` that commander reads as an unknown command.
+    consumed.add(rest[spacedAt + 1] ?? "")
+  }
+
   return {
     screen,
     mock: rest.includes("--mock"),

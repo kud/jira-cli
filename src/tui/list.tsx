@@ -70,7 +70,7 @@ export const IssueList = ({
 
   return (
     <Box flexDirection="column">
-      <Box paddingLeft={2}>
+      <Box paddingLeft={4}>
         <Text dimColor>
           {pad("KEY", 11)}
           {pad("STATUS", 17)}
