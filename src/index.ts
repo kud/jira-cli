@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { realpathSync } from "node:fs"
+import { createRequire } from "node:module"
 import { fileURLToPath } from "node:url"
 import { Command } from "commander"
 import { isJiraApiError } from "@kud/jira"
@@ -27,7 +28,10 @@ const program = new Command()
 program
   .name("jira")
   .description("Jira on the command line")
-  .version("0.2.0")
+  .version(
+    (createRequire(import.meta.url)("../package.json") as { version: string })
+      .version,
+  )
   .addHelpText(
     "after",
     `
