@@ -5,6 +5,7 @@ import { locateAttachments } from "../api/attachments.js"
 import type { JiraIssue } from "../api/types.js"
 import { table, truncate, type Column } from "../output/format.js"
 import { context, exitError, printJson, type Context } from "./context.js"
+import { registerIssueWriteCommands } from "./issue-write.js"
 
 const jqlEscape = (value: string): string => `"${value.replace(/"/g, '\\"')}"`
 
@@ -67,6 +68,8 @@ const issueColumns = (ctx: Context): Column<JiraIssue>[] => [
 
 export const registerIssueCommands = (program: Command): void => {
   const issue = program.command("issue").description("work with issues")
+
+  registerIssueWriteCommands(issue)
 
   issue
     .command("list")

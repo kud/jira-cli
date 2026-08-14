@@ -1,5 +1,17 @@
 import type {
   JiraBoard,
+  JiraChangelogEntry,
+  JiraComment,
+  JiraComponent,
+  JiraCreated,
+  JiraEpic,
+  JiraFilter,
+  JiraIssueLinkType,
+  JiraIssueType,
+  JiraNamed,
+  JiraProjectStatuses,
+  JiraVersion,
+  JiraWorklog,
   JiraField,
   JiraIssue,
   JiraProject,
@@ -99,7 +111,12 @@ export const createJiraClient = (options: JiraClientOptions) => {
     if (init.raw) return res as T
 
     if (!res.ok) {
-      throw jiraApiError(res.status, init.method ?? "GET", url, await res.text())
+      throw jiraApiError(
+        res.status,
+        init.method ?? "GET",
+        url,
+        await res.text(),
+      )
     }
     if (res.status === 204) return undefined as T
     return (await res.json()) as T
@@ -214,6 +231,186 @@ export const createJiraClient = (options: JiraClientOptions) => {
       request(
         `/rest/agile/1.0/board/${boardId}/sprint${state ? `?state=${state}` : ""}`,
       ),
+
+    // ── issues ────────────────────────────────────────────────────────────
+    createIssue: (fields: Record<string, unknown>): Promise<JiraCreated> =>
+      request("/rest/api/3/issue", {
+        method: "POST",
+        body: JSON.stringify({ fields }),
+      }),
+
+    updateIssue: (
+      key: string,
+      fields: Record<string, unknown>,
+    ): Promise<void> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}`, {
+        method: "PUT",
+        body: JSON.stringify({ fields }),
+      }),
+
+    deleteIssue: (key: string, deleteSubtasks = false): Promise<void> =>
+      request(
+        `/rest/api/3/issue/${encodeURIComponent(key)}?deleteSubtasks=${deleteSubtasks}`,
+        { method: "DELETE" },
+      ),
+
+    assignIssue: (key: string, accountId: string | null): Promise<void> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}/assignee`, {
+        method: "PUT",
+        body: JSON.stringify({ accountId }),
+      }),
+
+    getComments: (key: string): Promise<{ comments: JiraComment[] }> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}/comment`),
+
+    deleteComment: (key: string, commentId: string): Promise<void> =>
+      request(
+        `/rest/api/3/issue/${encodeURIComponent(key)}/comment/${encodeURIComponent(commentId)}`,
+        { method: "DELETE" },
+      ),
+
+    getWatchers: (key: string): Promise<{ watchers: JiraUser[] }> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}/watchers`),
+
+    addWatcher: (key: string, accountId: string): Promise<void> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}/watchers`, {
+        method: "POST",
+        body: JSON.stringify(accountId),
+      }),
+
+    removeWatcher: (key: string, accountId: string): Promise<void> =>
+      request(
+        `/rest/api/3/issue/${encodeURIComponent(key)}/watchers?accountId=${encodeURIComponent(accountId)}`,
+        { method: "DELETE" },
+      ),
+
+    getWorklogs: (key: string): Promise<{ worklogs: JiraWorklog[] }> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}/worklog`),
+
+    addWorklog: (
+      key: string,
+      body: { timeSpent: string; comment?: unknown; started?: string },
+    ): Promise<JiraWorklog> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}/worklog`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+
+    getChangelog: (key: string): Promise<{ values: JiraChangelogEntry[] }> =>
+      request(`/rest/api/3/issue/${encodeURIComponent(key)}/changelog`),
+
+    getIssueLinkTypes: (): Promise<{ issueLinkTypes: JiraIssueLinkType[] }> =>
+      request("/rest/api/3/issueLinkType"),
+
+    linkIssues: (
+      type: string,
+      inwardKey: string,
+      outwardKey: string,
+    ): Promise<void> =>
+      request("/rest/api/3/issueLink", {
+        method: "POST",
+        body: JSON.stringify({
+          type: { name: type },
+          inwardIssue: { key: inwardKey },
+          outwardIssue: { key: outwardKey },
+        }),
+      }),
+
+    // ── projects ──────────────────────────────────────────────────────────
+    getProject: (key: string): Promise<JiraProject> =>
+      request(
+        `/rest/api/3/project/${encodeURIComponent(key)}?expand=description,lead,url`,
+      ),
+
+    getProjectVersions: (key: string): Promise<JiraVersion[]> =>
+      request(`/rest/api/3/project/${encodeURIComponent(key)}/versions`),
+
+    getProjectComponents: (key: string): Promise<JiraComponent[]> =>
+      request(`/rest/api/3/project/${encodeURIComponent(key)}/components`),
+
+    getProjectStatuses: (key: string): Promise<JiraProjectStatuses[]> =>
+      request(`/rest/api/3/project/${encodeURIComponent(key)}/statuses`),
+
+    // ── agile ─────────────────────────────────────────────────────────────
+    getBoard: (id: number): Promise<JiraBoard> =>
+      request(`/rest/agile/1.0/board/${id}`),
+
+    getBoardIssues: (
+      id: number,
+      jql?: string,
+    ): Promise<{ issues: JiraIssue[] }> =>
+      request(
+        `/rest/agile/1.0/board/${id}/issue${jql ? `?jql=${encodeURIComponent(jql)}` : ""}`,
+      ),
+
+    getBacklog: (id: number): Promise<{ issues: JiraIssue[] }> =>
+      request(`/rest/agile/1.0/board/${id}/backlog`),
+
+    getSprint: (id: number): Promise<JiraSprint> =>
+      request(`/rest/agile/1.0/sprint/${id}`),
+
+    getSprintIssues: (id: number): Promise<{ issues: JiraIssue[] }> =>
+      request(`/rest/agile/1.0/sprint/${id}/issue`),
+
+    getBoardEpics: (id: number): Promise<{ values: JiraEpic[] }> =>
+      request(`/rest/agile/1.0/board/${id}/epic`),
+
+    getEpicIssues: (id: string): Promise<{ issues: JiraIssue[] }> =>
+      request(`/rest/agile/1.0/epic/${encodeURIComponent(id)}/issue`),
+
+    // ── people ────────────────────────────────────────────────────────────
+    searchUsers: (query: string, maxResults = 20): Promise<JiraUser[]> =>
+      request(
+        `/rest/api/3/user/search?query=${encodeURIComponent(query)}&maxResults=${maxResults}`,
+      ),
+
+    searchAssignableUsers: (
+      query: string,
+      projectKey: string,
+      maxResults = 20,
+    ): Promise<JiraUser[]> =>
+      request(
+        `/rest/api/3/user/assignable/search?query=${encodeURIComponent(query)}&project=${encodeURIComponent(projectKey)}&maxResults=${maxResults}`,
+      ),
+
+    // ── instance metadata ─────────────────────────────────────────────────
+    getIssueTypes: (): Promise<JiraIssueType[]> =>
+      request("/rest/api/3/issuetype"),
+
+    getPriorities: (): Promise<JiraNamed[]> => request("/rest/api/3/priority"),
+
+    getResolutions: (): Promise<JiraNamed[]> =>
+      request("/rest/api/3/resolution"),
+
+    getStatuses: (): Promise<JiraNamed[]> => request("/rest/api/3/status"),
+
+    getLabels: (): Promise<{ values: string[] }> =>
+      request("/rest/api/3/label?maxResults=1000"),
+
+    getFilters: (): Promise<{ values: JiraFilter[] }> =>
+      request("/rest/api/3/filter/search?expand=jql&maxResults=50"),
+
+    getDashboards: (): Promise<{ dashboards: JiraNamed[] }> =>
+      request("/rest/api/3/dashboard"),
+
+    getServerInfo: (): Promise<Record<string, unknown>> =>
+      request("/rest/api/3/serverInfo"),
+
+    getMyPermissions: (projectKey?: string): Promise<Record<string, unknown>> =>
+      request(
+        `/rest/api/3/mypermissions${projectKey ? `?projectKey=${encodeURIComponent(projectKey)}` : ""}`,
+      ),
+
+    /**
+     * The count the removed `total` field used to give. Deliberately named
+     * approximate because that is what Atlassian guarantees — it is an index
+     * estimate, not a scan, and will disagree with a full page walk.
+     */
+    approximateCount: (jql: string): Promise<{ count: number }> =>
+      request("/rest/api/3/search/approximate-count", {
+        method: "POST",
+        body: JSON.stringify({ jql }),
+      }),
   }
 }
 

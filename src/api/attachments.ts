@@ -25,37 +25,59 @@ type AdfNode = {
   content?: AdfNode[]
 }
 
-/** Every media node id reachable from an ADF document, in document order. */
-const mediaIds = (node: unknown): string[] => {
+export type MediaRef = { id?: string; filename?: string }
+
+/**
+ * Media nodes carry a media-platform UUID in `attrs.id`, which is a different
+ * namespace from the numeric attachment id — joining on it matches nothing,
+ * ever. `attrs.alt` holds the original filename and is the only field the two
+ * representations share, so it is the real key and the id is the fallback.
+ */
+const mediaRefs = (node: unknown): MediaRef[] => {
   if (!node || typeof node !== "object") return []
   const n = node as AdfNode
-  const here =
-    n.type === "media" && typeof n.attrs?.["id"] === "string"
-      ? [n.attrs["id"] as string]
+  const here: MediaRef[] =
+    n.type === "media"
+      ? [
+          {
+            ...(typeof n.attrs?.["id"] === "string"
+              ? { id: n.attrs["id"] as string }
+              : {}),
+            ...(typeof n.attrs?.["alt"] === "string"
+              ? { filename: n.attrs["alt"] as string }
+              : {}),
+          },
+        ]
       : []
-  return [...here, ...(n.content ?? []).flatMap(mediaIds)]
+  return [...here, ...(n.content ?? []).flatMap(mediaRefs)]
 }
 
 /**
- * Jira reports attachments once, on the issue, while ADF media nodes reference
- * them by the same id from inside the description and from inside individual
- * comments. Walking both and joining on id is the only way to answer "which
- * comment did this file come from", which the raw API never states.
+ * Jira reports attachments once, on the issue, and never says where they were
+ * embedded. Walking the description and each comment for media nodes and
+ * joining them back is the only way to answer "which comment did this come
+ * from" — a question the API cannot be asked directly.
  */
 export const locateAttachments = (issue: JiraIssue): LocatedAttachment[] => {
   const attachments = (issue.fields["attachment"] as JiraAttachment[]) ?? []
-  const byId = new Map<string, AttachmentOrigin[]>()
+  const origins = new Map<string, AttachmentOrigin[]>()
 
-  const note = (id: string, origin: AttachmentOrigin): void => {
-    byId.set(id, [...(byId.get(id) ?? []), origin])
+  const note = (ref: MediaRef, origin: AttachmentOrigin): void => {
+    const match = attachments.find(
+      (a) =>
+        (ref.filename !== undefined && a.filename === ref.filename) ||
+        (ref.id !== undefined && a.id === ref.id),
+    )
+    if (!match) return
+    origins.set(match.id, [...(origins.get(match.id) ?? []), origin])
   }
 
-  for (const id of mediaIds(issue.fields.description))
-    note(id, { kind: "description" })
+  for (const ref of mediaRefs(issue.fields.description))
+    note(ref, { kind: "description" })
 
   for (const comment of issue.fields.comment?.comments ?? [])
-    for (const id of mediaIds(comment.body))
-      note(id, {
+    for (const ref of mediaRefs(comment.body))
+      note(ref, {
         kind: "comment",
         commentId: comment.id,
         author: comment.author?.displayName,
@@ -63,7 +85,7 @@ export const locateAttachments = (issue: JiraIssue): LocatedAttachment[] => {
 
   return attachments.map((a) => ({
     ...a,
-    origins: byId.get(a.id) ?? [{ kind: "issue" as const }],
+    origins: origins.get(a.id) ?? [{ kind: "issue" as const }],
   }))
 }
 

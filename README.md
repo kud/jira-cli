@@ -41,6 +41,18 @@ Descriptions and comments render as Markdown, with embedded files named rather t
 jira issue view ABC-123 --comments
 ```
 
+## Using it alongside the Atlassian MCP
+
+The Atlassian MCP returns an issue's fields and comments, but **not** the content of its attachments — it can tell you a file is there and nothing more. When the answer to a ticket is inside a screenshot, a log or a CSV, that is the gap this fills:
+
+```sh
+jira attachment list ABC-123               # what is there, and where it came from
+jira attachment read ABC-123 error.log     # text, straight to stdout
+jira attachment get ABC-123 shot.png -o /tmp/shot.png   # then open or read it
+```
+
+Useful for agents in particular: `get` writes a real file, so an image can then be read and reasoned about rather than skipped.
+
 ## Issues
 
 ```sh
@@ -51,6 +63,52 @@ jira issue view ABC-123
 jira issue transition ABC-123              # list what's available
 jira issue transition ABC-123 'In Review'
 jira issue open ABC-123
+```
+
+Writing:
+
+```sh
+jira issue create -p ABC -t Task -s 'Fix the thing' -b 'Longer **markdown** body'
+jira issue edit ABC-123 --summary 'Better title'
+jira issue assign ABC-123 me               # or a name, or 'none'
+jira issue comment add ABC-123 -          # body from stdin
+jira issue comment list ABC-123
+jira issue link ABC-1 Blocks ABC-2
+jira issue watch add ABC-123
+jira issue worklog add ABC-123 '2h 30m'
+jira issue history ABC-123
+```
+
+Bodies accept Markdown — paragraphs, headings, lists, fenced code, links and code spans are converted to ADF.
+
+## Projects, boards and sprints
+
+```sh
+jira project list
+jira project versions ABC
+jira project components ABC
+jira project statuses ABC
+
+jira board list
+jira board issues 42
+jira board backlog 42
+jira board epics 42
+jira epic ABC-100
+
+jira sprint list 42 --state active
+jira sprint issues 1234
+```
+
+## Knowing what this instance supports
+
+```sh
+jira whoami
+jira meta issuetypes      # also: priorities, statuses, resolutions, linktypes
+jira meta labels
+jira meta filters
+jira meta permissions ABC
+jira meta server
+jira count 'project = ABC AND status = Done'
 ```
 
 ## Scripting

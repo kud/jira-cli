@@ -3,7 +3,15 @@ import { Command } from "commander"
 import { isJiraApiError } from "./api/client.js"
 import { registerAttachmentCommands } from "./commands/attachment.js"
 import { isExitError } from "./commands/context.js"
+import {
+  registerBoardCommands,
+  registerEpicCommands,
+  registerSprintCommands,
+} from "./commands/agile.js"
 import { registerIssueCommands } from "./commands/issue.js"
+import { registerCountCommand, registerMetaCommands } from "./commands/meta.js"
+import { registerUserCommands } from "./commands/people.js"
+import { registerProjectCommands } from "./commands/project.js"
 import {
   registerApiCommand,
   registerFieldsCommand,
@@ -43,6 +51,13 @@ registerAttachmentCommands(program)
 registerSearchCommand(program)
 registerFieldsCommand(program)
 registerInitCommand(program)
+registerProjectCommands(program)
+registerBoardCommands(program)
+registerSprintCommands(program)
+registerEpicCommands(program)
+registerUserCommands(program)
+registerMetaCommands(program)
+registerCountCommand(program)
 registerApiCommand(program)
 
 /**

@@ -3,13 +3,14 @@ import { adfToMarkdown } from "./adf.js"
 import { isTextual, locateAttachments } from "./attachments.js"
 import type { JiraIssue } from "./types.js"
 
-const mediaDoc = (id: string) => ({
+/** Shaped after a real Jira document: a media UUID plus the filename in `alt`. */
+const mediaDoc = (filename: string, id = "0d70315b-7258-4073-96ec-800eb52208") => ({
   type: "doc",
   content: [
     { type: "paragraph", content: [{ type: "text", text: "see this:" }] },
     {
       type: "mediaSingle",
-      content: [{ type: "media", attrs: { id, type: "file" } }],
+      content: [{ type: "media", attrs: { id, type: "file", alt: filename } }],
     },
   ],
 })
@@ -41,7 +42,7 @@ describe("locateAttachments", () => {
     const [found] = locateAttachments(
       issueWith({
         attachment: [attachment("10", "notes.txt")],
-        description: mediaDoc("10"),
+        description: mediaDoc("notes.txt"),
       }),
     )
 
@@ -57,7 +58,7 @@ describe("locateAttachments", () => {
             {
               id: "c1",
               author: { accountId: "a", displayName: "Ada" },
-              body: mediaDoc("10"),
+              body: mediaDoc("trace.log"),
             },
           ],
         },
@@ -73,9 +74,9 @@ describe("locateAttachments", () => {
     const [found] = locateAttachments(
       issueWith({
         attachment: [attachment("10", "shared.png")],
-        description: mediaDoc("10"),
+        description: mediaDoc("shared.png"),
         comment: {
-          comments: [{ id: "c1", body: mediaDoc("10") }],
+          comments: [{ id: "c1", body: mediaDoc("shared.png") }],
         },
       }),
     )
@@ -102,14 +103,40 @@ describe("isTextual", () => {
 })
 
 describe("adfToMarkdown media resolution", () => {
-  it("names the file when the resolver knows it", () => {
-    expect(adfToMarkdown(mediaDoc("10"), () => "trace.log")).toContain(
+  it("names the file from the node's own alt attribute", () => {
+    expect(adfToMarkdown(mediaDoc("trace.log"))).toContain(
       "[attachment: trace.log]",
     )
   })
 
+  it("falls back to the resolver when a node carries no alt", () => {
+    const doc = {
+      type: "doc",
+      content: [{ type: "media", attrs: { id: "uuid-1" } }],
+    }
+
+    expect(adfToMarkdown(doc, (id) => (id === "uuid-1" ? "found.log" : undefined)))
+      .toContain("[attachment: found.log]")
+  })
+
   it("falls back to the id rather than dropping the reference", () => {
-    expect(adfToMarkdown(mediaDoc("10"))).toContain("[attachment: 10]")
+    const doc = {
+      type: "doc",
+      content: [{ type: "media", attrs: { id: "uuid-1" } }],
+    }
+
+    expect(adfToMarkdown(doc)).toContain("[attachment: uuid-1]")
+  })
+
+  it("does not match an attachment on the media uuid, which is a different id space", () => {
+    const located = locateAttachments(
+      issueWith({
+        attachment: [attachment("292542", "shot.png", "image/png")],
+        description: mediaDoc("different-name.png"),
+      }),
+    )
+
+    expect(located[0]?.origins).toEqual([{ kind: "issue" }])
   })
 })
 

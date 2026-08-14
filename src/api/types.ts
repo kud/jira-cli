@@ -82,3 +82,65 @@ export type SearchOptions = {
   nextPageToken?: string
   expand?: string
 }
+
+export type JiraCreated = { id: string; key: string; self: string }
+
+export type JiraNamed = { id: string; name: string; description?: string }
+
+export type JiraIssueType = JiraNamed & { subtask?: boolean; scope?: unknown }
+
+export type JiraVersion = JiraNamed & {
+  released?: boolean
+  archived?: boolean
+  releaseDate?: string
+}
+
+export type JiraComponent = JiraNamed & { lead?: JiraUser }
+
+export type JiraProjectStatuses = {
+  id: string
+  name: string
+  statuses: JiraNamed[]
+}
+
+export type JiraEpic = {
+  id: number
+  key: string
+  name: string
+  summary?: string
+  done?: boolean
+}
+
+export type JiraFilter = {
+  id: string
+  name: string
+  jql?: string
+  owner?: JiraUser
+}
+
+export type JiraWorklog = {
+  id: string
+  author?: JiraUser
+  timeSpent?: string
+  timeSpentSeconds?: number
+  started?: string
+  comment?: unknown
+}
+
+export type JiraIssueLinkType = {
+  id: string
+  name: string
+  inward: string
+  outward: string
+}
+
+export type JiraChangelogEntry = {
+  id: string
+  author?: JiraUser
+  created?: string
+  items?: {
+    field: string
+    fromString?: string | null
+    toString?: string | null
+  }[]
+}
