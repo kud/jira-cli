@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.4.0 — 2026-09-02
+
+### Highlights
+
+- **Issue views now show the parent ticket.** `jira issue view <KEY>` and the TUI's detail pane display a `parent` row above `status`, carrying the parent's key and summary, whenever the issue actually has one — a subtask's parent is an ordinary ticket, so this deliberately says `parent` rather than `epic`. Getting the field back required a matching bump in the `@kud/jira` core (0.2.1), which now asks every search for it. ([d7bc8af](https://github.com/kud/jira-cli/commit/d7bc8afe05b018446cca38f5620cf42ac7e68df4))
+- **`--screen` now accepts inline `=value` syntax**, alongside the existing spaced form, so `--screen=board` works the same as `--screen board`. The TUI's issue-list header also got a touch more breathing room. ([8105312](https://github.com/kud/jira-cli/commit/810531201e71de0730a19ebdfa0480d498dfca9f))
+
+---
+
 ## 0.2.1 — 2026-08-14
 
 ### Highlights
