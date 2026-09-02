@@ -46,6 +46,7 @@ const DETAIL: Record<string, IssueDetail> = {
     assignee: "Ada Okafor",
     reporter: "Bram Nilsen",
     labels: ["checkout", "regression"],
+    parent: { key: "SHOP-300", summary: "Basket and checkout correctness" },
     url: "https://example.atlassian.net/browse/SHOP-412",
     description: [
       "## What happens",

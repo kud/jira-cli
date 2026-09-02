@@ -9,6 +9,7 @@ import {
 } from "@kud/ink-ui"
 import { Box, Text, useInput } from "ink"
 import { useState } from "react"
+import { truncate } from "../output/format.js"
 import type { IssueDetail } from "./data.js"
 
 type Section = "description" | "comments" | "attachments"
@@ -112,6 +113,12 @@ export const IssueDetailView = ({
       </Text>
 
       <Box marginTop={1} flexDirection="column">
+        {issue.parent && (
+          <KeyValue
+            label="parent"
+            value={`${issue.parent.key}  ${truncate(issue.parent.summary, 60)}`}
+          />
+        )}
         <KeyValue label="status" value={<Badge>{issue.status}</Badge>} />
         <KeyValue label="type" value={issue.type} />
         <KeyValue label="assignee" value={issue.assignee} />

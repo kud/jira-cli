@@ -126,6 +126,11 @@ export const registerIssueCommands = (program: Command): void => {
         const lines = [
           `${bold(found.key)}  ${f.summary ?? ""}`,
           "",
+          ...(f.parent
+            ? [
+                `${dim("parent")}    ${f.parent.key}  ${truncate(f.parent.fields?.summary ?? "", 60)}`,
+              ]
+            : []),
           `${dim("status")}    ${f.status?.name ?? "—"}`,
           `${dim("type")}      ${f.issuetype?.name ?? "—"}`,
           `${dim("assignee")}  ${f.assignee?.displayName ?? "unassigned"}`,

@@ -18,6 +18,7 @@ export type IssueDetail = {
   assignee: string
   reporter: string
   labels: string[]
+  parent?: { key: string; summary: string }
   url: string
   description: string
   comments: { id: string; author: string; created: string; body: string }[]
@@ -75,6 +76,9 @@ export const liveData = (ctx: Context = context()): DataSource => ({
       assignee: f.assignee?.displayName ?? "unassigned",
       reporter: f.reporter?.displayName ?? "—",
       labels: f.labels ?? [],
+      parent: f.parent
+        ? { key: f.parent.key, summary: f.parent.fields?.summary ?? "" }
+        : undefined,
       url: `${ctx.config.baseUrl}/browse/${issue.key}`,
       description: adfToMarkdown(f.description, filenameOf),
       comments: (f.comment?.comments ?? []).map((c) => ({

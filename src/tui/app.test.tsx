@@ -84,6 +84,28 @@ describe("detail screen", () => {
     r.unmount()
   })
 
+  it("names the parent an issue hangs under", async () => {
+    const r = renderFrames(
+      <App data={mockData()} initialScreen="detail" initialKey="SHOP-412" />,
+    )
+
+    await r.waitFor("SHOP-300")
+
+    expect(seen(r, "Basket and checkout correctness")).toBe(true)
+    r.unmount()
+  })
+
+  it("leaves the line out entirely for an issue with no parent", async () => {
+    const r = renderFrames(
+      <App data={mockData()} initialScreen="detail" initialKey="SHOP-408" />,
+    )
+
+    await r.waitFor("SHOP-408")
+
+    expect(seen(r, "parent")).toBe(false)
+    r.unmount()
+  })
+
   it("names the attachment tab with its count", async () => {
     const r = renderFrames(
       <App data={mockData()} initialScreen="detail" initialKey="SHOP-412" />,
