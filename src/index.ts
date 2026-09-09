@@ -70,7 +70,9 @@ registerApiCommand(program)
  * Exit codes are part of the contract, since this is meant to be scripted:
  * 1 for a Jira-side or usage failure, 2 for a broken environment, and 4 when
  * Jira rejected the credentials — a caller can retry the first, but never the
- * last two.
+ * last two. 3 never reaches here: it means the command worked but the result
+ * may be short of the whole answer, so the command sets process.exitCode
+ * itself rather than throwing something this would have to call a failure.
  */
 const exitCodeFor = (error: unknown): number => {
   if (isExitError(error)) return error.code

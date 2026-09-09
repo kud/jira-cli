@@ -6,7 +6,13 @@ import {
   type JiraIssue,
 } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
-import { context, exitError, printJson, type Context } from "./context.js"
+import {
+  context,
+  exitError,
+  printJson,
+  warnIfTruncated,
+  type Context,
+} from "./context.js"
 import { registerIssueWriteCommands } from "./issue-write.js"
 
 const jqlEscape = (value: string): string => `"${value.replace(/"/g, '\\"')}"`
@@ -89,11 +95,14 @@ export const registerIssueCommands = (program: Command): void => {
     .action(async (options: ListOptions) => {
       const ctx = context()
       const jql = buildJql(options, ctx.config.defaultProject)
-      const issues = await ctx.client.searchIssues(jql, {
-        limit: Number(options.limit),
-      })
+      const limit = Number(options.limit)
+      const issues = await ctx.client.searchIssues(jql, { limit })
 
-      if (options.json) return printJson(issues)
+      if (options.json) {
+        printJson(issues)
+        warnIfTruncated(issues.length, limit)
+        return
+      }
       if (issues.length === 0) {
         // Jira answers a bad token by treating you as anonymous rather than by
         // failing, so `currentUser()` quietly matches nothing. Without this the
@@ -108,6 +117,7 @@ export const registerIssueCommands = (program: Command): void => {
         return
       }
       process.stdout.write(`${table(issues, issueColumns(ctx))}\n`)
+      warnIfTruncated(issues.length, limit)
     })
 
   issue

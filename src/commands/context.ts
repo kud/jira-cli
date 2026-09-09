@@ -45,3 +45,31 @@ export const context = (): Context => {
 export const printJson = (value: unknown): void => {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`)
 }
+
+/**
+ * Jira's newer /search/jql returns no total, so "50 of 900" is not buildable —
+ * only "there is more". A full page is the only evidence of truncation left,
+ * which reports a false positive when the result lands exactly on the limit.
+ * That is the right side to be wrong on: a caller re-runs with a higher limit
+ * and finds nothing new, where the other direction is a silently short answer.
+ *
+ * The signal stays out of band — stderr and the exit code — because --json's
+ * shape is a contract, and a program that only reads stdout must keep parsing
+ * exactly as it did. It is not conditioned on --json either: a truncated
+ * result is a fact about the query, not about how it was rendered, and the
+ * table output is piped through awk as often as the JSON is through jq.
+ */
+export const TRUNCATED_EXIT_CODE = 3
+
+export const isTruncated = (count: number, limit: number): boolean =>
+  Number.isFinite(limit) && limit > 0 && count >= limit
+
+export const warnIfTruncated = (count: number, limit: number): void => {
+  if (!isTruncated(count, limit)) return
+  process.stderr.write(
+    `jira: result may be truncated at --limit ${limit} — there may be more\n`,
+  )
+  // Not process.exit: stdout is asynchronous when it is a pipe, so exiting
+  // here would risk cutting the JSON we just wrote in half.
+  process.exitCode = TRUNCATED_EXIT_CODE
+}

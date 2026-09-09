@@ -141,7 +141,14 @@ Exit codes:
 | `0`  | success                                 |
 | `1`  | Jira rejected the request, or bad usage |
 | `2`  | the environment is not set up           |
+| `3`  | the result may be truncated             |
 | `4`  | not authenticated                       |
+
+`issue list` and `search` stop at `--limit` (50 by default), and Jira no longer
+reports a total, so a full page is the only evidence that rows were left behind.
+When one comes back, both commands warn on stderr and exit `3` — stdout is
+untouched, so `--json` parses exactly as before and a caller that ignores the
+exit code sees no change. Raise `--limit` to be sure you have it all.
 
 Colour is disabled automatically when stdout is not a TTY, and when `NO_COLOR` is set.
 

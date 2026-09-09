@@ -4,7 +4,7 @@ import type { Command } from "commander"
 import type { JiraField } from "@kud/jira"
 import { configPath, readFileConfig } from "../config.js"
 import { table } from "../output/format.js"
-import { context, exitError, printJson } from "./context.js"
+import { context, exitError, printJson, warnIfTruncated } from "./context.js"
 
 export const registerSearchCommand = (program: Command): void => {
   program
@@ -14,10 +14,13 @@ export const registerSearchCommand = (program: Command): void => {
     .option("--json", "emit JSON")
     .action(async (jql: string, options: { limit: string; json?: boolean }) => {
       const ctx = context()
-      const issues = await ctx.client.searchIssues(jql, {
-        limit: Number(options.limit),
-      })
-      if (options.json) return printJson(issues)
+      const limit = Number(options.limit)
+      const issues = await ctx.client.searchIssues(jql, { limit })
+      if (options.json) {
+        printJson(issues)
+        warnIfTruncated(issues.length, limit)
+        return
+      }
       if (issues.length === 0) {
         process.stderr.write("no issues match\n")
         return
@@ -29,6 +32,7 @@ export const registerSearchCommand = (program: Command): void => {
           { header: "SUMMARY", value: (i) => i.fields.summary ?? "" },
         ])}\n`,
       )
+      warnIfTruncated(issues.length, limit)
     })
 }
 
