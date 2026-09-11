@@ -1,5 +1,10 @@
-import { adfToMarkdown, locateAttachments, type JiraIssue } from "@kud/jira"
-import type { LocatedAttachment } from "@kud/jira"
+import type { JiraIssue } from "@kud/jira"
+import {
+  issueDetailOf,
+  transitionsOf,
+  type IssueDetail,
+  type Transition,
+} from "@kud/jira-ink"
 import { context, type Context } from "../commands/context.js"
 
 export type IssueRow = {
@@ -10,22 +15,10 @@ export type IssueRow = {
   updated: string
 }
 
-export type IssueDetail = {
-  key: string
-  summary: string
-  status: string
-  type: string
-  assignee: string
-  reporter: string
-  labels: string[]
-  parent?: { key: string; summary: string }
-  url: string
-  description: string
-  comments: { id: string; author: string; created: string; body: string }[]
-  attachments: LocatedAttachment[]
-}
-
-export type Transition = { id: string; name: string; to: string }
+// The detail shape and its fetch live in @kud/jira-ink, beside the screen that
+// reads them, so cockpit can mount the same view; re-exported here so the rest
+// of the TUI keeps one import path for its data types.
+export type { IssueDetail, Transition }
 
 /**
  * Everything the views need, behind one interface. The mock implementation is
@@ -61,42 +54,9 @@ export const liveData = (ctx: Context = context()): DataSource => ({
     return (await ctx.client.searchIssues(jql, { limit: 200 })).map(toRow)
   },
 
-  getIssue: async (key) => {
-    const issue = await ctx.client.getIssue(key)
-    const attachments = locateAttachments(issue)
-    const filenameOf = (id: string): string | undefined =>
-      attachments.find((a) => a.id === id)?.filename
-    const f = issue.fields
+  getIssue: (key) => issueDetailOf(ctx.client, ctx.config.baseUrl, key),
 
-    return {
-      key: issue.key,
-      summary: f.summary ?? "",
-      status: f.status?.name ?? "—",
-      type: f.issuetype?.name ?? "—",
-      assignee: f.assignee?.displayName ?? "unassigned",
-      reporter: f.reporter?.displayName ?? "—",
-      labels: f.labels ?? [],
-      parent: f.parent
-        ? { key: f.parent.key, summary: f.parent.fields?.summary ?? "" }
-        : undefined,
-      url: `${ctx.config.baseUrl}/browse/${issue.key}`,
-      description: adfToMarkdown(f.description, filenameOf),
-      comments: (f.comment?.comments ?? []).map((c) => ({
-        id: c.id,
-        author: c.author?.displayName ?? "unknown",
-        created: c.created?.slice(0, 10) ?? "",
-        body: adfToMarkdown(c.body, filenameOf),
-      })),
-      attachments,
-    }
-  },
-
-  getTransitions: async (key) =>
-    (await ctx.client.getTransitions(key)).transitions.map((t) => ({
-      id: t.id,
-      name: t.name,
-      to: t.to?.name ?? t.name,
-    })),
+  getTransitions: (key) => transitionsOf(ctx.client, key),
 
   transition: (key, transitionId) =>
     ctx.client.transitionIssue(key, transitionId),

@@ -3,7 +3,7 @@ import { Alert, ConfirmInput, Select, Spinner, TextInput } from "@kud/ink-ui"
 import { Box, Text, useApp, useInput, useStdout } from "ink"
 import { useCallback, useEffect, useState } from "react"
 import type { DataSource, IssueDetail, IssueRow, Transition } from "./data.js"
-import { IssueDetailView } from "./detail.js"
+import { IssueDetailView } from "@kud/jira-ink"
 import { IssueList } from "./list.js"
 
 export type Screen = "issues" | "detail"

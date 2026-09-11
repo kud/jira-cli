@@ -37,11 +37,11 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kud/ink-markdown": "0.1.1",
-    "@kud/ink-ui": "0.16.0",
+    "@kud/ink-ui": "0.25.0",
     "@kud/jira": "0.3.0",
+    "@kud/jira-ink": "0.1.0",
     "commander": "14.0.1",
-    "ink": "7.0.1",
+    "ink": "7.1.1",
     "react": "19.2.5"
   },
   "devDependencies": {
