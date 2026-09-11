@@ -39,7 +39,7 @@
   "dependencies": {
     "@kud/ink-markdown": "0.1.1",
     "@kud/ink-ui": "0.16.0",
-    "@kud/jira": "0.2.1",
+    "@kud/jira": "0.3.0",
     "commander": "14.0.1",
     "ink": "7.0.1",
     "react": "19.2.5"

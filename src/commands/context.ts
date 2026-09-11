@@ -1,5 +1,9 @@
-import { createJiraClient, type JiraClient } from "@kud/jira"
-import { loadConfig, type Config } from "../config.js"
+import {
+  createJiraClient,
+  loadConfig,
+  type Config,
+  type JiraClient,
+} from "@kud/jira"
 import { palette, type Palette } from "../output/format.js"
 
 export type Context = {

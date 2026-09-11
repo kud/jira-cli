@@ -3,7 +3,7 @@ import { realpathSync } from "node:fs"
 import { createRequire } from "node:module"
 import { fileURLToPath } from "node:url"
 import { Command } from "commander"
-import { isJiraApiError } from "@kud/jira"
+import { configPath, isJiraApiError } from "@kud/jira"
 import { registerAttachmentCommands } from "./commands/attachment.js"
 import { isExitError } from "./commands/context.js"
 import {
@@ -21,7 +21,6 @@ import {
   registerInitCommand,
   registerSearchCommand,
 } from "./commands/misc.js"
-import { configPath } from "./config.js"
 
 const program = new Command()
 

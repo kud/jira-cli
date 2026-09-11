@@ -1,8 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs"
 import { dirname } from "node:path"
 import type { Command } from "commander"
-import type { JiraField } from "@kud/jira"
-import { configPath, readFileConfig } from "../config.js"
+import { configPath, readFileConfig, type JiraField } from "@kud/jira"
 import { table } from "../output/format.js"
 import { context, exitError, printJson } from "./context.js"
 
