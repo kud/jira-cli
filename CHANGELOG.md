@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.4.1 — 2026-09-11
+
+<details>
+<summary>Internal (3 commits)</summary>
+
+- Config loading (`loadConfig`, `readFileConfig`, `configPath`) moved out of the CLI and into the `@kud/jira` core (bumped to 0.3.0), with no behavioural change — `src/config.ts` is gone, and the CLI now consumes the shared implementation.
+- The TUI's issue detail screen was extracted into a new `@kud/jira-ink` package (0.1.0) — `IssueDetailView`, `IssueDetail`, `Transition`, and the fetch mapping now live there so other apps (cockpit included) can mount the same screen; `src/tui/detail.tsx` is gone and `data.ts` delegates to jira-ink's `issueDetailOf`/`transitionsOf`. `@kud/ink-ui` and `ink` were aligned to 0.25.0/7.1.1 so a host loading both packages holds a single copy.
+- Nothing changes for a user of the CLI: same commands, same TUI, same keys.
+
+</details>
+
+---
+
 ## 0.4.0 — 2026-09-02
 
 ### Highlights
