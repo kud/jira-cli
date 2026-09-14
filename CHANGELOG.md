@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.5.1 — 2026-09-14
+
+### Highlights
+
+- **An epic that's itself in the current tab now heads its own group as a selectable row**, with its children hanging underneath it (`└─`) — instead of appearing twice, once as a plain fence line and again as an orphan under "No epic". A fence line is still shown for a parent that isn't in the tab. Groups are separated by a blank line, and the title bar now has a line of air before the tabs. ([016a0cb](https://github.com/kud/jira-cli/commit/016a0cb73953ec24d6ba2f56ecb32cd79ea27bf9))
+
+---
+
 ## 0.5.0 — 2026-09-14
 
 ### Highlights
