@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.5.0 — 2026-09-14
+
+### Highlights
+
+- **The issue list is now a board, tabbed by Jira's own status categories** (To do, In progress, Done) rather than by status name — so the same layout works on any instance, no board config required. Rows group under their epic, each carrying a type pill, a priority glyph, and how long it's been sitting there. ([44c798d](https://github.com/kud/jira-cli/commit/44c798d2f3b17820ff2d8056a91030f146c20a88))
+- **`/` opens search, and it understands what you typed.** Plain words narrow the current list live as you type (title, summary, comments) and run as a `text ~` search within your issues on enter; anything shaped like JQL is detected automatically and replaces the scope instead. `⇥` flips between the two modes by hand, and a bad JQL query surfaces Jira's own error message rather than failing silently. ([44c798d](https://github.com/kud/jira-cli/commit/44c798d2f3b17820ff2d8056a91030f146c20a88))
+- **`a` now toggles the full picture, not just a filter tweak** — off shows open issues plus anything closed in the last 14 days, on shows everything. ([44c798d](https://github.com/kud/jira-cli/commit/44c798d2f3b17820ff2d8056a91030f146c20a88))
+- `@kud/jira-ink` bumped to 0.2.1. ([44c798d](https://github.com/kud/jira-cli/commit/44c798d2f3b17820ff2d8056a91030f146c20a88))
+
+---
+
 ## 0.4.1 — 2026-09-11
 
 <details>
