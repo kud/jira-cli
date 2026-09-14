@@ -4,6 +4,23 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.6.0 — 2026-09-14
+
+### Highlights
+
+- **`--board <id>` on the bare `jira` command now shapes the board's tabs around that board's own columns**, matched by status id, with an **Off board** tab catching any status no column claims — instead of the fixed To do/In progress/Done split. `defaultBoard` in the config file does the same without the flag. Hand-written `tabs` in the config file still win over both, for full manual control. ([d78a45c](https://github.com/kud/jira-cli/commit/d78a45c174082be609b2aef08b45db311eb26d0d))
+- **The issue detail page's description now fills the available space** instead of being cut up to three lines short, fixed upstream in `@kud/jira-ink` 0.3.1. ([d78a45c](https://github.com/kud/jira-cli/commit/d78a45c174082be609b2aef08b45db311eb26d0d))
+- **`x` clears a committed search; `esc` no longer does.** `esc` now consistently pops the current layer instead of also editing filter state underneath it. ([d78a45c](https://github.com/kud/jira-cli/commit/d78a45c174082be609b2aef08b45db311eb26d0d))
+
+<details>
+<summary>Internal (1 commit)</summary>
+
+- Board rendering and JQL helpers moved out of this repo and into `@kud/jira-ink` and `@kud/jira` (pinned to 0.3.1 and 0.4.0), with `list.tsx`/`board.ts` and `jql.ts` removed in favour of the shared packages.
+
+</details>
+
+---
+
 ## 0.5.3 — 2026-09-14
 
 ### Highlights
