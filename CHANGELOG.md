@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.5.2 — 2026-09-14
+
+### Highlights
+
+- **`←` and `→` now switch tabs on the board, alongside `⇥`** — the footer hint reads `←→ tab`. ([cefc747](https://github.com/kud/jira-cli/commit/cefc747bf76ec72a98dbcb7f3042a93f80a8291b))
+
+---
+
 ## 0.5.1 — 2026-09-14
 
 ### Highlights
