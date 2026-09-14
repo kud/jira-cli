@@ -39,9 +39,9 @@ type Overlay =
   | { kind: "comment" }
   | { kind: "assign" }
 
-// Inside the frame, the detail spends: the blank under the title, the subtitle
-// line, the blank under it, and the hints row.
-const DETAIL_CHROME = 4
+// Inside the frame's chrome, the detail spends: the subtitle line, the blank
+// under it, and the hints row.
+const DETAIL_CHROME = 3
 const MIN_WIDTH = 60
 const MIN_HEIGHT = 12
 
@@ -282,12 +282,12 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
           <Frame
             width={width}
             height={height}
-            facts={title}
+            scope={title}
             // The view names its back key; the frame's tail draws it.
             hints={hints.filter(([k]) => k !== "⌫")}
             page="nested"
           >
-            <Box paddingLeft={2} marginTop={1}>
+            <Box paddingLeft={2}>
               <Text dimColor>{subtitle}</Text>
             </Box>
             <Box
@@ -326,8 +326,17 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   return (
     <IssueBoard
       model={model}
-      frame={({ facts, hints, body }) => (
-        <Frame width={width} height={height} facts={facts} hints={hints}>
+      frame={({ title, hints, body }) => (
+        <Frame
+          width={width}
+          height={height}
+          count={title.count}
+          user={title.user}
+          scope={title.scope}
+          status={title.status}
+          hints={hints}
+          gap={false}
+        >
           {body}
         </Frame>
       )}
@@ -337,7 +346,9 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       scope={scope}
       searchError={searchError}
       width={width}
-      height={height - FRAME_CHROME - 1}
+      // No gap band here — the board draws that row itself — so one less
+      // line of chrome than FRAME_CHROME says, plus the hints row.
+      height={height - (FRAME_CHROME - 1) - 1}
       showingAll={showingAll}
       onOpen={(key) => void loadIssue(key)}
       onRefresh={() =>

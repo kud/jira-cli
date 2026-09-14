@@ -29,7 +29,7 @@ describe("the frame is the page, not the list", () => {
     await r.waitFor("Bram Nilsen")
 
     const frame = r.lastFrame()
-    expect(frame).toContain("🎫 Jira   SHOP-412 · Bug")
+    expect(frame).toContain("🎫 Jira  SHOP-412 · Bug  ╌╌╌")
     expect(frame.split("\n").at(-1)).toMatch(/^╰─+╯$/)
     r.unmount()
   })

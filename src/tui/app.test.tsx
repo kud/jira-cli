@@ -201,7 +201,7 @@ describe("search", () => {
     r.write("/")
     await settle()
     r.write("coupon")
-    await r.waitFor("1 of 7")
+    await r.waitFor("1 item  ·  @Ada Okafor  of 7")
 
     const frame = last(r)
     expect(frame).toContain("plain")
