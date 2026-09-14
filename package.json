@@ -1,6 +1,6 @@
 {
   "name": "@kud/jira-cli",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "description": "Jira on the command line — read issues, comments and attachments as plain text",
   "keywords": [
