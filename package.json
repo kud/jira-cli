@@ -37,9 +37,9 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kud/ink-ui": "0.25.0",
+    "@kud/ink-ui": "0.27.0",
     "@kud/jira": "0.4.0",
-    "@kud/jira-ink": "0.3.1",
+    "@kud/jira-ink": "0.4.3",
     "commander": "14.0.1",
     "ink": "7.1.1",
     "react": "19.2.5"

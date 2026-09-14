@@ -9,6 +9,8 @@ type Props = {
   facts: string
   /** Pinned at the foot when given; a screen that draws its own passes none. */
   hints?: Hint[]
+  /** Root or nested — decides whether the tail carries `⌫ back`. */
+  page?: "root" | "nested"
   children: ReactNode
 }
 
@@ -18,7 +20,14 @@ type Props = {
  * the app rather than by a screen: a spinner drawn before the list mounted used
  * to float outside the border, and a screen cannot frame what precedes it.
  */
-export const Frame = ({ width, height, facts, hints, children }: Props) => (
+export const Frame = ({
+  width,
+  height,
+  facts,
+  hints,
+  page = "root",
+  children,
+}: Props) => (
   <Panel width={width} height={height}>
     <Box paddingLeft={1}>
       <Text bold>🎫 Jira</Text>
@@ -32,7 +41,7 @@ export const Frame = ({ width, height, facts, hints, children }: Props) => (
     </Box>
     {hints ? (
       <Box paddingLeft={2}>
-        <FooterHints hints={hints} />
+        <FooterHints hints={hints} page={page} />
       </Box>
     ) : null}
   </Panel>

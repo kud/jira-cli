@@ -5,6 +5,7 @@ import {
   Select,
   Spinner,
   TextInput,
+  useAppKeys,
   type Hint,
 } from "@kud/ink-ui"
 import { Box, Text, useApp, useInput, useStdout } from "ink"
@@ -58,6 +59,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const [loadedAt, setLoadedAt] = useState(Date.now)
   const [scope, setScope] = useState<BoardScope>({ kind: "mine" })
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [inputFocused, setInputFocused] = useState(false)
   const [issue, setIssue] = useState<IssueDetail | null>(null)
   const [overlay, setOverlay] = useState<Overlay>({ kind: "none" })
   const [showingAll, setShowingAll] = useState(false)
@@ -130,9 +132,26 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     else void loadList(false)
   }, [initialScreen, initialKey, loadIssue, loadList])
 
-  useInput((input, key) => {
+  // The app's three keys, once. The peel: an overlay on top of a screen, then
+  // the detail over the board, then nothing — the board pops its own search
+  // box and legend. Off while any text field has focus.
+  useAppKeys({
+    isActive: overlay.kind !== "comment" && !inputFocused,
+    onQuit: exit,
+    onBack: () => {
+      if (overlay.kind !== "none") {
+        setOverlay({ kind: "none" })
+        return true
+      }
+      if (screen === "detail") {
+        setScreen("issues")
+        return true
+      }
+      return false
+    },
+  })
+  useInput((input) => {
     if (overlay.kind !== "none") return
-    if (input === "q" || (key.ctrl && input === "c")) exit()
     if (error && input === "r") {
       if (screen === "issues") void loadList(showingAll)
       else if (issue) void loadIssue(issue.key)
@@ -148,8 +167,13 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     )
   }
 
-  const framed = (facts: string, body: ReactNode, hints?: Hint[]) => (
-    <Frame width={width} height={height} facts={facts} hints={hints}>
+  const framed = (
+    facts: string,
+    body: ReactNode,
+    hints?: Hint[],
+    page: "root" | "nested" = screen === "detail" ? "nested" : "root",
+  ) => (
+    <Frame width={width} height={height} facts={facts} hints={hints} page={page}>
       <Box flexDirection="column" marginTop={1} paddingLeft={2} flexGrow={1}>
         {body}
       </Box>
@@ -159,7 +183,6 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   if (error)
     return framed("error", <Alert variant="error">{error}</Alert>, [
       ["r", "retry"],
-      ["q", "quit"],
     ])
 
   if (busy) return framed("working…", <Spinner label={busy} />)
@@ -201,6 +224,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
         <Text bold>Comment on {issue?.key}</Text>
         <TextInput
           placeholder="Markdown is supported…"
+          onCancel={() => setOverlay({ kind: "none" })}
           onSubmit={(body) => {
             setOverlay({ kind: "none" })
             if (!body.trim()) return
@@ -255,7 +279,14 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
         width={width}
         height={height - FRAME_CHROME - DETAIL_CHROME}
         frame={({ title, subtitle, hints, body }) => (
-          <Frame width={width} height={height} facts={title} hints={hints}>
+          <Frame
+            width={width}
+            height={height}
+            facts={title}
+            // The view names its back key; the frame's tail draws it.
+            hints={hints.filter(([k]) => k !== "⌫")}
+            page="nested"
+          >
             <Box paddingLeft={2} marginTop={1}>
               <Text dimColor>{subtitle}</Text>
             </Box>
@@ -300,6 +331,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
           {body}
         </Frame>
       )}
+      onInputFocus={setInputFocused}
       viewer={viewer}
       loadedAt={loadedAt}
       scope={scope}
