@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.5.3 — 2026-09-14
+
+### Highlights
+
+- **Every screen now sits inside the same frame** — the loading spinner and errors, the transition/comment/assign prompts, and the issue detail all get consistent chrome, where the loader used to float outside the border at startup and the detail page had no frame at all. ([0e03fcd](https://github.com/kud/jira-cli/commit/0e03fcdc168e2e7ad2b1f2b75df7611242f1d02f))
+- The detail page keeps the app's title row up top (`🎫 Jira   SHOP-412 · Bug`), matching every other screen instead of standing apart from them. ([0e03fcd](https://github.com/kud/jira-cli/commit/0e03fcdc168e2e7ad2b1f2b75df7611242f1d02f))
+
+---
+
 ## 0.5.2 — 2026-09-14
 
 ### Highlights
