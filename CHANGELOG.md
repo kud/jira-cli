@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.6.1 — 2026-09-14
+
+### Highlights
+
+- **One navigation contract.** `q` quits from anywhere — except while you are typing in the search box or a comment, where it is a letter. `esc` and `⌫` go back exactly one level: a prompt, then the issue, then nothing. Every page ends its footer the same way: `⌫ back` where there is somewhere to go back to, then `? help`, then `q quit`. Built on `@kud/ink-ui` 0.27's `useAppKeys` and `@kud/jira-ink` 0.4, whose views no longer bind keys of their own. ([bc7e63e](https://github.com/kud/jira-cli/commit/bc7e63eb9a541aeafc6f34c2148895c9d8d648cd))
+
+---
+
 ## 0.6.0 — 2026-09-14
 
 ### Highlights
