@@ -49,7 +49,7 @@ Run `jira` with no arguments:
 jira
 ```
 
-Your issues as a board: three tabs — **To do**, **In progress**, **Done** — filed by Jira's status *category*, so it works on any instance without knowing what your board calls its columns. Rows hang under their epic, carry a type pill, a priority glyph (`▲` high, `▼` low) and how long since they last moved. Closed work from the last fortnight is on the Done tab; `a` loads everything.
+Your issues as a board. By default the tabs are Jira's three status *categories* — **To do**, **In progress**, **Done** — so it works on any instance without knowing what your board calls its columns. Pass `--board <id>` (or set `defaultBoard` in the config file) and the tabs become that board's own columns, matched by status id; statuses no column claims land on an **Off board** tab. Hand-written `tabs` in the config file win over both. Rows hang under their epic, carry a type pill, a priority glyph (`▲` high, `▼` low) and how long since they last moved. Closed work from the last fortnight is on the Done tab; `a` loads everything.
 
 `↑↓` to move, `←→` (or `⇥`) to switch tab, `enter` to open, `?` for the legend, `r` to refresh, `q` to quit.
 

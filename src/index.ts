@@ -102,7 +102,22 @@ export const interactiveArgs = (argv: string[]) => {
         ? undefined
         : rest[spacedAt + 1]
 
+  const boardInline = rest.findIndex((a) => a.startsWith("--board="))
+  const boardSpaced = rest.indexOf("--board")
+  const boardRaw =
+    boardInline !== -1
+      ? rest[boardInline]?.slice("--board=".length)
+      : boardSpaced === -1
+        ? undefined
+        : rest[boardSpaced + 1]
+  const board = boardRaw !== undefined ? Number(boardRaw) : undefined
+
   const consumed = new Set(["--mock"])
+  if (boardInline !== -1) consumed.add(rest[boardInline] as string)
+  if (boardSpaced !== -1) {
+    consumed.add("--board")
+    consumed.add(rest[boardSpaced + 1] ?? "")
+  }
   if (inlineAt !== -1) consumed.add(rest[inlineAt] as string)
   if (spacedAt !== -1) {
     consumed.add("--screen")
@@ -114,12 +129,13 @@ export const interactiveArgs = (argv: string[]) => {
   return {
     screen,
     mock: rest.includes("--mock"),
+    ...(board !== undefined && !Number.isNaN(board) ? { board } : {}),
     isBare: rest.every((a) => consumed.has(a)),
   }
 }
 
 const main = async (): Promise<void> => {
-  const { screen, mock, isBare } = interactiveArgs(process.argv)
+  const { screen, mock, board, isBare } = interactiveArgs(process.argv)
 
   if (screen === "list" && isBare) {
     const { SCREENS } = await import("./tui/index.js")
@@ -140,6 +156,7 @@ const main = async (): Promise<void> => {
       screen: screen?.startsWith("detail") ? "detail" : "issues",
       mock,
       ...(key ? { issueKey: key } : {}),
+      ...(board !== undefined ? { board } : {}),
     })
     return
   }

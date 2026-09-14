@@ -6,7 +6,7 @@ import { mockData } from "./mock.js"
 
 const never = (): DataSource => ({
   ...mockData(),
-  listIssues: () => new Promise<never>(() => {}),
+  board: () => new Promise<never>(() => {}),
 })
 
 describe("the frame is the page, not the list", () => {

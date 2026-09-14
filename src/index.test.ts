@@ -38,6 +38,17 @@ describe("interactiveArgs", () => {
     })
   })
 
+  it("reads --board as a number and consumes its value", () => {
+    expect(interactiveArgs(["node", "jira", "--board", "42"])).toEqual({
+      screen: undefined,
+      mock: false,
+      board: 42,
+      isBare: true,
+    })
+    expect(interactiveArgs(["node", "jira", "--board=7", "--mock"]).board).toBe(7)
+    expect(interactiveArgs(["node", "jira", "--board", "x"]).isBare).toBe(true)
+  })
+
   it("stays bare with both --screen and --mock present, in either order", () => {
     expect(
       interactiveArgs(["node", "jira", "--mock", "--screen", "detail:SHOP-1"]),

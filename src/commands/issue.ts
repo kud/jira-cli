@@ -9,7 +9,11 @@ import { table, truncate, type Column } from "../output/format.js"
 import { context, exitError, printJson, type Context } from "./context.js"
 import { registerIssueWriteCommands } from "./issue-write.js"
 
-import { buildJql, jqlEscape, type ListOptions as JqlOptions } from "../jql.js"
+import {
+  buildJql,
+  jqlEscape,
+  type ListOptions as JqlOptions,
+} from "@kud/jira"
 
 type ListOptions = JqlOptions & { limit: string; json?: boolean }
 

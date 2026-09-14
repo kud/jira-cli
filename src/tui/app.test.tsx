@@ -22,12 +22,15 @@ const settle = (): Promise<void> =>
 
 const failing = (message: string): DataSource => ({
   ...mockData(),
-  listIssues: async () => {
+  board: async () => {
     throw new Error(message)
   },
 })
 
-const empty = (): DataSource => ({ ...mockData(), listIssues: async () => [] })
+const empty = (): DataSource => ({
+  ...mockData(),
+  board: async () => ({ ...(await mockData().board(false)), rows: [] }),
+})
 
 describe("issue list screen", () => {
   it("shows the issues once they load", async () => {
@@ -113,10 +116,15 @@ describe("board", () => {
   it("degrades to a flat list when no row has a parent", async () => {
     const flat = (): DataSource => ({
       ...mockData(),
-      listIssues: async () =>
-        (await mockData().listIssues(false))
-          .filter((r) => r.type !== "Epic")
-          .map(({ parent: _, ...row }) => row),
+      board: async () => {
+        const model = await mockData().board(false)
+        return {
+          ...model,
+          rows: model.rows
+            .filter((r) => !r.container)
+            .map(({ parent: _, ...row }) => row),
+        }
+      },
     })
     const r = renderFrames(<App data={flat()} initialScreen="issues" />)
 
@@ -153,8 +161,10 @@ describe("board", () => {
   it("points an empty tab at the ones that have rows", async () => {
     const todoOnly = (): DataSource => ({
       ...mockData(),
-      listIssues: async () =>
-        (await mockData().listIssues(false)).filter((r) => r.category === "new"),
+      board: async () => {
+        const model = await mockData().board(false)
+        return { ...model, rows: model.rows.filter((r) => r.category === "new") }
+      },
     })
     const r = renderFrames(<App data={todoOnly()} initialScreen="issues" />)
 
@@ -231,7 +241,7 @@ describe("search", () => {
 
     expect(search).toHaveBeenCalledWith("coupon", "auto")
     expect(last(r)).not.toContain("@Ada Okafor")
-    r.write("\u001b")
+    r.write("x")
     await r.waitFor("@Ada Okafor")
     r.unmount()
   })

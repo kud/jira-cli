@@ -1,28 +1,13 @@
-import type { JiraIssue } from "@kud/jira"
+import { searchJql, type SearchMode } from "@kud/jira"
 import {
+  boardOf,
   issueDetailOf,
   transitionsOf,
+  type BoardModel,
   type IssueDetail,
   type Transition,
 } from "@kud/jira-ink"
 import { context, type Context } from "../commands/context.js"
-import { searchJql, type SearchMode } from "../jql.js"
-
-/** Jira's own three, plus `unknown` for a status that arrives without one. */
-export type StatusCategory = "new" | "indeterminate" | "done" | "unknown"
-
-export type IssueRow = {
-  key: string
-  status: string
-  category: StatusCategory
-  summary: string
-  type: string
-  priority: string | null
-  parent?: { key: string; summary: string }
-  assignee: string
-  /** ISO timestamp, kept whole so the view can draw a relative age. */
-  updated: string
-}
 
 export type Viewer = { displayName: string }
 
@@ -39,7 +24,7 @@ export type { SearchMode }
  * prevent.
  */
 export type DataSource = {
-  listIssues: (all: boolean) => Promise<IssueRow[]>
+  board: (all: boolean) => Promise<BoardModel>
   me: () => Promise<Viewer>
   /**
    * Plain words search within the viewer's own list; JQL replaces it. The
@@ -48,7 +33,7 @@ export type DataSource = {
   search: (
     query: string,
     mode: SearchMode,
-  ) => Promise<{ rows: IssueRow[]; mode: "jql" | "text" }>
+  ) => Promise<{ model: BoardModel; mode: "jql" | "text" }>
   getIssue: (key: string) => Promise<IssueDetail>
   getTransitions: (key: string) => Promise<Transition[]>
   transition: (key: string, transitionId: string) => Promise<void>
@@ -62,37 +47,30 @@ export type DataSource = {
 const DEFAULT_SCOPE =
   "(statusCategory != Done OR (statusCategory = Done AND updated >= -14d))"
 
-const CATEGORIES: StatusCategory[] = ["new", "indeterminate", "done"]
-
-const categoryOf = (key: string | undefined): StatusCategory =>
-  CATEGORIES.find((c) => c === key) ?? "unknown"
-
-export const toRow = (issue: JiraIssue): IssueRow => ({
-  key: issue.key,
-  status: issue.fields.status?.name ?? "—",
-  category: categoryOf(issue.fields.status?.statusCategory?.key),
-  summary: issue.fields.summary ?? "",
-  type: issue.fields.issuetype?.name ?? "",
-  priority: issue.fields.priority?.name ?? null,
-  ...(issue.fields.parent
-    ? {
-        parent: {
-          key: issue.fields.parent.key,
-          summary: issue.fields.parent.fields?.summary ?? "",
-        },
-      }
+/**
+ * Where the tabs come from: `--board` on the command line beats
+ * `defaultBoard` in the config file; hand-written `tabs` there beat both.
+ * Nothing is auto-detected — a guessed board is a guess wearing a feature's
+ * clothes.
+ */
+const boardOptions = (ctx: Context & { board?: number }) => ({
+  ...(ctx.config.tabs ? { tabs: ctx.config.tabs } : {}),
+  ...(ctx.board ?? ctx.config.defaultBoard !== undefined
+    ? { board: ctx.board ?? ctx.config.defaultBoard }
     : {}),
-  assignee: issue.fields.assignee?.displayName ?? "unassigned",
-  updated: issue.fields.updated ?? "",
 })
 
-export const liveData = (ctx: Context = context()): DataSource => ({
+export const liveData = (
+  ctx: Context & { board?: number } = context(),
+): DataSource => ({
   baseUrl: ctx.config.baseUrl,
 
-  listIssues: async (all) => {
-    const jql = `assignee = currentUser()${all ? "" : ` AND ${DEFAULT_SCOPE}`} ORDER BY updated DESC`
-    return (await ctx.client.searchIssues(jql, { limit: 200 })).map(toRow)
-  },
+  board: (all) =>
+    boardOf(
+      ctx.client,
+      `assignee = currentUser()${all ? "" : ` AND ${DEFAULT_SCOPE}`} ORDER BY updated DESC`,
+      boardOptions(ctx),
+    ),
 
   me: async () => ({ displayName: (await ctx.client.getMe()).displayName }),
 
@@ -101,8 +79,7 @@ export const liveData = (ctx: Context = context()): DataSource => ({
       mode,
       scope: "assignee = currentUser()",
     })
-    const issues = await ctx.client.searchIssues(jql, { limit: 200 })
-    return { rows: issues.map(toRow), mode: used }
+    return { model: await boardOf(ctx.client, jql, boardOptions(ctx)), mode: used }
   },
 
   getIssue: (key) => issueDetailOf(ctx.client, ctx.config.baseUrl, key),

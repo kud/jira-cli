@@ -1,5 +1,8 @@
-import { looksLikeJql } from "../jql.js"
-import type { DataSource, IssueDetail, IssueRow } from "./data.js"
+import { looksLikeJql } from "@kud/jira"
+import { MOCK_BOARD_ROWS, mockBoard } from "@kud/jira-ink"
+import type { DataSource, IssueDetail } from "./data.js"
+
+const ROWS = MOCK_BOARD_ROWS
 
 /**
  * Fixtures for `--mock`. Every field is invented — no key, name or hostname
@@ -7,87 +10,6 @@ import type { DataSource, IssueDetail, IssueRow } from "./data.js"
  * and READMEs. All-or-nothing by design: the mock source answers every call,
  * so a screenshot can never mix invented comments with real issues.
  */
-const CHECKOUT = { key: "SHOP-300", summary: "Basket and checkout correctness" }
-const STOREFRONT = { key: "SHOP-350", summary: "Storefront refresh" }
-
-const ROWS: IssueRow[] = [
-  {
-    key: "SHOP-300",
-    status: "To Do",
-    category: "new",
-    summary: "Basket and checkout correctness",
-    type: "Epic",
-    priority: "Medium",
-    assignee: "Ada Okafor",
-    updated: "2026-08-14T10:00:00.000Z",
-  },
-  {
-    key: "SHOP-412",
-    status: "In Progress",
-    category: "indeterminate",
-    summary: "Checkout total ignores the discount on the last item",
-    type: "Bug",
-    priority: "High",
-    parent: CHECKOUT,
-    assignee: "Ada Okafor",
-    updated: "2026-08-14T09:12:00.000Z",
-  },
-  {
-    key: "SHOP-408",
-    status: "In Review",
-    category: "indeterminate",
-    summary: "Add a dark theme to the storefront",
-    type: "Story",
-    priority: "Medium",
-    parent: STOREFRONT,
-    assignee: "Ada Okafor",
-    updated: "2026-08-13T16:40:00.000Z",
-  },
-  {
-    key: "SHOP-397",
-    status: "To Do",
-    category: "new",
-    summary: "Search returns stale results after a filter change",
-    type: "Bug",
-    priority: "Medium",
-    parent: CHECKOUT,
-    assignee: "Ada Okafor",
-    updated: "2026-08-11T08:00:00.000Z",
-  },
-  {
-    key: "SHOP-401",
-    status: "In Progress",
-    category: "indeterminate",
-    summary: "Coupon field accepts whitespace-only codes",
-    type: "Bug",
-    priority: "Low",
-    parent: CHECKOUT,
-    assignee: "Ada Okafor",
-    updated: "2026-08-12T11:30:00.000Z",
-  },
-  {
-    key: "PLAT-88",
-    status: "Blocked",
-    category: "indeterminate",
-    summary: "Rotate the staging database credentials",
-    type: "Task",
-    priority: "Highest",
-    assignee: "Ada Okafor",
-    updated: "2026-08-09T14:05:00.000Z",
-  },
-  {
-    key: "SHOP-390",
-    status: "Done",
-    category: "done",
-    summary: "Show the VAT breakdown on the order summary",
-    type: "Story",
-    priority: "Medium",
-    parent: CHECKOUT,
-    assignee: "Ada Okafor",
-    updated: "2026-08-08T10:00:00.000Z",
-  },
-]
-
 const DETAIL: Record<string, IssueDetail> = {
   "SHOP-412": {
     key: "SHOP-412",
@@ -167,17 +89,23 @@ const fallbackDetail = (key: string): IssueDetail => {
 
 export const mockData = (): DataSource => ({
   baseUrl: "https://example.atlassian.net",
-  listIssues: async () => ROWS,
+  board: async () => mockBoard(),
   me: async () => ({ displayName: "Ada Okafor" }),
   search: async (query, mode) => {
     const used = mode === "jql" || (mode === "auto" && looksLikeJql(query)) ? "jql" : "text"
     const words = query.toLowerCase()
+    const model = mockBoard()
     return {
       mode: used,
-      rows:
+      model:
         used === "jql"
-          ? ROWS
-          : ROWS.filter((r) => `${r.key} ${r.summary}`.toLowerCase().includes(words)),
+          ? model
+          : {
+              ...model,
+              rows: ROWS.filter((r) =>
+                `${r.key} ${r.summary}`.toLowerCase().includes(words),
+              ),
+            },
     }
   },
   getIssue: async (key) => DETAIL[key] ?? fallbackDetail(key),

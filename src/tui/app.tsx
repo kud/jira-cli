@@ -9,17 +9,20 @@ import {
 } from "@kud/ink-ui"
 import { Box, Text, useApp, useInput, useStdout } from "ink"
 import { useCallback, useEffect, useState, type ReactNode } from "react"
-import { isJiraApiError } from "@kud/jira"
+import { errorMessagesOf, isJiraApiError } from "@kud/jira"
 import type {
   DataSource,
   IssueDetail,
-  IssueRow,
   SearchMode,
   Transition,
 } from "./data.js"
-import { IssueDetailView } from "@kud/jira-ink"
+import {
+  IssueBoard,
+  IssueDetailView,
+  type BoardModel,
+  type BoardScope,
+} from "@kud/jira-ink"
 import { Frame, FRAME_CHROME } from "./frame.js"
-import { IssueList, type Scope } from "./list.js"
 
 export type Screen = "issues" | "detail"
 
@@ -37,7 +40,7 @@ type Overlay =
 
 // Inside the frame, the detail spends: the blank under the title, the subtitle
 // line, the blank under it, and the hints row.
-const DETAIL_CHROME = 5
+const DETAIL_CHROME = 4
 const MIN_WIDTH = 60
 const MIN_HEIGHT = 12
 
@@ -50,10 +53,10 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const height = stdout?.rows ?? 24
 
   const [screen, setScreen] = useState<Screen>(initialScreen)
-  const [rows, setRows] = useState<IssueRow[] | null>(null)
+  const [model, setModel] = useState<BoardModel | null>(null)
   const [viewer, setViewer] = useState("you")
   const [loadedAt, setLoadedAt] = useState(Date.now)
-  const [scope, setScope] = useState<Scope>({ kind: "mine" })
+  const [scope, setScope] = useState<BoardScope>({ kind: "mine" })
   const [searchError, setSearchError] = useState<string | null>(null)
   const [issue, setIssue] = useState<IssueDetail | null>(null)
   const [overlay, setOverlay] = useState<Overlay>({ kind: "none" })
@@ -64,11 +67,11 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const loadList = useCallback(
     async (all: boolean) => {
       setError(null)
-      setRows(null)
+      setModel(null)
       setScope({ kind: "mine" })
       setSearchError(null)
       try {
-        setRows(await data.listIssues(all))
+        setModel(await data.board(all))
         setLoadedAt(Date.now())
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
@@ -102,7 +105,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       setSearchError(null)
       try {
         const result = await data.search(query, mode)
-        setRows(result.rows)
+        setModel(result.model)
         setScope({ kind: "search", query, mode: result.mode })
         setLoadedAt(Date.now())
       } catch (e) {
@@ -287,17 +290,22 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     )
   }
 
-  if (!rows) return framed("loading…", <Spinner label="Loading issues…" />)
+  if (!model) return framed("loading…", <Spinner label="Loading issues…" />)
 
   return (
-    <IssueList
-      rows={rows}
+    <IssueBoard
+      model={model}
+      frame={({ facts, hints, body }) => (
+        <Frame width={width} height={height} facts={facts} hints={hints}>
+          {body}
+        </Frame>
+      )}
       viewer={viewer}
       loadedAt={loadedAt}
       scope={scope}
       searchError={searchError}
       width={width}
-      height={height}
+      height={height - FRAME_CHROME - 1}
       showingAll={showingAll}
       onOpen={(key) => void loadIssue(key)}
       onRefresh={() =>
@@ -316,19 +324,10 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   )
 }
 
-const jiraMessageOf = (e: unknown): string => {
-  if (isJiraApiError(e)) {
-    if (e.status === 401 || e.status === 403)
-      return `Jira refused the request (${e.status}) — check your token.`
-    try {
-      const body = JSON.parse(e.body) as { errorMessages?: string[] }
-      if (body.errorMessages?.length) return body.errorMessages.join(" ")
-    } catch {
-      // not JSON — fall through to the envelope
-    }
-  }
-  return e instanceof Error ? e.message : String(e)
-}
+const jiraMessageOf = (e: unknown): string =>
+  isJiraApiError(e) && (e.status === 401 || e.status === 403)
+    ? `Jira refused the request (${e.status}) — check your token.`
+    : errorMessagesOf(e).join(" ")
 
 const opener = (): string =>
   process.platform === "darwin"

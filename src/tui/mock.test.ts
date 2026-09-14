@@ -5,7 +5,7 @@ describe("mockData", () => {
   it("answers every DataSource method end to end, so --mock never falls through to a live call", async () => {
     const data = mockData()
 
-    const rows = await data.listIssues(true)
+    const { rows } = await data.board(true)
     expect(rows.length).toBeGreaterThan(0)
 
     const issue = await data.getIssue(rows[0]!.key)
@@ -24,7 +24,7 @@ describe("mockData", () => {
 
   it("synthesises a detail for a row that has no full fixture, instead of throwing", async () => {
     const data = mockData()
-    const rows = await data.listIssues(true)
+    const { rows } = await data.board(true)
     const withoutFullFixture = rows.find((r) => r.key !== "SHOP-412")!
 
     const issue = await data.getIssue(withoutFullFixture.key)
