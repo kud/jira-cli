@@ -1,4 +1,5 @@
 import { renderFrames } from "@kud/cli-testing"
+import { jiraApiError } from "@kud/jira"
 import { describe, expect, it, vi } from "vitest"
 import { App } from "./app.js"
 import type { DataSource, IssueDetail } from "./data.js"
@@ -43,7 +44,7 @@ describe("issue list screen", () => {
 
     await r.waitFor("No open issues")
 
-    expect(seen(r, "press a to include closed ones")).toBe(true)
+    expect(seen(r, "press a to include everything")).toBe(true)
     r.unmount()
   })
 
@@ -55,6 +56,196 @@ describe("issue list screen", () => {
     await r.waitFor("Jira API 500")
 
     expect(seen(r, "retry")).toBe(true)
+    r.unmount()
+  })
+})
+
+describe("board", () => {
+  const last = (r: { lastFrame: () => string }): string => r.lastFrame()
+
+  it("tabs by status category, with counts that sum to the rows", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+
+    await r.waitFor("SHOP-412")
+
+    const frame = last(r)
+    expect(frame).toContain("To do (1)")
+    expect(frame).toContain("In progress (4)")
+    expect(frame).toContain("Done (1)")
+    // The status NAME never reaches the screen — "Blocked" is filed by its
+    // category, which is the whole point of a board that knows no workflow.
+    expect(frame).not.toContain("Blocked")
+    r.unmount()
+  })
+
+  it("hangs rows under their epic and orphans under a plain rule", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+
+    await r.waitFor("SHOP-412")
+
+    const frame = last(r)
+    expect(frame).toContain("── Basket and checkout correctness · SHOP-300")
+    expect(frame).toContain("── No epic")
+    expect(frame.indexOf("SHOP-300")).toBeLessThan(frame.indexOf("SHOP-412"))
+    r.unmount()
+  })
+
+  it("degrades to a flat list when no row has a parent", async () => {
+    const flat = (): DataSource => ({
+      ...mockData(),
+      listIssues: async () =>
+        (await mockData().listIssues(false)).map(({ parent: _, ...row }) => row),
+    })
+    const r = renderFrames(<App data={flat()} initialScreen="issues" />)
+
+    await r.waitFor("SHOP-412")
+
+    expect(last(r)).not.toMatch(/── [A-Za-z]/)
+    expect(last(r)).not.toContain("No epic")
+    r.unmount()
+  })
+
+  it("draws a type pill, a priority glyph and an age on each row", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+
+    await r.waitFor("SHOP-412")
+
+    const row = last(r).split("\n").find((l) => l.includes("SHOP-412")) ?? ""
+    expect(row).toContain("▲")
+    expect(row).toContain("bug")
+    expect(row).toMatch(/\d+[mhdw] │$/)
+    r.unmount()
+  })
+
+  it("names the viewer once, in the title bar, not on every row", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+
+    await r.waitFor("SHOP-412")
+
+    const frame = last(r)
+    expect(frame).toContain("@Ada Okafor")
+    expect(frame.split("Ada Okafor").length - 1).toBe(1)
+    r.unmount()
+  })
+
+  it("points an empty tab at the ones that have rows", async () => {
+    const todoOnly = (): DataSource => ({
+      ...mockData(),
+      listIssues: async () =>
+        (await mockData().listIssues(false)).filter((r) => r.category === "new"),
+    })
+    const r = renderFrames(<App data={todoOnly()} initialScreen="issues" />)
+
+    await r.waitFor("Nothing here")
+
+    expect(last(r)).toContain("To do (1)")
+    r.unmount()
+  })
+
+  it("toggles a legend that names every glyph on screen", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+    await r.waitFor("SHOP-412")
+    await settle()
+
+    r.write("?")
+    await r.waitFor("high priority")
+
+    expect(last(r)).toContain("status category")
+    r.write("?")
+    await settle()
+    expect(last(r)).not.toContain("high priority")
+    r.unmount()
+  })
+})
+
+describe("search", () => {
+  const last = (r: { lastFrame: () => string }): string => r.lastFrame()
+
+  it("narrows the loaded rows live as plain words are typed", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+    await r.waitFor("SHOP-412")
+    await settle()
+
+    r.write("/")
+    await settle()
+    r.write("coupon")
+    await r.waitFor("1 of 6")
+
+    const frame = last(r)
+    expect(frame).toContain("plain")
+    expect(frame).toContain("SHOP-401")
+    expect(frame).not.toContain("SHOP-412")
+    r.unmount()
+  })
+
+  it("recognises JQL by its shape and says so", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+    await r.waitFor("SHOP-412")
+    await settle()
+
+    r.write("/")
+    await settle()
+    r.write("status = Done")
+    await r.waitFor("JQL")
+
+    // JQL never narrows live — it runs on enter, so the list is untouched.
+    expect(last(r)).toContain("6 items")
+    r.unmount()
+  })
+
+  it("runs the query on enter and names it as the scope", async () => {
+    const data = mockData()
+    const search = vi.spyOn(data, "search")
+    const r = renderFrames(<App data={data} initialScreen="issues" />)
+    await r.waitFor("SHOP-412")
+    await settle()
+
+    r.write("/")
+    await settle()
+    r.write("coupon")
+    await settle()
+    r.write("\r")
+    await r.waitFor("“coupon”")
+
+    expect(search).toHaveBeenCalledWith("coupon", "auto")
+    expect(last(r)).not.toContain("@Ada Okafor")
+    r.write("\u001b")
+    await r.waitFor("@Ada Okafor")
+    r.unmount()
+  })
+
+  it("shows Jira's own words for a bad query and keeps it for editing", async () => {
+    const rejecting = (): DataSource => ({
+      ...mockData(),
+      search: async () => {
+        throw jiraApiError(
+          400,
+          "POST",
+          "https://example.atlassian.net/rest/api/3/search/jql",
+          JSON.stringify({
+            errorMessages: ["Field 'statsu' does not exist or you do not have permission to view it."],
+            errors: {},
+          }),
+        )
+      },
+    })
+    const r = renderFrames(<App data={rejecting()} initialScreen="issues" />)
+    await r.waitFor("SHOP-412")
+    await settle()
+
+    r.write("/")
+    await settle()
+    r.write("statsu = Done")
+    await settle()
+    r.write("\r")
+    await r.waitFor("Field 'statsu' does not exist")
+
+    const frame = last(r)
+    expect(frame).toContain("SHOP-412")
+    expect(frame).not.toContain("search/jql")
+    r.write("/")
+    await settle()
+    expect(last(r)).toContain("statsu = Done")
     r.unmount()
   })
 })

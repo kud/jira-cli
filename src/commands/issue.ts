@@ -9,54 +9,9 @@ import { table, truncate, type Column } from "../output/format.js"
 import { context, exitError, printJson, type Context } from "./context.js"
 import { registerIssueWriteCommands } from "./issue-write.js"
 
-const jqlEscape = (value: string): string => `"${value.replace(/"/g, '\\"')}"`
+import { buildJql, jqlEscape, type ListOptions as JqlOptions } from "../jql.js"
 
-type ListOptions = {
-  assignee?: string
-  mine?: boolean
-  status?: string
-  project?: string
-  sprint?: string
-  label?: string
-  jql?: string
-  limit: string
-  json?: boolean
-}
-
-/**
- * Flags compose into one JQL string rather than each becoming its own command.
- * `--jql` replaces the generated clauses entirely so there is always an escape
- * hatch for anything the flags cannot express.
- */
-const buildJql = (options: ListOptions, defaultProject?: string): string => {
-  if (options.jql) return options.jql
-
-  const clauses: string[] = []
-  if (options.mine) clauses.push("assignee = currentUser()")
-  else if (options.assignee)
-    clauses.push(
-      options.assignee === "none"
-        ? "assignee IS EMPTY"
-        : `assignee = ${jqlEscape(options.assignee)}`,
-    )
-
-  const project = options.project ?? defaultProject
-  if (project) clauses.push(`project = ${jqlEscape(project)}`)
-  if (options.status) clauses.push(`status = ${jqlEscape(options.status)}`)
-  if (options.label) clauses.push(`labels = ${jqlEscape(options.label)}`)
-  if (options.sprint)
-    clauses.push(
-      options.sprint === "current"
-        ? "sprint IN openSprints()"
-        : `sprint = ${jqlEscape(options.sprint)}`,
-    )
-
-  // Jira rejects an unbounded query outright, so a bare `issue list` has to
-  // mean something. Yours is the only defensible default.
-  if (clauses.length === 0) clauses.push("assignee = currentUser()")
-
-  return `${clauses.join(" AND ")} ORDER BY updated DESC`
-}
+type ListOptions = JqlOptions & { limit: string; json?: boolean }
 
 const issueColumns = (ctx: Context): Column<JiraIssue>[] => [
   { header: "KEY", value: (i) => i.key },

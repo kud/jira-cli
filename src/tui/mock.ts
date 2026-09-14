@@ -1,3 +1,4 @@
+import { looksLikeJql } from "../jql.js"
 import type { DataSource, IssueDetail, IssueRow } from "./data.js"
 
 /**
@@ -6,34 +7,74 @@ import type { DataSource, IssueDetail, IssueRow } from "./data.js"
  * and READMEs. All-or-nothing by design: the mock source answers every call,
  * so a screenshot can never mix invented comments with real issues.
  */
+const CHECKOUT = { key: "SHOP-300", summary: "Basket and checkout correctness" }
+const STOREFRONT = { key: "SHOP-350", summary: "Storefront refresh" }
+
 const ROWS: IssueRow[] = [
   {
     key: "SHOP-412",
     status: "In Progress",
+    category: "indeterminate",
     summary: "Checkout total ignores the discount on the last item",
+    type: "Bug",
+    priority: "High",
+    parent: CHECKOUT,
     assignee: "Ada Okafor",
-    updated: "2026-08-14",
+    updated: "2026-08-14T09:12:00.000Z",
   },
   {
     key: "SHOP-408",
     status: "In Review",
+    category: "indeterminate",
     summary: "Add a dark theme to the storefront",
+    type: "Story",
+    priority: "Medium",
+    parent: STOREFRONT,
     assignee: "Ada Okafor",
-    updated: "2026-08-13",
+    updated: "2026-08-13T16:40:00.000Z",
   },
   {
     key: "SHOP-397",
     status: "To Do",
+    category: "new",
     summary: "Search returns stale results after a filter change",
+    type: "Bug",
+    priority: "Medium",
+    parent: CHECKOUT,
     assignee: "Ada Okafor",
-    updated: "2026-08-11",
+    updated: "2026-08-11T08:00:00.000Z",
+  },
+  {
+    key: "SHOP-401",
+    status: "In Progress",
+    category: "indeterminate",
+    summary: "Coupon field accepts whitespace-only codes",
+    type: "Bug",
+    priority: "Low",
+    parent: CHECKOUT,
+    assignee: "Ada Okafor",
+    updated: "2026-08-12T11:30:00.000Z",
   },
   {
     key: "PLAT-88",
     status: "Blocked",
+    category: "indeterminate",
     summary: "Rotate the staging database credentials",
+    type: "Task",
+    priority: "Highest",
     assignee: "Ada Okafor",
-    updated: "2026-08-09",
+    updated: "2026-08-09T14:05:00.000Z",
+  },
+  {
+    key: "SHOP-390",
+    status: "Done",
+    category: "done",
+    summary: "Show the VAT breakdown on the order summary",
+    type: "Story",
+    priority: "Medium",
+    parent: CHECKOUT,
+    assignee: "Ada Okafor",
+    updated: "2026-08-08T10:00:00.000Z",
   },
 ]
 
@@ -103,7 +144,7 @@ const fallbackDetail = (key: string): IssueDetail => {
     key: row.key,
     summary: row.summary,
     status: row.status,
-    type: "Task",
+    type: row.type,
     assignee: row.assignee,
     reporter: "Bram Nilsen",
     labels: [],
@@ -116,8 +157,19 @@ const fallbackDetail = (key: string): IssueDetail => {
 
 export const mockData = (): DataSource => ({
   baseUrl: "https://example.atlassian.net",
-  listIssues: async (all) =>
-    all ? ROWS : ROWS.filter((r) => r.status !== "Done"),
+  listIssues: async () => ROWS,
+  me: async () => ({ displayName: "Ada Okafor" }),
+  search: async (query, mode) => {
+    const used = mode === "jql" || (mode === "auto" && looksLikeJql(query)) ? "jql" : "text"
+    const words = query.toLowerCase()
+    return {
+      mode: used,
+      rows:
+        used === "jql"
+          ? ROWS
+          : ROWS.filter((r) => `${r.key} ${r.summary}`.toLowerCase().includes(words)),
+    }
+  },
   getIssue: async (key) => DETAIL[key] ?? fallbackDetail(key),
   getTransitions: async () => [
     { id: "11", name: "Start progress", to: "In Progress" },

@@ -2,9 +2,16 @@ import { execFile } from "node:child_process"
 import { Alert, ConfirmInput, Select, Spinner, TextInput } from "@kud/ink-ui"
 import { Box, Text, useApp, useInput, useStdout } from "ink"
 import { useCallback, useEffect, useState } from "react"
-import type { DataSource, IssueDetail, IssueRow, Transition } from "./data.js"
+import { isJiraApiError } from "@kud/jira"
+import type {
+  DataSource,
+  IssueDetail,
+  IssueRow,
+  SearchMode,
+  Transition,
+} from "./data.js"
 import { IssueDetailView } from "@kud/jira-ink"
-import { IssueList } from "./list.js"
+import { IssueList, type Scope } from "./list.js"
 
 export type Screen = "issues" | "detail"
 
@@ -33,6 +40,10 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
 
   const [screen, setScreen] = useState<Screen>(initialScreen)
   const [rows, setRows] = useState<IssueRow[] | null>(null)
+  const [viewer, setViewer] = useState("you")
+  const [loadedAt, setLoadedAt] = useState(Date.now)
+  const [scope, setScope] = useState<Scope>({ kind: "mine" })
+  const [searchError, setSearchError] = useState<string | null>(null)
   const [issue, setIssue] = useState<IssueDetail | null>(null)
   const [overlay, setOverlay] = useState<Overlay>({ kind: "none" })
   const [showingAll, setShowingAll] = useState(false)
@@ -43,8 +54,11 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     async (all: boolean) => {
       setError(null)
       setRows(null)
+      setScope({ kind: "mine" })
+      setSearchError(null)
       try {
         setRows(await data.listIssues(all))
+        setLoadedAt(Date.now())
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
       }
@@ -65,6 +79,34 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     },
     [data],
   )
+
+  /**
+   * A bad query is the user's to fix, so it never replaces the screen the
+   * way a failed load does: the rows stay, the message sits under the box,
+   * and the query is kept for editing. Jira's own words come from the 400
+   * body — `e.message` is the URL-prefixed, truncated envelope.
+   */
+  const runSearch = useCallback(
+    async (query: string, mode: SearchMode) => {
+      setSearchError(null)
+      try {
+        const result = await data.search(query, mode)
+        setRows(result.rows)
+        setScope({ kind: "search", query, mode: result.mode })
+        setLoadedAt(Date.now())
+      } catch (e) {
+        setSearchError(jiraMessageOf(e))
+      }
+    },
+    [data],
+  )
+
+  useEffect(() => {
+    void data
+      .me()
+      .then((me) => setViewer(me.displayName))
+      .catch(() => {})
+  }, [data])
 
   // Opening straight onto a screen must also run that screen's loader —
   // setting the screen alone lands on a view that never fetched, which looks
@@ -216,10 +258,21 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   return (
     <IssueList
       rows={rows}
+      viewer={viewer}
+      loadedAt={loadedAt}
+      scope={scope}
+      searchError={searchError}
+      width={width}
       height={height}
       showingAll={showingAll}
       onOpen={(key) => void loadIssue(key)}
-      onRefresh={() => void loadList(showingAll)}
+      onRefresh={() =>
+        void (scope.kind === "search"
+          ? runSearch(scope.query, scope.mode)
+          : loadList(showingAll))
+      }
+      onSearch={(query, mode) => void runSearch(query, mode)}
+      onClearSearch={() => void loadList(showingAll)}
       onToggleAll={() => {
         const next = !showingAll
         setShowingAll(next)
@@ -227,6 +280,20 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       }}
     />
   )
+}
+
+const jiraMessageOf = (e: unknown): string => {
+  if (isJiraApiError(e)) {
+    if (e.status === 401 || e.status === 403)
+      return `Jira refused the request (${e.status}) — check your token.`
+    try {
+      const body = JSON.parse(e.body) as { errorMessages?: string[] }
+      if (body.errorMessages?.length) return body.errorMessages.join(" ")
+    } catch {
+      // not JSON — fall through to the envelope
+    }
+  }
+  return e instanceof Error ? e.message : String(e)
 }
 
 const opener = (): string =>
