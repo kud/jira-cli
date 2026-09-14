@@ -1,7 +1,14 @@
 import { execFile } from "node:child_process"
-import { Alert, ConfirmInput, Select, Spinner, TextInput } from "@kud/ink-ui"
+import {
+  Alert,
+  ConfirmInput,
+  Select,
+  Spinner,
+  TextInput,
+  type Hint,
+} from "@kud/ink-ui"
 import { Box, Text, useApp, useInput, useStdout } from "ink"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, type ReactNode } from "react"
 import { isJiraApiError } from "@kud/jira"
 import type {
   DataSource,
@@ -11,6 +18,7 @@ import type {
   Transition,
 } from "./data.js"
 import { IssueDetailView } from "@kud/jira-ink"
+import { Frame, FRAME_CHROME } from "./frame.js"
 import { IssueList, type Scope } from "./list.js"
 
 export type Screen = "issues" | "detail"
@@ -27,6 +35,9 @@ type Overlay =
   | { kind: "comment" }
   | { kind: "assign" }
 
+// Inside the frame, the detail spends: the blank under the title, the subtitle
+// line, the blank under it, and the hints row.
+const DETAIL_CHROME = 5
 const MIN_WIDTH = 60
 const MIN_HEIGHT = 12
 
@@ -134,19 +145,25 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     )
   }
 
-  if (error) {
-    return (
-      <Box flexDirection="column" gap={1}>
-        <Alert variant="error">{error}</Alert>
-        <Text dimColor>r retry · q quit</Text>
+  const framed = (facts: string, body: ReactNode, hints?: Hint[]) => (
+    <Frame width={width} height={height} facts={facts} hints={hints}>
+      <Box flexDirection="column" marginTop={1} paddingLeft={2} flexGrow={1}>
+        {body}
       </Box>
-    )
-  }
+    </Frame>
+  )
 
-  if (busy) return <Spinner label={busy} />
+  if (error)
+    return framed("error", <Alert variant="error">{error}</Alert>, [
+      ["r", "retry"],
+      ["q", "quit"],
+    ])
+
+  if (busy) return framed("working…", <Spinner label={busy} />)
 
   if (overlay.kind === "transition") {
-    return (
+    return framed(
+      issue?.key ?? "",
       <Box flexDirection="column" gap={1}>
         <Text bold>Move {issue?.key} to…</Text>
         <Select
@@ -170,12 +187,13 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
           }}
         />
         <Text dimColor>esc cancel</Text>
-      </Box>
+      </Box>,
     )
   }
 
   if (overlay.kind === "comment") {
-    return (
+    return framed(
+      issue?.key ?? "",
       <Box flexDirection="column" gap={1}>
         <Text bold>Comment on {issue?.key}</Text>
         <TextInput
@@ -196,12 +214,13 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
             })()
           }}
         />
-      </Box>
+      </Box>,
     )
   }
 
   if (overlay.kind === "assign") {
-    return (
+    return framed(
+      issue?.key ?? "",
       <Box flexDirection="column" gap={1}>
         <Text>Assign {issue?.key} to yourself?</Text>
         <ConfirmInput
@@ -221,17 +240,32 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
             })()
           }}
         />
-      </Box>
+      </Box>,
     )
   }
 
   if (screen === "detail") {
-    if (!issue) return <Spinner label="Loading issue…" />
+    if (!issue) return framed("loading…", <Spinner label="Loading issue…" />)
     return (
       <IssueDetailView
         issue={issue}
         width={width}
-        height={height}
+        height={height - FRAME_CHROME - DETAIL_CHROME}
+        frame={({ title, subtitle, hints, body }) => (
+          <Frame width={width} height={height} facts={title} hints={hints}>
+            <Box paddingLeft={2} marginTop={1}>
+              <Text dimColor>{subtitle}</Text>
+            </Box>
+            <Box
+              flexDirection="column"
+              marginTop={1}
+              paddingLeft={2}
+              flexGrow={1}
+            >
+              {body}
+            </Box>
+          </Frame>
+        )}
         onBack={() => setScreen("issues")}
         onOpenBrowser={() => execFile(opener(), [issue.url])}
         onAssign={() => setOverlay({ kind: "assign" })}
@@ -253,7 +287,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     )
   }
 
-  if (!rows) return <Spinner label="Loading issues…" />
+  if (!rows) return framed("loading…", <Spinner label="Loading issues…" />)
 
   return (
     <IssueList

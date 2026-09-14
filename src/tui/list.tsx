@@ -1,7 +1,6 @@
 import {
   colors,
   FooterHints,
-  Panel,
   Pill,
   pillWidth,
   SelectableRow,
@@ -27,6 +26,7 @@ import {
   type TabId,
 } from "./board.js"
 import type { IssueRow, SearchMode } from "./data.js"
+import { Frame } from "./frame.js"
 
 /** What the list is showing, named in the title bar. */
 export type Scope =
@@ -219,15 +219,11 @@ export const IssueList = ({
         ]
 
   return (
-    <Panel width={width} height={height}>
-      <Box paddingLeft={1}>
-        <Text bold>🎫 Jira</Text>
-        <Text dimColor>
-          {"   "}
-          {countLabel} · {scopeLabel} · updated{" "}
-          {relativeAge(new Date(loadedAt).toISOString(), now)} ago
-        </Text>
-      </Box>
+    <Frame
+      width={width}
+      height={height}
+      facts={`${countLabel} · ${scopeLabel} · updated ${relativeAge(new Date(loadedAt).toISOString(), now)} ago`}
+    >
 
       {search.open ? (
         <Box paddingRight={1}>
@@ -357,7 +353,7 @@ export const IssueList = ({
         </Text>
         <FooterHints hints={hints} />
       </Box>
-    </Panel>
+    </Frame>
   )
 }
 
