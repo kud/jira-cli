@@ -44,32 +44,58 @@ describe("tabs come from the status category, never the status name", () => {
 
 describe("grouping by parent", () => {
   const epic = { key: "SHOP-300", summary: "Checkout" }
+  const shape = (blocks: ReturnType<typeof blocksFor>): string[] =>
+    blocks.map((b) =>
+      b.kind === "gap"
+        ? "·"
+        : b.kind === "fence"
+          ? `F:${b.summary}`
+          : `${b.depth ? "└" : ""}${b.row.key}`,
+    )
 
-  it("draws one header per parent, orphans last, when any row has a parent", () => {
+  it("heads a group with the epic row itself when the epic is in the tab", () => {
     const blocks = blocksFor([
       row({ key: "A-1", parent: epic }),
+      row({ key: "SHOP-300", type: "Epic", summary: "Checkout" }),
       row({ key: "A-2" }),
+    ])
+    expect(shape(blocks)).toEqual(["SHOP-300", "└A-1", "·", "F:No epic", "A-2"])
+  })
+
+  it("fences a parent that is not in the tab, with a gap between groups", () => {
+    const other = { key: "SHOP-350", summary: "Storefront" }
+    const blocks = blocksFor([
+      row({ key: "A-1", parent: epic }),
+      row({ key: "A-2", parent: other }),
       row({ key: "A-3", parent: epic }),
     ])
-    expect(blocks.map((b) => (b.kind === "header" ? `H:${b.summary}` : b.row.key))).toEqual([
-      "H:Checkout",
-      "A-1",
-      "A-3",
-      "H:No epic",
-      "A-2",
+    expect(shape(blocks)).toEqual([
+      "F:Checkout",
+      "└A-1",
+      "└A-3",
+      "·",
+      "F:Storefront",
+      "└A-2",
     ])
   })
 
-  it("degrades to a plain list when nothing has a parent", () => {
-    const blocks = blocksFor([row({ key: "A-1" }), row({ key: "A-2" })])
-    expect(blocks.every((b) => b.kind === "issue")).toBe(true)
-    expect(blocks).toHaveLength(2)
+  it("puts a childless epic at the top as a plain row, never under No epic", () => {
+    const blocks = blocksFor([
+      row({ key: "A-1" }),
+      row({ key: "SHOP-300", type: "Epic" }),
+    ])
+    expect(shape(blocks)).toEqual(["SHOP-300", "·", "F:No epic", "A-1"])
   })
 
-  it("maps the n-th issue back to its line for the cursor", () => {
+  it("degrades to a plain list when nothing has a parent and nothing is an epic", () => {
+    const blocks = blocksFor([row({ key: "A-1" }), row({ key: "A-2" })])
+    expect(shape(blocks)).toEqual(["A-1", "A-2"])
+  })
+
+  it("maps the n-th issue back to its line for the cursor, skipping gaps and fences", () => {
     const blocks = blocksFor([row({ key: "A-1", parent: epic }), row({ key: "A-2" })])
     expect(blockIndexOfIssue(blocks, 0)).toBe(1)
-    expect(blockIndexOfIssue(blocks, 1)).toBe(3)
+    expect(blockIndexOfIssue(blocks, 1)).toBe(4)
   })
 })
 

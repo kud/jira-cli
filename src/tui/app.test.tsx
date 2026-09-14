@@ -69,7 +69,7 @@ describe("board", () => {
     await r.waitFor("SHOP-412")
 
     const frame = last(r)
-    expect(frame).toContain("To do (1)")
+    expect(frame).toContain("To do (2)")
     expect(frame).toContain("In progress (4)")
     expect(frame).toContain("Done (1)")
     // The status NAME never reaches the screen — "Blocked" is filed by its
@@ -90,11 +90,34 @@ describe("board", () => {
     r.unmount()
   })
 
+  it("heads a group with the epic's own row when the epic is in the tab", async () => {
+    const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
+    await r.waitFor("SHOP-412")
+    await settle()
+
+    r.write("\t")
+    await settle()
+    r.write("\t")
+    await r.waitFor("SHOP-397")
+
+    const lines = last(r).split("\n")
+    const epic = lines.findIndex((l) => l.includes("SHOP-300"))
+    const child = lines.findIndex((l) => l.includes("SHOP-397"))
+    expect(lines[epic]).toContain("epic")
+    expect(lines[epic]).not.toContain("──")
+    expect(lines[child]).toContain("└─")
+    expect(child).toBe(epic + 1)
+    expect(last(r)).not.toContain("No epic")
+    r.unmount()
+  })
+
   it("degrades to a flat list when no row has a parent", async () => {
     const flat = (): DataSource => ({
       ...mockData(),
       listIssues: async () =>
-        (await mockData().listIssues(false)).map(({ parent: _, ...row }) => row),
+        (await mockData().listIssues(false))
+          .filter((r) => r.type !== "Epic")
+          .map(({ parent: _, ...row }) => row),
     })
     const r = renderFrames(<App data={flat()} initialScreen="issues" />)
 
@@ -138,7 +161,7 @@ describe("board", () => {
 
     await r.waitFor("Nothing here")
 
-    expect(last(r)).toContain("To do (1)")
+    expect(last(r)).toContain("To do (2)")
     r.unmount()
   })
 
@@ -169,7 +192,7 @@ describe("search", () => {
     r.write("/")
     await settle()
     r.write("coupon")
-    await r.waitFor("1 of 6")
+    await r.waitFor("1 of 7")
 
     const frame = last(r)
     expect(frame).toContain("plain")
@@ -189,7 +212,7 @@ describe("search", () => {
     await r.waitFor("JQL")
 
     // JQL never narrows live — it runs on enter, so the list is untouched.
-    expect(last(r)).toContain("6 items")
+    expect(last(r)).toContain("7 items")
     r.unmount()
   })
 

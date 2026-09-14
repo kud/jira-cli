@@ -29,39 +29,63 @@ export const countsFor = (rows: IssueRow[]): Record<TabId, number> =>
   )
 
 /**
- * What one tab draws, in order: an optional header for each parent, then the
- * issues under it. Headers appear only when at least one visible row has a
- * parent — a Jira with no epic structure degrades to a plain list, never to
- * a lone "No epic" rule over everything.
+ * What one tab draws, in order. An epic that is itself in the tab HEADS its
+ * group as a selectable row, its children hanging beneath it the way
+ * cockpit's tree does; a parent that is not in the tab gets a dim fence
+ * instead, because there is no row to select. Epic-headed groups come first,
+ * then fenced ones, then rows with no parent — and each group after the
+ * first is preceded by a blank line. A tab where nothing has a parent and
+ * nothing is an epic degrades to a plain list, never to a lone fence.
  */
 export type Block =
-  | { kind: "header"; key: string | null; summary: string }
-  | { kind: "issue"; row: IssueRow }
+  | { kind: "gap" }
+  | { kind: "fence"; key: string | null; summary: string }
+  | { kind: "issue"; row: IssueRow; depth: 0 | 1 }
+
+const isEpic = (row: IssueRow): boolean => row.type.toLowerCase() === "epic"
 
 export const blocksFor = (rows: IssueRow[]): Block[] => {
-  if (!rows.some((r) => r.parent))
-    return rows.map((row) => ({ kind: "issue", row }))
+  const hasStructure = rows.some((r) => r.parent || isEpic(r))
+  if (!hasStructure)
+    return rows.map((row) => ({ kind: "issue", row, depth: 0 }))
 
-  const groups = new Map<string | null, { summary: string; rows: IssueRow[] }>()
+  const heads = new Map(rows.filter(isEpic).map((r) => [r.key, r]))
+  const children = new Map<string, IssueRow[]>()
+  const orphans: IssueRow[] = []
   for (const row of rows) {
-    const key = row.parent?.key ?? null
-    const group = groups.get(key) ?? {
-      summary: row.parent?.summary ?? "",
-      rows: [],
+    if (isEpic(row)) continue
+    const key = row.parent?.key
+    if (!key) {
+      orphans.push(row)
+      continue
     }
-    group.rows.push(row)
-    groups.set(key, group)
+    children.set(key, [...(children.get(key) ?? []), row])
   }
 
-  // Parents in first-seen order (rows arrive newest first, so the liveliest
-  // epic leads), orphans last under a plain rule.
-  const ordered = [...groups.entries()].sort(([a], [b]) =>
-    a === null ? 1 : b === null ? -1 : 0,
+  const groups: Block[][] = []
+  for (const [key, head] of heads)
+    groups.push([
+      { kind: "issue", row: head, depth: 0 },
+      ...(children.get(key) ?? []).map(
+        (row): Block => ({ kind: "issue", row, depth: 1 }),
+      ),
+    ])
+  for (const [key, kids] of children) {
+    if (heads.has(key)) continue
+    groups.push([
+      { kind: "fence", key, summary: kids[0]!.parent?.summary ?? "" },
+      ...kids.map((row): Block => ({ kind: "issue", row, depth: 1 })),
+    ])
+  }
+  if (orphans.length)
+    groups.push([
+      ...(groups.length ? [{ kind: "fence", key: null, summary: "No epic" } as Block] : []),
+      ...orphans.map((row): Block => ({ kind: "issue", row, depth: 0 })),
+    ])
+
+  return groups.flatMap((group, i) =>
+    i === 0 ? group : [{ kind: "gap" } as Block, ...group],
   )
-  return ordered.flatMap(([key, group]) => [
-    { kind: "header" as const, key, summary: key ? group.summary : "No epic" },
-    ...group.rows.map((row) => ({ kind: "issue" as const, row })),
-  ])
 }
 
 /** Index into `blocks` of the n-th issue, so a cursor over issues maps to a line. */

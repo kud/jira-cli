@@ -12,6 +12,16 @@ const STOREFRONT = { key: "SHOP-350", summary: "Storefront refresh" }
 
 const ROWS: IssueRow[] = [
   {
+    key: "SHOP-300",
+    status: "To Do",
+    category: "new",
+    summary: "Basket and checkout correctness",
+    type: "Epic",
+    priority: "Medium",
+    assignee: "Ada Okafor",
+    updated: "2026-08-14T10:00:00.000Z",
+  },
+  {
     key: "SHOP-412",
     status: "In Progress",
     category: "indeterminate",

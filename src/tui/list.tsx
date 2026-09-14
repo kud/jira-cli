@@ -48,9 +48,9 @@ type Props = {
   onClearSearch: () => void
 }
 
-// Lines the frame spends around the rows: border ×2, title, tabs ×2, the blank
-// above and below the rows, the counter and the hints.
-const CHROME = 9
+// Lines the frame spends around the rows: border ×2, title, the blank under
+// it, tabs ×2, the blank above and below the rows, the counter and the hints.
+const CHROME = 10
 
 const LEGEND: [string, string][] = [
   ["▲", "high priority"],
@@ -264,7 +264,7 @@ export const IssueList = ({
         </Text>
       ) : null}
 
-      <Box paddingLeft={2}>
+      <Box paddingLeft={2} marginTop={1}>
         <Tabs active={tab} items={tabItems} />
       </Box>
 
@@ -289,8 +289,10 @@ export const IssueList = ({
           </Box>
         ) : (
           blocks.slice(start, end).map((block, i) =>
-            block.kind === "header" ? (
-              <Box key={`h:${block.key ?? "none"}`} paddingLeft={4}>
+            block.kind === "gap" ? (
+              <Text key={`gap:${start + i}`}> </Text>
+            ) : block.kind === "fence" ? (
+              <Box key={`f:${block.key ?? "none"}`} paddingLeft={4}>
                 <Text dimColor>
                   {rule(
                     block.key
@@ -302,6 +304,11 @@ export const IssueList = ({
               </Box>
             ) : (
               <SelectableRow key={block.row.key} active={start + i === focus}>
+                {block.depth === 1 ? (
+                  <Box flexShrink={0} width={3}>
+                    <Text dimColor>└─ </Text>
+                  </Box>
+                ) : null}
                 <Box flexShrink={0} width={2}>
                   <Text
                     color={
