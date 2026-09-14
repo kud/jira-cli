@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.6.2 — 2026-09-14
+
+### Highlights
+
+- **The title row is cockpit's.** `🎫 Jira    7 items  ·  @you  updated 2m ago  ╌╌╌╌` — count padded so the header never shuffles, your name plain, freshness dim, a dotted rule to the edge; the detail page carries the issue key in the same row. The frame is now `@kud/ink-ui` 0.28's `Page`, so every `@kud` TUI draws the same one. ([45c9dbc](https://github.com/kud/jira-cli/commit/45c9dbca685235ed77075d9fd1864d628b4ac9a6))
+
+---
+
 ## 0.6.1 — 2026-09-14
 
 ### Highlights
