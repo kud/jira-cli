@@ -51,7 +51,7 @@ jira
 
 Your issues as a board: three tabs — **To do**, **In progress**, **Done** — filed by Jira's status *category*, so it works on any instance without knowing what your board calls its columns. Rows hang under their epic, carry a type pill, a priority glyph (`▲` high, `▼` low) and how long since they last moved. Closed work from the last fortnight is on the Done tab; `a` loads everything.
 
-`↑↓` to move, `⇥` to switch tab, `enter` to open, `?` for the legend, `r` to refresh, `q` to quit.
+`↑↓` to move, `←→` (or `⇥`) to switch tab, `enter` to open, `?` for the legend, `r` to refresh, `q` to quit.
 
 `/` searches. Plain words narrow the list as you type and, on `enter`, run as `text ~ "…"` within your issues — so a match in a comment counts too. Anything shaped like JQL (`status = Done`, `labels in (a, b)`, `ORDER BY …`) is sent as-is and replaces the scope; the tag at the end of the line says which reading it took, and `⇥` flips it. A query Jira rejects shows Jira's own message under the box and keeps your text for editing. `esc` clears the search.
 

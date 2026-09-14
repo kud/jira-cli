@@ -95,9 +95,8 @@ describe("board", () => {
     await r.waitFor("SHOP-412")
     await settle()
 
-    r.write("\t")
-    await settle()
-    r.write("\t")
+    // ← from In progress wraps to To do — arrows step the tab exactly as ⇥ does.
+    r.write("\u001b[D")
     await r.waitFor("SHOP-397")
 
     const lines = last(r).split("\n")

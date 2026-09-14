@@ -122,7 +122,7 @@ export const IssueList = ({
   const counts = countsFor(narrowed)
   const tabItems = TABS.map((t) => ({ ...t, count: counts[t.value] }))
   const listFocused = !search.open && !legend
-  const { active } = useTabs<TabId>(tabItems, {
+  const { active, setActive } = useTabs<TabId>(tabItems, {
     initial: "doing",
     isActive: listFocused,
   })
@@ -156,6 +156,13 @@ export const IssueList = ({
       return
     }
     if (key.return && issues[cursor]) onOpen(issues[cursor].row.key)
+    // ←→ have no other job on this screen, so they move the tab as well as ⇥
+    // — the ring is still the hook's; this only asks it to step.
+    if (key.leftArrow || key.rightArrow) {
+      const at = TABS.findIndex((t) => t.value === tab)
+      const next = (at + (key.leftArrow ? -1 : 1) + TABS.length) % TABS.length
+      setActive(TABS[next]!.value)
+    }
     if (input === "/")
       setSearch((s) => ({
         ...s,
@@ -200,7 +207,7 @@ export const IssueList = ({
       ? [["?", "close"]]
       : [
           ["↑↓", "move"],
-          ["⇥", "tab"],
+          ["←→", "tab"],
           ["enter", "open"],
           ["/", scope.kind === "search" ? "edit" : "search"],
           ...(scope.kind === "search"
