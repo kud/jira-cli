@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.7.0 — 2026-09-22
+
+### Highlights
+
+- **Moving an issue no longer takes it off the screen.** Picking a transition used to drop a full-screen spinner over the view and re-fetch the whole issue, so the ticket you were reading vanished for two round trips. The detail page now stays mounted throughout: a dim `⋯ moving` marks the summary while Jira decides, the new status is written in from the transition's own target the moment it's accepted, and there's no re-fetch at all. A rejected move leaves the issue exactly where it was, with Jira's own first line shown in the frame instead of blanking the view for an error screen with a retry key. ([5ad2d9d](https://github.com/kud/jira-cli/commit/5ad2d9d6693f0dfca471dfa73f8551a065b4e1c4))
+- **The board now says where a fenced parent is.** A task whose epic has no row on the current board carries that epic's tab when it's yours, or `@FirstName` / `unassigned` when it isn't — from one extra `key in (…)` search fired after the rows are already on screen, so it never holds up first paint. ([5ad2d9d](https://github.com/kud/jira-cli/commit/5ad2d9d6693f0dfca471dfa73f8551a065b4e1c4))
+- **Epics that have fallen behind are now marked `behind`** — parked Off board while a child has started, or still open once every child is Done. ([5ad2d9d](https://github.com/kud/jira-cli/commit/5ad2d9d6693f0dfca471dfa73f8551a065b4e1c4))
+- **`@kud/jira-ink` jumps 0.5.0 → 0.10.0**, bringing bottom-up epic placement (an epic is placed by its children, so it heads a group in every tab it has one in, with per-tab counts changing to match), a five-glyph priority column (`⇈ ↑ = ↓ ⇊` replacing the old `▲`/`▼`), the issue detail collapsed into one continuous document instead of three tabs, and a real tree grammar (`├─`/`└─` with stems). ([47e9a81](https://github.com/kud/jira-cli/commit/47e9a81b625d0d7b3d8594e0ac89da0fae3f8376))
+
+---
+
 ## 0.6.2 — 2026-09-14
 
 ### Highlights
