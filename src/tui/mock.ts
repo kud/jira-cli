@@ -108,11 +108,25 @@ export const mockData = (): DataSource => ({
             },
     }
   },
+  // Nobody's epic is missing from the mock board, so the lookup has nothing
+  // to find — which is the honest answer here rather than an invented fence.
+  parents: async () => [],
   getIssue: async (key) => DETAIL[key] ?? fallbackDetail(key),
+  // The status ids match the mock board's own, so a transition here actually
+  // lands the row in the tab it names — a mock whose move goes nowhere cannot
+  // demonstrate the one thing the move is for.
   getTransitions: async () => [
-    { id: "11", name: "Start progress", to: "In Progress" },
-    { id: "21", name: "Ready for review", to: "In Review" },
-    { id: "31", name: "Done", to: "Done" },
+    {
+      id: "11",
+      name: "Start progress",
+      to: { id: "10001", name: "In Progress", category: "indeterminate" },
+    },
+    {
+      id: "21",
+      name: "Ready for review",
+      to: { id: "10002", name: "In Review", category: "indeterminate" },
+    },
+    { id: "31", name: "Done", to: { id: "10003", name: "Done", category: "done" } },
   ],
   transition: async () => {},
   comment: async () => {},

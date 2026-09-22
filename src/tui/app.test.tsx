@@ -72,22 +72,27 @@ describe("board", () => {
     await r.waitFor("SHOP-412")
 
     const frame = last(r)
+    // The epic is tallied in each of the three tabs it heads a group in:
+    // placement is bottom-up, so it is a row in all three and nowhere else.
     expect(frame).toContain("To do (2)")
-    expect(frame).toContain("In progress (4)")
-    expect(frame).toContain("Done (1)")
+    expect(frame).toContain("In progress (5)")
+    expect(frame).toContain("Done (2)")
     // The status NAME never reaches the screen — "Blocked" is filed by its
     // category, which is the whole point of a board that knows no workflow.
     expect(frame).not.toContain("Blocked")
     r.unmount()
   })
 
-  it("hangs rows under their epic and orphans under a plain rule", async () => {
+  it("heads a group with the epic itself, and fences only a parent it holds no row for", async () => {
     const r = renderFrames(<App data={mockData()} initialScreen="issues" />)
 
     await r.waitFor("SHOP-412")
 
     const frame = last(r)
-    expect(frame).toContain("── Basket and checkout correctness · SHOP-300")
+    // SHOP-300 is a row on this board, so it comes along as a selectable head
+    // wherever its children are; SHOP-350 is nobody's row, so it fences.
+    expect(frame).toContain("── Storefront refresh · SHOP-350")
+    expect(frame).not.toContain("── Basket and checkout correctness")
     expect(frame).toContain("── No epic")
     expect(frame.indexOf("SHOP-300")).toBeLessThan(frame.indexOf("SHOP-412"))
     r.unmount()
@@ -141,7 +146,9 @@ describe("board", () => {
     await r.waitFor("SHOP-412")
 
     const row = last(r).split("\n").find((l) => l.includes("SHOP-412")) ?? ""
-    expect(row).toContain("▲")
+    // One rung above the default, in the five-glyph arrow grammar — not the
+    // two-ended ▲/▼, which drew half a four-rung scheme as if it were normal.
+    expect(row).toContain("↑")
     expect(row).toContain("bug")
     expect(row).toMatch(/\d+[mhdw] │$/)
     r.unmount()
@@ -180,12 +187,12 @@ describe("board", () => {
     await settle()
 
     r.write("?")
-    await r.waitFor("high priority")
+    await r.waitFor("priority above the default")
 
     expect(last(r)).toContain("status category")
     r.write("?")
     await settle()
-    expect(last(r)).not.toContain("high priority")
+    expect(last(r)).not.toContain("priority above the default")
     r.unmount()
   })
 })
@@ -329,14 +336,17 @@ describe("detail screen", () => {
     r.unmount()
   })
 
-  it("names the attachment tab with its count", async () => {
+  it("reads as one document — description, then comments, then attachments", async () => {
     const r = renderFrames(
       <App data={mockData()} initialScreen="detail" initialKey="SHOP-412" />,
     )
 
-    await r.waitFor("Attachments")
+    await r.waitFor("SHOP-412")
 
-    expect(seen(r, "Description")).toBe(true)
+    // No tabs to switch between since 0.8.0: the sections are headings in one
+    // scroll, so the counts are in the facts line rather than on a tab.
+    expect(seen(r, "comments")).toBe(true)
+    expect(seen(r, "attachments")).toBe(true)
     r.unmount()
   })
 })
@@ -356,18 +366,40 @@ describe("write flows", () => {
     return [detail, { ...detail, summary: marker }]
   }
 
-  it("transitions the issue after picking an option from the menu", async () => {
-    const [detail, reloaded] = await withReloadMarker(
-      "Reloaded after transition",
-    )
+  it("moves the issue without taking the detail off the screen, and never re-fetches it", async () => {
+    const detail = await detailFixture()
     const transition = vi.fn().mockResolvedValue(undefined)
+    const getIssue = vi.fn().mockResolvedValue(detail)
+    const data: DataSource = { ...mockData(), transition, getIssue }
+
+    const r = renderFrames(
+      <App data={data} initialScreen="detail" initialKey="SHOP-412" />,
+    )
+    await r.waitFor("SHOP-412")
+    await settle()
+
+    r.write("t")
+    await r.waitFor("Move SHOP-412 to…")
+    await settle()
+    r.write("\r")
+    // The new status reaching the screen is what says the move landed. It is
+    // written locally from the transition's own target, so the one fetch is
+    // the one that opened the issue — a reload here used to blank the issue
+    // you were reading for the length of a round trip.
+    await r.waitFor("In Progress")
+
+    expect(transition).toHaveBeenCalledWith("SHOP-412", "11")
+    expect(getIssue).toHaveBeenCalledTimes(1)
+    expect(r.lastFrame()).toContain("SHOP-412")
+    r.unmount()
+  })
+
+  it("leaves a rejected move where it was, with Jira's words in the frame", async () => {
+    const detail = await detailFixture()
     const data: DataSource = {
       ...mockData(),
-      transition,
-      getIssue: vi
-        .fn()
-        .mockResolvedValueOnce(detail)
-        .mockResolvedValue(reloaded),
+      getIssue: vi.fn().mockResolvedValue(detail),
+      transition: vi.fn().mockRejectedValue(new Error("Transition is not valid")),
     }
 
     const r = renderFrames(
@@ -380,9 +412,10 @@ describe("write flows", () => {
     await r.waitFor("Move SHOP-412 to…")
     await settle()
     r.write("\r")
-    await r.waitFor("Reloaded after transition")
+    await r.waitFor("Transition is not valid")
 
-    expect(transition).toHaveBeenCalledWith("SHOP-412", "11")
+    // In the frame, not instead of it: the issue is still true and still there.
+    expect(r.lastFrame()).toContain("SHOP-412")
     r.unmount()
   })
 

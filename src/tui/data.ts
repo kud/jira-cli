@@ -2,8 +2,11 @@ import { searchJql, type SearchMode } from "@kud/jira"
 import {
   boardOf,
   issueDetailOf,
+  parentsOf,
   transitionsOf,
+  withBehind,
   type BoardModel,
+  type BoardRow,
   type IssueDetail,
   type Transition,
 } from "@kud/jira-ink"
@@ -14,7 +17,7 @@ export type Viewer = { displayName: string }
 // The detail shape and its fetch live in @kud/jira-ink, beside the screen that
 // reads them, so cockpit can mount the same view; re-exported here so the rest
 // of the TUI keeps one import path for its data types.
-export type { IssueDetail, Transition }
+export type { BoardRow, IssueDetail, Transition }
 export type { SearchMode }
 
 /**
@@ -34,6 +37,13 @@ export type DataSource = {
     query: string,
     mode: SearchMode,
   ) => Promise<{ model: BoardModel; mode: "jql" | "text" }>
+  /**
+   * The epics behind rows the board holds no row for — one extra search, so
+   * a fence can say whose epic it is. Separate from `board` because it is a
+   * second round trip whose absence must not hold the rows back: the board
+   * paints, the fences fill in.
+   */
+  parents: (rows: BoardRow[]) => Promise<BoardRow[]>
   getIssue: (key: string) => Promise<IssueDetail>
   getTransitions: (key: string) => Promise<Transition[]>
   transition: (key: string, transitionId: string) => Promise<void>
@@ -60,17 +70,27 @@ const boardOptions = (ctx: Context & { board?: number }) => ({
     : {}),
 })
 
+/** The two lagging epics the board can see for itself, filled before it draws. */
+const marked = (model: BoardModel): BoardModel => ({
+  ...model,
+  rows: withBehind(model.rows, model.tabs),
+})
+
 export const liveData = (
   ctx: Context & { board?: number } = context(),
 ): DataSource => ({
   baseUrl: ctx.config.baseUrl,
 
-  board: (all) =>
-    boardOf(
-      ctx.client,
-      `assignee = currentUser()${all ? "" : ` AND ${DEFAULT_SCOPE}`} ORDER BY updated DESC`,
-      boardOptions(ctx),
+  board: async (all) =>
+    marked(
+      await boardOf(
+        ctx.client,
+        `assignee = currentUser()${all ? "" : ` AND ${DEFAULT_SCOPE}`} ORDER BY updated DESC`,
+        boardOptions(ctx),
+      ),
     ),
+
+  parents: (rows) => parentsOf(ctx.client, rows),
 
   me: async () => ({ displayName: (await ctx.client.getMe()).displayName }),
 
@@ -79,7 +99,10 @@ export const liveData = (
       mode,
       scope: "assignee = currentUser()",
     })
-    return { model: await boardOf(ctx.client, jql, boardOptions(ctx)), mode: used }
+    return {
+      model: marked(await boardOf(ctx.client, jql, boardOptions(ctx))),
+      mode: used,
+    }
   },
 
   getIssue: (key) => issueDetailOf(ctx.client, ctx.config.baseUrl, key),

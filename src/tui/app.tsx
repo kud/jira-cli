@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process"
 import {
   Alert,
+  colors,
   ConfirmInput,
   Select,
   Spinner,
@@ -20,7 +21,11 @@ import type {
 import {
   IssueBoard,
   IssueDetailView,
+  pendingRow,
+  settleRow,
+  transitionRow,
   type BoardModel,
+  type BoardRow,
   type BoardScope,
 } from "@kud/jira-ink"
 import { Frame, FRAME_CHROME } from "./frame.js"
@@ -65,6 +70,15 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const [showingAll, setShowingAll] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
+  const [parents, setParents] = useState<BoardRow[]>([])
+  /**
+   * Transient news that must not replace the screen: a rejected move, mostly.
+   * `error` blanks the view and offers a retry, which is right for a load
+   * that failed and wrong for a move that did — the board is still true.
+   */
+  const [flash, setFlash] = useState<string | null>(null)
+  /** The key whose move is in flight; the transition key is locked while set. */
+  const [moving, setMoving] = useState<string | null>(null)
 
   const loadList = useCallback(
     async (all: boolean) => {
@@ -73,8 +87,15 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       setScope({ kind: "mine" })
       setSearchError(null)
       try {
-        setModel(await data.board(all))
+        const next = await data.board(all)
+        setModel(next)
         setLoadedAt(Date.now())
+        // Second round trip, deliberately not awaited into the paint: the
+        // fences say nothing until it lands rather than guessing an owner.
+        void data
+          .parents(next.rows)
+          .then(setParents)
+          .catch(() => {})
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
       }
@@ -108,10 +129,43 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       try {
         const result = await data.search(query, mode)
         setModel(result.model)
+        void data
+          .parents(result.model.rows)
+          .then(setParents)
+          .catch(() => {})
         setScope({ kind: "search", query, mode: result.mode })
         setLoadedAt(Date.now())
       } catch (e) {
         setSearchError(jiraMessageOf(e))
+      }
+    },
+    [data],
+  )
+
+  /**
+   * The hybrid move: the row keeps its place under a `⋯ → QA` marker while
+   * the request is out, and moves only once Jira has said it moved. Nothing
+   * is optimistic, and nothing is re-fetched to make it visible — the next
+   * refresh is reconciliation.
+   *
+   * The detail stays mounted throughout. A full-screen spinner here used to
+   * take the issue off the screen for the length of a round trip, so the one
+   * thing you were reading vanished to tell you a key had been pressed.
+   */
+  const move = useCallback(
+    async (key: string, t: Transition) => {
+      setFlash(null)
+      setMoving(key)
+      setModel((m) => (m ? pendingRow(m, key, t.to) : m))
+      try {
+        await data.transition(key, t.id)
+        setModel((m) => (m ? transitionRow(m, key, t.to) : m))
+        setIssue((i) => (i && i.key === key ? { ...i, status: t.to.name } : i))
+      } catch (e) {
+        setModel((m) => (m ? settleRow(m, key) : m))
+        setFlash(jiraMessageOf(e))
+      } finally {
+        setMoving(null)
       }
     },
     [data],
@@ -194,22 +248,13 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
         <Text bold>Move {issue?.key} to…</Text>
         <Select
           options={overlay.options.map((t) => ({
-            label: `${t.name} → ${t.to}`,
+            label: `${t.name} → ${t.to.name}`,
             value: t.id,
           }))}
           onSubmit={(id) => {
+            const chosen = overlay.options.find((t) => t.id === id)!
             setOverlay({ kind: "none" })
-            void (async () => {
-              setBusy("Transitioning…")
-              try {
-                await data.transition(issue!.key, id)
-                await loadIssue(issue!.key)
-              } catch (e) {
-                setError(e instanceof Error ? e.message : String(e))
-              } finally {
-                setBusy(null)
-              }
-            })()
+            void move(issue!.key, chosen)
           }}
         />
         <Text dimColor>esc cancel</Text>
@@ -289,7 +334,15 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
           >
             <Box paddingLeft={2}>
               <Text dimColor>{subtitle}</Text>
+              {moving === issue.key ? (
+                <Text color={colors.accent}>{"  ⋯ moving"}</Text>
+              ) : null}
             </Box>
+            {flash ? (
+              <Box paddingLeft={2}>
+                <Text color={colors.error}>{`✗ ${flash}`}</Text>
+              </Box>
+            ) : null}
             <Box
               flexDirection="column"
               marginTop={1}
@@ -305,6 +358,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
         onAssign={() => setOverlay({ kind: "assign" })}
         onComment={() => setOverlay({ kind: "comment" })}
         onTransition={() => {
+          if (moving) return
           void (async () => {
             setBusy("Loading transitions…")
             try {
@@ -326,6 +380,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   return (
     <IssueBoard
       model={model}
+      parents={parents}
       frame={({ title, hints, body }) => (
         <Frame
           width={width}
