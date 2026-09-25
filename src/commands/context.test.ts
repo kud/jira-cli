@@ -37,22 +37,31 @@ describe("warnIfTruncated", () => {
   it("leaves the exit code and stderr alone when nothing was cut off", () => {
     const stderr = vi.spyOn(process.stderr, "write").mockReturnValue(true)
 
-    warnIfTruncated(12, 50)
+    warnIfTruncated(12, 50, { exitCode: true })
 
     expect(stderr).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(originalExitCode)
   })
 
-  it("warns on stderr and sets the exit code, never touching stdout", () => {
+  it("warns on stderr and sets the exit code for --json, never touching stdout", () => {
     const stderr = vi.spyOn(process.stderr, "write").mockReturnValue(true)
     const stdout = vi.spyOn(process.stdout, "write").mockReturnValue(true)
 
-    warnIfTruncated(50, 50)
+    warnIfTruncated(50, 50, { exitCode: true })
 
     expect(stdout).not.toHaveBeenCalled()
     expect(stderr).toHaveBeenCalledOnce()
     expect(String(stderr.mock.calls[0]?.[0])).toMatch(/truncated at --limit 50/)
     expect(process.exitCode).toBe(TRUNCATED_EXIT_CODE)
+  })
+
+  it("still warns on the table path but exits 0, so `jira issue list && …` keeps working", () => {
+    const stderr = vi.spyOn(process.stderr, "write").mockReturnValue(true)
+
+    warnIfTruncated(50, 50, { exitCode: false })
+
+    expect(stderr).toHaveBeenCalledOnce()
+    expect(process.exitCode).toBe(originalExitCode)
   })
 
   it("keeps the truncated code distinct from every failure code the CLI already uses", () => {

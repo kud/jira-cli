@@ -59,21 +59,29 @@ export const printJson = (value: unknown): void => {
  *
  * The signal stays out of band — stderr and the exit code — because --json's
  * shape is a contract, and a program that only reads stdout must keep parsing
- * exactly as it did. It is not conditioned on --json either: a truncated
- * result is a fact about the query, not about how it was rendered, and the
- * table output is piped through awk as often as the JSON is through jq.
+ * exactly as it did.
+ *
+ * The exit code is for --json only; the warning goes out on both paths. The
+ * table's default limit is sized for a human at a terminal, and exiting 3
+ * there would break `jira issue list && …` for the most ordinary use. Keying
+ * the code on isTTY instead was rejected: the same command would then exit
+ * differently inside $(...) or CI than at the prompt, which is the harder bug.
  */
 export const TRUNCATED_EXIT_CODE = 3
 
 export const isTruncated = (count: number, limit: number): boolean =>
   Number.isFinite(limit) && limit > 0 && count >= limit
 
-export const warnIfTruncated = (count: number, limit: number): void => {
+export const warnIfTruncated = (
+  count: number,
+  limit: number,
+  { exitCode }: { exitCode: boolean },
+): void => {
   if (!isTruncated(count, limit)) return
   process.stderr.write(
     `jira: result may be truncated at --limit ${limit} — there may be more\n`,
   )
   // Not process.exit: stdout is asynchronous when it is a pipe, so exiting
   // here would risk cutting the JSON we just wrote in half.
-  process.exitCode = TRUNCATED_EXIT_CODE
+  if (exitCode) process.exitCode = TRUNCATED_EXIT_CODE
 }

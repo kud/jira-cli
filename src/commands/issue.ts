@@ -59,7 +59,7 @@ export const registerIssueCommands = (program: Command): void => {
 
       if (options.json) {
         printJson(issues)
-        warnIfTruncated(issues.length, limit)
+        warnIfTruncated(issues.length, limit, { exitCode: true })
         return
       }
       if (issues.length === 0) {
@@ -76,7 +76,7 @@ export const registerIssueCommands = (program: Command): void => {
         return
       }
       process.stdout.write(`${table(issues, issueColumns(ctx))}\n`)
-      warnIfTruncated(issues.length, limit)
+      warnIfTruncated(issues.length, limit, { exitCode: false })
     })
 
   issue

@@ -17,7 +17,7 @@ export const registerSearchCommand = (program: Command): void => {
       const issues = await ctx.client.searchIssues(jql, { limit })
       if (options.json) {
         printJson(issues)
-        warnIfTruncated(issues.length, limit)
+        warnIfTruncated(issues.length, limit, { exitCode: true })
         return
       }
       if (issues.length === 0) {
@@ -31,7 +31,7 @@ export const registerSearchCommand = (program: Command): void => {
           { header: "SUMMARY", value: (i) => i.fields.summary ?? "" },
         ])}\n`,
       )
-      warnIfTruncated(issues.length, limit)
+      warnIfTruncated(issues.length, limit, { exitCode: false })
     })
 }
 
