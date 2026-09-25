@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.8.0 — 2026-09-25
+
+### Highlights
+
+- **`issue list` and `search` now warn when a result may be cut short.** Jira's `/search/jql` endpoint never reports a total, so a page that comes back exactly as full as `--limit` asked for is the only signal there might be more — the warning is printed on stderr and fires on that heuristic by design, including the rare case where the result count genuinely lands on the limit with nothing left. stdout and `--json` output are untouched either way, so anything parsing them sees no difference. ([cb46536](https://github.com/kud/jira-cli/commit/cb465369c6e28b54d22219a7f506e6d0025923d3))
+- **`--json` now exits 3 when that truncation warning fires — a new, documented exit code.** Table output still warns but keeps exiting 0, so `jira issue list && …` chains keep working unchanged; only scripts consuming `--json` need to know about the new code. ([089f08d](https://github.com/kud/jira-cli/commit/089f08d84906293afad0482b08d3bced745ae314))
+
+---
+
 ## 0.7.0 — 2026-09-22
 
 ### Highlights
