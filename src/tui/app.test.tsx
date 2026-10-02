@@ -232,7 +232,7 @@ describe("search", () => {
     r.unmount()
   })
 
-  it("runs the query on enter and names it as the scope", async () => {
+  it("runs the query on enter and shows it in the filter bar", async () => {
     const data = mockData()
     const search = vi.spyOn(data, "search")
     const r = renderFrames(<App data={data} initialScreen="issues" />)
@@ -244,10 +244,12 @@ describe("search", () => {
     r.write("coupon")
     await settle()
     r.write("\r")
-    await r.waitFor("“coupon”")
+    // The query appears in the filter bar; the scope shows the filtered count.
+    await r.waitFor("/ coupon")
 
     expect(search).toHaveBeenCalledWith("coupon", "auto")
-    expect(last(r)).not.toContain("@Ada Okafor")
+    // The user remains in the title bar; the scope shows the filtered count.
+    expect(last(r)).toContain("@Ada Okafor")
     r.write("x")
     await r.waitFor("@Ada Okafor")
     r.unmount()

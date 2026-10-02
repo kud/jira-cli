@@ -1,6 +1,6 @@
 import { looksLikeJql } from "@kud/jira"
-import { MOCK_BOARD_ROWS, mockBoard } from "@kud/jira-ink"
-import type { DataSource, IssueDetail } from "./data.js"
+import { MOCK_BOARD_ROWS, mockBoard, tabsFromCategories } from "@kud/jira-ink"
+import type { BoardTabs, DataSource, IssueDetail } from "./data.js"
 
 const ROWS = MOCK_BOARD_ROWS
 
@@ -90,6 +90,10 @@ const fallbackDetail = (key: string): IssueDetail => {
 export const mockData = (): DataSource => ({
   baseUrl: "https://example.atlassian.net",
   board: async () => mockBoard(),
+  tabs: async () => {
+    const model = mockBoard()
+    return model.tabs
+  },
   me: async () => ({ displayName: "Ada Okafor" }),
   search: async (query, mode) => {
     const used = mode === "jql" || (mode === "auto" && looksLikeJql(query)) ? "jql" : "text"

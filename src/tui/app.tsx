@@ -9,7 +9,7 @@ import {
   useAppKeys,
   type Hint,
 } from "@kud/ink-ui"
-import { Box, Text, useApp, useInput, useStdout } from "ink"
+import { Box, Text, useApp, useInput, useWindowSize } from "ink"
 import { useCallback, useEffect, useState, type ReactNode } from "react"
 import { errorMessagesOf, isJiraApiError } from "@kud/jira"
 import type {
@@ -20,6 +20,7 @@ import type {
 } from "./data.js"
 import {
   IssueBoard,
+  IssueBoardSkeleton,
   IssueDetailView,
   pendingRow,
   settleRow,
@@ -27,6 +28,7 @@ import {
   type BoardModel,
   type BoardRow,
   type BoardScope,
+  type BoardTabs,
 } from "@kud/jira-ink"
 import { Frame, FRAME_CHROME } from "./frame.js"
 
@@ -54,9 +56,7 @@ type Props = { data: DataSource; initialScreen: Screen; initialKey?: string }
 
 export const App = ({ data, initialScreen, initialKey }: Props) => {
   const { exit } = useApp()
-  const { stdout } = useStdout()
-  const width = stdout?.columns ?? 80
-  const height = stdout?.rows ?? 24
+  const { columns: width, rows: height } = useWindowSize()
 
   const [screen, setScreen] = useState<Screen>(initialScreen)
   const [model, setModel] = useState<BoardModel | null>(null)
@@ -71,6 +71,10 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
   const [parents, setParents] = useState<BoardRow[]>([])
+  /** Whether we have tabs for the skeleton (fetched before or with first board load). */
+  const [tabs, setTabs] = useState<BoardTabs | null>(null)
+  /** Whether the initial board load has completed. */
+  const [initialLoadDone, setInitialLoadDone] = useState(false)
   /**
    * Transient news that must not replace the screen: a rejected move, mostly.
    * `error` blanks the view and offers a retry, which is right for a load
@@ -83,13 +87,19 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const loadList = useCallback(
     async (all: boolean) => {
       setError(null)
-      setModel(null)
+      if (!initialLoadDone) {
+        setModel(null)
+      }
       setScope({ kind: "mine" })
       setSearchError(null)
       try {
         const next = await data.board(all)
         setModel(next)
+        if (!initialLoadDone) {
+          setTabs(next.tabs)
+        }
         setLoadedAt(Date.now())
+        setInitialLoadDone(true)
         // Second round trip, deliberately not awaited into the paint: the
         // fences say nothing until it lands rather than guessing an owner.
         void data
@@ -100,7 +110,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
         setError(e instanceof Error ? e.message : String(e))
       }
     },
-    [data],
+    [data, initialLoadDone],
   )
 
   const loadIssue = useCallback(
@@ -129,17 +139,16 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       try {
         const result = await data.search(query, mode)
         setModel(result.model)
-        void data
-          .parents(result.model.rows)
-          .then(setParents)
-          .catch(() => {})
-        setScope({ kind: "search", query, mode: result.mode })
+        if (!initialLoadDone) {
+          setTabs(result.model.tabs)
+        }
         setLoadedAt(Date.now())
+        setInitialLoadDone(true)
       } catch (e) {
         setSearchError(jiraMessageOf(e))
       }
     },
-    [data],
+    [data, initialLoadDone],
   )
 
   /**
@@ -176,6 +185,20 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       .me()
       .then((me) => setViewer(me.displayName))
       .catch(() => {})
+  }, [data])
+
+  // Fetch tabs early for the skeleton, then load the board.
+  useEffect(() => {
+    let cancelled = false
+    data
+      .tabs()
+      .then((t) => {
+        if (!cancelled) setTabs(t)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
   }, [data])
 
   // Opening straight onto a screen must also run that screen's loader —
@@ -226,8 +249,9 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     body: ReactNode,
     hints?: Hint[],
     page: "root" | "nested" = screen === "detail" ? "nested" : "root",
+    help?: boolean,
   ) => (
-    <Frame width={width} height={height} facts={facts} hints={hints} page={page}>
+    <Frame facts={facts} hints={hints} page={page} help={help}>
       <Box flexDirection="column" marginTop={1} paddingLeft={2} flexGrow={1}>
         {body}
       </Box>
@@ -324,14 +348,7 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
         width={width}
         height={height - FRAME_CHROME - DETAIL_CHROME}
         frame={({ title, subtitle, hints, body }) => (
-          <Frame
-            width={width}
-            height={height}
-            scope={title}
-            // The view names its back key; the frame's tail draws it.
-            hints={hints.filter(([k]) => k !== "⌫")}
-            page="nested"
-          >
+          <Frame scope={title} hints={hints.filter(([k]) => k !== "⌫")} page="nested">
             <Box paddingLeft={2}>
               <Text dimColor>{subtitle}</Text>
               {moving === issue.key ? (
@@ -375,26 +392,51 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     )
   }
 
-  if (!model) return framed("loading…", <Spinner label="Loading issues…" />)
+  // Build the frame function used by both IssueBoard and IssueBoardSkeleton.
+  const boardFrame = ({
+    title,
+    hints,
+    body,
+  }: {
+    title: { count: number | null; user?: string; scope?: string; status: { text: string; tone: "quiet" | "busy" } }
+    hints: Hint[]
+    body: ReactNode
+  }) => (
+    <Frame
+      count={title.count ?? undefined}
+      user={title.user}
+      scope={title.scope}
+      status={title.status}
+      hints={hints}
+      gap={false}
+    >
+      {body}
+    </Frame>
+  )
+
+  // Cold load: show skeleton with real tabs and placeholder rows.
+  // The skeleton only shows when we have tabs but haven't loaded the board yet.
+  if (!initialLoadDone && tabs) {
+    return (
+      <IssueBoardSkeleton
+        tabs={tabs}
+        width={width}
+        height={height}
+        frame={boardFrame}
+      />
+    )
+  }
+
+  // First load, no tabs yet: spinner inside frame
+  if (!initialLoadDone) {
+    return framed("loading…", <Spinner label="Loading issues…" />)
+  }
 
   return (
     <IssueBoard
-      model={model}
+      model={model!}
       parents={parents}
-      frame={({ title, hints, body }) => (
-        <Frame
-          width={width}
-          height={height}
-          count={title.count}
-          user={title.user}
-          scope={title.scope}
-          status={title.status}
-          hints={hints}
-          gap={false}
-        >
-          {body}
-        </Frame>
-      )}
+      frame={boardFrame}
       onInputFocus={setInputFocused}
       viewer={viewer}
       loadedAt={loadedAt}

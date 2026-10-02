@@ -3,10 +3,14 @@ import {
   boardOf,
   issueDetailOf,
   parentsOf,
+  tabsFromBoard,
+  tabsFromConfig,
+  tabsFromCategories,
   transitionsOf,
   withBehind,
   type BoardModel,
   type BoardRow,
+  type BoardTabs,
   type IssueDetail,
   type Transition,
 } from "@kud/jira-ink"
@@ -17,7 +21,7 @@ export type Viewer = { displayName: string }
 // The detail shape and its fetch live in @kud/jira-ink, beside the screen that
 // reads them, so cockpit can mount the same view; re-exported here so the rest
 // of the TUI keeps one import path for its data types.
-export type { BoardRow, IssueDetail, Transition }
+export type { BoardRow, BoardTabs, IssueDetail, Transition }
 export type { SearchMode }
 
 /**
@@ -28,6 +32,8 @@ export type { SearchMode }
  */
 export type DataSource = {
   board: (all: boolean) => Promise<BoardModel>
+  /** Tabs for the skeleton, available before the full board loads. */
+  tabs: () => Promise<BoardTabs>
   me: () => Promise<Viewer>
   /**
    * Plain words search within the viewer's own list; JQL replaces it. The
@@ -89,6 +95,16 @@ export const liveData = (
         boardOptions(ctx),
       ),
     ),
+
+  tabs: async () => {
+    const opts = boardOptions(ctx)
+    if (opts.tabs) return tabsFromConfig(opts.tabs)
+    if (opts.board) {
+      const config = await ctx.client.getBoardConfiguration(opts.board)
+      return tabsFromBoard(config) ?? tabsFromCategories()
+    }
+    return tabsFromCategories()
+  },
 
   parents: (rows) => parentsOf(ctx.client, rows),
 

@@ -2,8 +2,6 @@ import { Page, type Hint, type PageStatus } from "@kud/ink-ui"
 import type { ReactNode } from "react"
 
 type Props = {
-  width: number
-  height: number
   /** Free text after the name, for a state with nothing structured to say — `loading…`, `error`. */
   facts?: string
   /** Structured segments, the way the board hands them over. */
@@ -17,6 +15,8 @@ type Props = {
   page?: "root" | "nested"
   /** False when the body draws the blank under the title itself — the board's search row lives there. */
   gap?: boolean
+  /** Whether to hide the help hint in the footer (for skeleton loads). */
+  help?: boolean
   children: ReactNode
 }
 
@@ -30,8 +30,6 @@ type Props = {
  * row is the same one every `@kud` TUI draws.
  */
 export const Frame = ({
-  width,
-  height,
   facts,
   count,
   user,
@@ -40,6 +38,7 @@ export const Frame = ({
   hints,
   page = "root",
   gap = true,
+  help,
   children,
 }: Props) => (
   <Page
@@ -53,8 +52,8 @@ export const Frame = ({
     hints={hints}
     page={page}
     gap={gap}
-    width={width}
-    height={height}
+    help={help}
+    fill
   >
     {children}
   </Page>
