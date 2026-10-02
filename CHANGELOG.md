@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.9.0 — 2026-10-02
+
+### Highlights
+
+- **The board now draws itself straight away instead of behind a full-screen spinner.** On a cold load you get a skeleton in the board's own frame, with the real tabs and `(–)` counts, and the tabs are fetched ahead of the rows so nothing shifts when they arrive. The border never moves, and the spinner stays only as a fallback if the tabs fail to load. ([fc7cab0](https://github.com/kud/jira-cli/commit/fc7cab0e13d510dcb0a540d0abe1368bc53510f2))
+- **Refreshing, flipping `a` (all/mine) and searching no longer blank the board.** The rows stay on screen while the title shows `↻ refreshing…`. ([fc7cab0](https://github.com/kud/jira-cli/commit/fc7cab0e13d510dcb0a540d0abe1368bc53510f2))
+- **The frame always fills the terminal and follows resizes.** ([fc7cab0](https://github.com/kud/jira-cli/commit/fc7cab0e13d510dcb0a540d0abe1368bc53510f2))
+- **Search no longer resets your scope to "mine" too early.** The reset now happens only once the board reload succeeds, so the label doesn't flip prematurely or after a failed reload. ([fc7cab0](https://github.com/kud/jira-cli/commit/fc7cab0e13d510dcb0a540d0abe1368bc53510f2))
+- **`@kud/ink-ui` jumps 0.28.2 → 0.32.0 and `@kud/jira-ink` 0.10.0 → 0.11.0**, which supplies the skeleton and tab helpers. The transitive `@kud/ink-markdown` 0.3.2 also drops `markdown-it` from the install tree. ([903a8e2](https://github.com/kud/jira-cli/commit/903a8e2c3b38ea071eae3432f411107b3d1424b2))
+
+---
+
 ## 0.8.0 — 2026-09-25
 
 ### Highlights
