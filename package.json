@@ -36,7 +36,7 @@
     "test:watch": "vitest",
     "prepublishOnly": "npm run build"
   },
-"dependencies": {
+  "dependencies": {
     "@kud/ink-ui": "0.32.0",
     "@kud/jira": "0.4.0",
     "@kud/jira-ink": "0.11.0",

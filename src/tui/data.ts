@@ -76,6 +76,22 @@ const boardOptions = (ctx: Context & { board?: number }) => ({
     : {}),
 })
 
+/**
+ * The tabs alone, for the skeleton drawn before the rows land. The same
+ * precedence `boardOf` applies — non-empty hand-written tabs, then the
+ * board's columns, then status categories — so the tabs never change under
+ * the user when the rows arrive.
+ */
+const tabsOf = async (
+  ctx: Context & { board?: number },
+): Promise<BoardTabs> => {
+  const { tabs, board } = boardOptions(ctx)
+  if (tabs?.length) return tabsFromConfig(tabs)
+  if (board === undefined) return tabsFromCategories()
+  const configuration = await ctx.client.getBoardConfiguration(board)
+  return tabsFromBoard(configuration) ?? tabsFromCategories()
+}
+
 /** The two lagging epics the board can see for itself, filled before it draws. */
 const marked = (model: BoardModel): BoardModel => ({
   ...model,
@@ -96,15 +112,7 @@ export const liveData = (
       ),
     ),
 
-  tabs: async () => {
-    const opts = boardOptions(ctx)
-    if (opts.tabs) return tabsFromConfig(opts.tabs)
-    if (opts.board) {
-      const config = await ctx.client.getBoardConfiguration(opts.board)
-      return tabsFromBoard(config) ?? tabsFromCategories()
-    }
-    return tabsFromCategories()
-  },
+  tabs: () => tabsOf(ctx),
 
   parents: (rows) => parentsOf(ctx.client, rows),
 

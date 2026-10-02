@@ -61,6 +61,39 @@ describe("issue list screen", () => {
     expect(seen(r, "retry")).toBe(true)
     r.unmount()
   })
+
+  it("draws the board's skeleton, real tabs and all, before the rows land", async () => {
+    const r = renderFrames(
+      <App
+        data={{ ...mockData(), board: () => new Promise(() => {}) }}
+        initialScreen="issues"
+      />,
+    )
+
+    await r.waitFor("reading the board")
+
+    const frame = r.lastFrame()
+    expect(frame).toContain("In progress")
+    expect(frame).toContain("(–)")
+    expect(frame).not.toContain("? help")
+    expect(frame).not.toContain("Loading issues…")
+    r.unmount()
+  })
+
+  it("keeps the rows on a refresh and says busy in the title", async () => {
+    const data = mockData()
+    const r = renderFrames(<App data={data} initialScreen="issues" />)
+    await r.waitFor("SHOP-412")
+    vi.spyOn(data, "board").mockReturnValue(new Promise(() => {}))
+    await settle()
+
+    r.write("r")
+    await r.waitFor("refreshing…")
+
+    expect(r.lastFrame()).toContain("SHOP-412")
+    expect(r.lastFrame()).not.toContain("reading the board")
+    r.unmount()
+  })
 })
 
 describe("board", () => {
@@ -145,7 +178,10 @@ describe("board", () => {
 
     await r.waitFor("SHOP-412")
 
-    const row = last(r).split("\n").find((l) => l.includes("SHOP-412")) ?? ""
+    const row =
+      last(r)
+        .split("\n")
+        .find((l) => l.includes("SHOP-412")) ?? ""
     // One rung above the default, in the five-glyph arrow grammar — not the
     // two-ended ▲/▼, which drew half a four-rung scheme as if it were normal.
     expect(row).toContain("↑")
@@ -170,7 +206,10 @@ describe("board", () => {
       ...mockData(),
       board: async () => {
         const model = await mockData().board(false)
-        return { ...model, rows: model.rows.filter((r) => r.category === "new") }
+        return {
+          ...model,
+          rows: model.rows.filter((r) => r.category === "new"),
+        }
       },
     })
     const r = renderFrames(<App data={todoOnly()} initialScreen="issues" />)
@@ -232,7 +271,7 @@ describe("search", () => {
     r.unmount()
   })
 
-  it("runs the query on enter and shows it in the filter bar", async () => {
+  it("runs the query on enter and names it as the scope", async () => {
     const data = mockData()
     const search = vi.spyOn(data, "search")
     const r = renderFrames(<App data={data} initialScreen="issues" />)
@@ -244,12 +283,10 @@ describe("search", () => {
     r.write("coupon")
     await settle()
     r.write("\r")
-    // The query appears in the filter bar; the scope shows the filtered count.
-    await r.waitFor("/ coupon")
+    await r.waitFor("“coupon”")
 
     expect(search).toHaveBeenCalledWith("coupon", "auto")
-    // The user remains in the title bar; the scope shows the filtered count.
-    expect(last(r)).toContain("@Ada Okafor")
+    expect(last(r)).not.toContain("@Ada Okafor")
     r.write("x")
     await r.waitFor("@Ada Okafor")
     r.unmount()
@@ -264,7 +301,9 @@ describe("search", () => {
           "POST",
           "https://example.atlassian.net/rest/api/3/search/jql",
           JSON.stringify({
-            errorMessages: ["Field 'statsu' does not exist or you do not have permission to view it."],
+            errorMessages: [
+              "Field 'statsu' does not exist or you do not have permission to view it.",
+            ],
             errors: {},
           }),
         )
@@ -401,7 +440,9 @@ describe("write flows", () => {
     const data: DataSource = {
       ...mockData(),
       getIssue: vi.fn().mockResolvedValue(detail),
-      transition: vi.fn().mockRejectedValue(new Error("Transition is not valid")),
+      transition: vi
+        .fn()
+        .mockRejectedValue(new Error("Transition is not valid")),
     }
 
     const r = renderFrames(

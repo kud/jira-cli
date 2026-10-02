@@ -27,6 +27,7 @@ import {
   transitionRow,
   type BoardModel,
   type BoardRow,
+  type BoardFrame,
   type BoardScope,
   type BoardTabs,
 } from "@kud/jira-ink"
@@ -71,10 +72,17 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
   const [parents, setParents] = useState<BoardRow[]>([])
-  /** Whether we have tabs for the skeleton (fetched before or with first board load). */
+  /**
+   * The board's tabs, known before its rows, so the first load can draw
+   * `IssueBoardSkeleton` in the board's own frame rather than a spinner.
+   */
   const [tabs, setTabs] = useState<BoardTabs | null>(null)
-  /** Whether the initial board load has completed. */
-  const [initialLoadDone, setInitialLoadDone] = useState(false)
+  /**
+   * A refetch over a board already on screen. The rows stay — once anything
+   * is known the screen never goes back to a skeleton — and the title says
+   * busy instead.
+   */
+  const [refreshing, setRefreshing] = useState(false)
   /**
    * Transient news that must not replace the screen: a rejected move, mostly.
    * `error` blanks the view and offers a retry, which is right for a load
@@ -87,19 +95,13 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const loadList = useCallback(
     async (all: boolean) => {
       setError(null)
-      if (!initialLoadDone) {
-        setModel(null)
-      }
-      setScope({ kind: "mine" })
       setSearchError(null)
+      setRefreshing(true)
       try {
         const next = await data.board(all)
         setModel(next)
-        if (!initialLoadDone) {
-          setTabs(next.tabs)
-        }
+        setScope({ kind: "mine" })
         setLoadedAt(Date.now())
-        setInitialLoadDone(true)
         // Second round trip, deliberately not awaited into the paint: the
         // fences say nothing until it lands rather than guessing an owner.
         void data
@@ -108,9 +110,11 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
           .catch(() => {})
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
+      } finally {
+        setRefreshing(false)
       }
     },
-    [data, initialLoadDone],
+    [data],
   )
 
   const loadIssue = useCallback(
@@ -136,19 +140,23 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
   const runSearch = useCallback(
     async (query: string, mode: SearchMode) => {
       setSearchError(null)
+      setRefreshing(true)
       try {
         const result = await data.search(query, mode)
         setModel(result.model)
-        if (!initialLoadDone) {
-          setTabs(result.model.tabs)
-        }
+        void data
+          .parents(result.model.rows)
+          .then(setParents)
+          .catch(() => {})
+        setScope({ kind: "search", query, mode: result.mode })
         setLoadedAt(Date.now())
-        setInitialLoadDone(true)
       } catch (e) {
         setSearchError(jiraMessageOf(e))
+      } finally {
+        setRefreshing(false)
       }
     },
-    [data, initialLoadDone],
+    [data],
   )
 
   /**
@@ -187,7 +195,8 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
       .catch(() => {})
   }, [data])
 
-  // Fetch tabs early for the skeleton, then load the board.
+  // The tabs alone, ahead of the rows, so the first paint is the board's
+  // skeleton. A failure here costs only that: the spinner stands in.
   useEffect(() => {
     let cancelled = false
     data
@@ -249,9 +258,8 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     body: ReactNode,
     hints?: Hint[],
     page: "root" | "nested" = screen === "detail" ? "nested" : "root",
-    help?: boolean,
   ) => (
-    <Frame facts={facts} hints={hints} page={page} help={help}>
+    <Frame facts={facts} hints={hints} page={page}>
       <Box flexDirection="column" marginTop={1} paddingLeft={2} flexGrow={1}>
         {body}
       </Box>
@@ -392,60 +400,59 @@ export const App = ({ data, initialScreen, initialKey }: Props) => {
     )
   }
 
-  // Build the frame function used by both IssueBoard and IssueBoardSkeleton.
-  const boardFrame = ({
-    title,
-    hints,
-    body,
-  }: {
-    title: { count: number | null; user?: string; scope?: string; status: { text: string; tone: "quiet" | "busy" } }
-    hints: Hint[]
-    body: ReactNode
-  }) => (
-    <Frame
-      count={title.count ?? undefined}
-      user={title.user}
-      scope={title.scope}
-      status={title.status}
-      hints={hints}
-      gap={false}
-    >
-      {body}
-    </Frame>
-  )
+  // No gap band here — the board draws that row itself — so one less line of
+  // chrome than FRAME_CHROME says, plus the hints row. The skeleton takes the
+  // same height so the rows land on the placeholders' lines.
+  const boardHeight = height - (FRAME_CHROME - 1) - 1
 
-  // Cold load: show skeleton with real tabs and placeholder rows.
-  // The skeleton only shows when we have tabs but haven't loaded the board yet.
-  if (!initialLoadDone && tabs) {
+  // One frame for the skeleton and the board, so the border never moves
+  // between the first load and the rows. The skeleton states its own busy
+  // status; `refreshing` speaks only over rows already on screen.
+  const boardFrame =
+    (help?: boolean): BoardFrame =>
+    ({ title, hints, body }) => (
+      <Frame
+        count={title.count ?? undefined}
+        user={title.user}
+        scope={title.scope}
+        status={
+          refreshing && model
+            ? { text: "↻ refreshing…", tone: "busy" }
+            : title.status
+        }
+        hints={hints}
+        gap={false}
+        help={help}
+      >
+        {body}
+      </Frame>
+    )
+
+  if (!model) {
+    if (!tabs) return framed("loading…", <Spinner label="Loading issues…" />)
+    // No legend yet, so no `? help` in the tail: the skeleton binds no keys.
     return (
       <IssueBoardSkeleton
         tabs={tabs}
         width={width}
-        height={height}
-        frame={boardFrame}
+        height={boardHeight}
+        frame={boardFrame(false)}
       />
     )
   }
 
-  // First load, no tabs yet: spinner inside frame
-  if (!initialLoadDone) {
-    return framed("loading…", <Spinner label="Loading issues…" />)
-  }
-
   return (
     <IssueBoard
-      model={model!}
+      model={model}
       parents={parents}
-      frame={boardFrame}
+      frame={boardFrame()}
       onInputFocus={setInputFocused}
       viewer={viewer}
       loadedAt={loadedAt}
       scope={scope}
       searchError={searchError}
       width={width}
-      // No gap band here — the board draws that row itself — so one less
-      // line of chrome than FRAME_CHROME says, plus the hints row.
-      height={height - (FRAME_CHROME - 1) - 1}
+      height={boardHeight}
       showingAll={showingAll}
       onOpen={(key) => void loadIssue(key)}
       onRefresh={() =>
