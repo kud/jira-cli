@@ -4,6 +4,25 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.10.0 — 2026-10-27
+
+### Highlights
+
+- **You can now edit and delete from the terminal.** `issue delete`, `issue comment edit` and `delete`, and `issue worklog edit` and `delete` cover the clean-up jobs that used to need the browser. ([ac43832](https://github.com/kud/jira-cli/commit/ac43832a7b19f2422e3e5b6519de1afe54debc03))
+- **Deletes ask before acting.** They prompt for confirmation, refuse to run unattended, and take `--yes` to skip the prompt in scripts. ([ac43832](https://github.com/kud/jira-cli/commit/ac43832a7b19f2422e3e5b6519de1afe54debc03))
+- **New `attachment upload` command.** Files go up one at a time, so if one fails you can see which already landed. ([ac43832](https://github.com/kud/jira-cli/commit/ac43832a7b19f2422e3e5b6519de1afe54debc03))
+- **Plan sprints and reorder the backlog without leaving the CLI.** `sprint add` and `backlog add` move issues in, and `issue rank` places one with exactly one of `--before` or `--after`. ([ac43832](https://github.com/kud/jira-cli/commit/ac43832a7b19f2422e3e5b6519de1afe54debc03))
+- **Manage remote links from the CLI.** `issue remotelink list`, `add` and `remove` handle the external links on an issue. ([ac43832](https://github.com/kud/jira-cli/commit/ac43832a7b19f2422e3e5b6519de1afe54debc03))
+
+<details>
+<summary>Internal (1 commit)</summary>
+
+- Bumped `@kud/jira` to 0.5.0 for the new client methods.
+
+</details>
+
+---
+
 ## 0.9.0 — 2026-10-02
 
 ### Highlights
