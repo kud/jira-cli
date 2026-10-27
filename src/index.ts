@@ -7,6 +7,7 @@ import { configPath, isJiraApiError } from "@kud/jira"
 import { registerAttachmentCommands } from "./commands/attachment.js"
 import { isExitError } from "./commands/context.js"
 import {
+  registerBacklogCommand,
   registerBoardCommands,
   registerEpicCommands,
   registerSprintCommands,
@@ -59,6 +60,7 @@ registerInitCommand(program)
 registerProjectCommands(program)
 registerBoardCommands(program)
 registerSprintCommands(program)
+registerBacklogCommand(program)
 registerEpicCommands(program)
 registerUserCommands(program)
 registerMetaCommands(program)

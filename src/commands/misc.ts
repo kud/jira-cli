@@ -126,7 +126,10 @@ export const registerInitCommand = (program: Command): void => {
         const existing = readFileConfig(path)
 
         if (Object.keys(existing).length > 0 && !options.force)
-          throw exitError(1, `${path} already exists — pass --force to replace it`)
+          throw exitError(
+            1,
+            `${path} already exists — pass --force to replace it`,
+          )
 
         const config = {
           baseUrl: options.baseUrl ?? process.env["ATLASSIAN_BASE_URL"] ?? "",

@@ -1,10 +1,6 @@
 import { execFile } from "node:child_process"
 import type { Command } from "commander"
-import {
-  adfToMarkdown,
-  locateAttachments,
-  type JiraIssue,
-} from "@kud/jira"
+import { adfToMarkdown, locateAttachments, type JiraIssue } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
 import {
   context,
@@ -15,11 +11,7 @@ import {
 } from "./context.js"
 import { registerIssueWriteCommands } from "./issue-write.js"
 
-import {
-  buildJql,
-  jqlEscape,
-  type ListOptions as JqlOptions,
-} from "@kud/jira"
+import { buildJql, jqlEscape, type ListOptions as JqlOptions } from "@kud/jira"
 
 type ListOptions = JqlOptions & { limit: string; json?: boolean }
 

@@ -129,6 +129,14 @@ export const registerSprintCommands = (program: Command): void => {
     })
 
   sprint
+    .command("add <sprintId> <keys...>")
+    .description("move issues into a sprint")
+    .action(async (sprintId: string, keys: string[]) => {
+      await context().client.moveIssuesToSprint(Number(sprintId), keys)
+      process.stderr.write(`moved ${keys.join(", ")} to sprint ${sprintId}\n`)
+    })
+
+  sprint
     .command("view <id>")
     .description("show one sprint")
     .option("--json", "emit JSON")
@@ -157,5 +165,17 @@ export const registerEpicCommands = (program: Command): void => {
       const ctx = context()
       const { issues } = await ctx.client.getEpicIssues(key)
       writeIssues(issues, options.json)
+    })
+}
+
+export const registerBacklogCommand = (program: Command): void => {
+  const backlog = program.command("backlog").description("backlog management")
+
+  backlog
+    .command("add <keys...>")
+    .description("move issues to the backlog")
+    .action(async (keys: string[]) => {
+      await context().client.moveIssuesToBacklog(keys)
+      process.stderr.write(`moved ${keys.join(", ")} to the backlog\n`)
     })
 }

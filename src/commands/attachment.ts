@@ -93,6 +93,40 @@ export const registerAttachmentCommands = (program: Command): void => {
     })
 
   attachment
+    .command("upload <key> <file...>")
+    .description("attach files to an issue")
+    .option("--json", "emit JSON")
+    .action(
+      async (key: string, files: string[], options: { json?: boolean }) => {
+        const ctx = context()
+        // One at a time, so a failure can say which files already landed —
+        // re-running the whole list would attach those twice.
+        const uploaded: Awaited<
+          ReturnType<typeof ctx.client.uploadAttachment>
+        > = []
+        for (const file of files) {
+          try {
+            uploaded.push(...(await ctx.client.uploadAttachment(key, file)))
+          } catch (err) {
+            const done = uploaded.map((a) => a.filename).join(", ")
+            throw new Error(
+              `${file}: ${(err as Error).message}${done ? ` (already attached: ${done})` : ""}`,
+            )
+          }
+        }
+
+        if (options.json) return printJson(uploaded)
+        process.stdout.write(
+          `${table(uploaded, [
+            { header: "ID", value: (a) => a.id },
+            { header: "FILENAME", value: (a) => a.filename },
+            { header: "SIZE", value: (a) => humanSize(a.size), align: "right" },
+          ])}\n`,
+        )
+      },
+    )
+
+  attachment
     .command("read <key> <selector>")
     .alias("cat")
     .description("print a text attachment to stdout")

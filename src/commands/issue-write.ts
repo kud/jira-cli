@@ -2,7 +2,26 @@ import { readFileSync } from "node:fs"
 import type { Command } from "commander"
 import { adfToMarkdown, markdownToAdf } from "@kud/jira"
 import { table } from "../output/format.js"
+import { confirmDestructive } from "./confirm.js"
 import { context, exitError, printJson } from "./context.js"
+
+/**
+ * Exactly one anchor: Jira's rank endpoint moves issues relative to a single
+ * other issue, so "neither" has nothing to aim at and "both" is two orders
+ * competing. Checked here rather than left to Jira so the error says which
+ * flag was missing.
+ */
+export const rankPosition = (options: {
+  before?: string
+  after?: string
+}): { before: string } | { after: string } => {
+  const { before, after } = options
+  if (before && after) throw exitError(1, "pass --before or --after, not both")
+  if (!before && !after)
+    throw exitError(1, "pass one of --before <key> or --after <key>")
+  if (before) return { before }
+  return { after: after as string }
+}
 
 /** `-` means stdin, so a comment can be piped in from anything. */
 const readBody = (value: string): string =>
@@ -114,6 +133,16 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     )
 
   issue
+    .command("delete <key>")
+    .description("delete an issue, permanently")
+    .option("--yes", "skip the confirmation")
+    .action(async (key: string, options: { yes?: boolean }) => {
+      await confirmDestructive(`permanently delete ${key}`, options)
+      await context().client.deleteIssue(key)
+      process.stderr.write(`deleted ${key}\n`)
+    })
+
+  issue
     .command("assign <key> <who>")
     .description("assign an issue; 'me' or 'none' both work")
     .action(async (key: string, who: string) => {
@@ -156,6 +185,33 @@ export const registerIssueWriteCommands = (issue: Command): void => {
       await context().client.addComment(key, markdownToAdf(readBody(body)))
       process.stderr.write(`commented on ${key}\n`)
     })
+
+  comment
+    .command("edit <key> <commentId> <text>")
+    .description("edit a comment; '-' reads stdin")
+    .action(async (key: string, commentId: string, text: string) => {
+      await context().client.updateComment(
+        key,
+        commentId,
+        markdownToAdf(readBody(text)),
+      )
+      process.stderr.write(`comment ${commentId} on ${key} updated\n`)
+    })
+
+  comment
+    .command("delete <key> <commentId>")
+    .description("delete a comment")
+    .option("--yes", "skip the confirmation")
+    .action(
+      async (key: string, commentId: string, options: { yes?: boolean }) => {
+        await confirmDestructive(
+          `delete comment ${commentId} on ${key}`,
+          options,
+        )
+        await context().client.deleteComment(key, commentId)
+        process.stderr.write(`deleted comment ${commentId} on ${key}\n`)
+      },
+    )
 
   const watch = issue.command("watch").description("watchers")
 
@@ -223,6 +279,121 @@ export const registerIssueWriteCommands = (issue: Command): void => {
           ...(options.body ? { comment: markdownToAdf(options.body) } : {}),
         })
         process.stderr.write(`logged ${timeSpent} on ${key}\n`)
+      },
+    )
+
+  worklog
+    .command("edit <key> <worklogId>")
+    .description("change logged work")
+    .option("--time <timeSpent>", "new time spent, e.g. '1h 30m'")
+    .option("-b, --body <text>", "what you did; '-' reads stdin")
+    .option(
+      "--started <datetime>",
+      "start time, e.g. 2026-10-27T09:00:00.000+0000",
+    )
+    .action(
+      async (
+        key: string,
+        worklogId: string,
+        options: { time?: string; body?: string; started?: string },
+      ) => {
+        if (!options.time && !options.body && !options.started)
+          throw exitError(2, "nothing to change — pass at least one option")
+
+        await context().client.updateWorklog(key, worklogId, {
+          ...(options.time ? { timeSpent: options.time } : {}),
+          ...(options.body
+            ? { comment: markdownToAdf(readBody(options.body)) }
+            : {}),
+          ...(options.started ? { started: options.started } : {}),
+        })
+        process.stderr.write(`worklog ${worklogId} on ${key} updated\n`)
+      },
+    )
+
+  worklog
+    .command("delete <key> <worklogId>")
+    .description("delete logged work")
+    .option("--yes", "skip the confirmation")
+    .action(
+      async (key: string, worklogId: string, options: { yes?: boolean }) => {
+        await confirmDestructive(
+          `delete worklog ${worklogId} on ${key}`,
+          options,
+        )
+        await context().client.deleteWorklog(key, worklogId)
+        process.stderr.write(`deleted worklog ${worklogId} on ${key}\n`)
+      },
+    )
+
+  const remotelink = issue
+    .command("remotelink")
+    .description("links to pages outside Jira")
+
+  remotelink
+    .command("list <key>")
+    .alias("ls")
+    .description("remote links on an issue")
+    .option("--json", "emit JSON")
+    .action(async (key: string, options: { json?: boolean }) => {
+      const links = await context().client.getRemoteLinks(key)
+      if (options.json) return printJson(links)
+      if (links.length === 0) {
+        process.stderr.write(`${key} has no remote links\n`)
+        return
+      }
+      process.stdout.write(
+        `${table(links, [
+          { header: "ID", value: (l) => String(l.id) },
+          { header: "TITLE", value: (l) => l.object.title },
+          { header: "URL", value: (l) => l.object.url },
+        ])}\n`,
+      )
+    })
+
+  remotelink
+    .command("add <key> <url>")
+    .description("link a url to an issue; re-adding the same url is a no-op")
+    .option("--title <text>", "link title, defaulting to the url")
+    .action(async (key: string, url: string, options: { title?: string }) => {
+      // globalId is the url itself, so Jira treats a re-add of the same
+      // url as the same link rather than a growing pile of duplicates.
+      await context().client.createRemoteLink(key, {
+        url,
+        title: options.title ?? url,
+        globalId: url,
+      })
+      process.stderr.write(`linked ${url} to ${key}\n`)
+    })
+
+  remotelink
+    .command("remove <key> <linkId>")
+    .description("remove a remote link")
+    .option("--yes", "skip the confirmation")
+    .action(async (key: string, linkId: string, options: { yes?: boolean }) => {
+      await confirmDestructive(
+        `remove remote link ${linkId} from ${key}`,
+        options,
+      )
+      await context().client.deleteRemoteLink(key, linkId)
+      process.stderr.write(`removed remote link ${linkId} from ${key}\n`)
+    })
+
+  issue
+    .command("rank <keys...>")
+    .description("order issues before or after another issue")
+    .option("--before <key>", "place the issues before this one")
+    .option("--after <key>", "place the issues after this one")
+    .action(
+      async (keys: string[], options: { before?: string; after?: string }) => {
+        const position = rankPosition(options)
+        await context().client.rankIssues(keys, position)
+        const anchor = "before" in position ? position.before : position.after
+        process.stderr.write(
+          `ranked ${keys.join(", ")} ${
+            "before" in position ? "before" : "after"
+          } ${anchor}\n`,
+        )
       },
     )
 
