@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs"
 import type { Command } from "commander"
-import { adfToMarkdown, markdownToAdf } from "@kud/jira"
-import { table } from "../output/format.js"
+import { adfToMarkdown, flattenIssueLinks, markdownToAdf } from "@kud/jira"
+import { table, truncate } from "../output/format.js"
 import { confirmDestructive } from "./confirm.js"
 import { context, exitError, printJson } from "./context.js"
 
@@ -397,12 +397,42 @@ export const registerIssueWriteCommands = (issue: Command): void => {
       },
     )
 
-  issue
-    .command("link <inward> <type> <outward>")
-    .description("link two issues, e.g. ABC-1 Blocks ABC-2")
+  const link = issue
+    .command("link")
+    .description("link two issues, e.g. jira issue link ABC-1 Blocks ABC-2")
+
+  link
+    .command("list <key>")
+    .alias("ls")
+    .description("links on an issue")
+    .option("--json", "emit JSON")
+    .action(async (key: string, options: { json?: boolean }) => {
+      const ctx = context()
+      const found = await ctx.client.getIssue(key)
+      const links = flattenIssueLinks(found)
+      if (options.json) return printJson(links)
+      if (links.length === 0) {
+        process.stderr.write(`${key} has no links\n`)
+        return
+      }
+      process.stdout.write(
+        `${table(links, [
+          { header: "DIR", value: (l) => l.direction },
+          { header: "TYPE", value: (l) => l.type },
+          { header: "KEY", value: (l) => l.key },
+          { header: "STATUS", value: (l) => l.status },
+          { header: "SUMMARY", value: (l) => truncate(l.summary, 40) },
+        ])}\n`,
+      )
+    })
+
+  link
+    .argument("<inward>")
+    .argument("<type>")
+    .argument("<outward>")
     .action(async (inward: string, type: string, outward: string) => {
       await context().client.linkIssues(type, inward, outward)
-      process.stderr.write(`${inward} ${type} ${outward}\n`)
+      process.stderr.write(`linked ${inward} ${type} ${outward}\n`)
     })
 
   issue

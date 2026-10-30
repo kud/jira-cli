@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process"
 import type { Command } from "commander"
-import { adfToMarkdown, locateAttachments, type JiraIssue } from "@kud/jira"
+import { adfToMarkdown, flattenIssueLinks, locateAttachments, type JiraIssue } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
 import {
   context,
@@ -80,7 +80,22 @@ export const registerIssueCommands = (program: Command): void => {
       async (key: string, options: { json?: boolean; comments?: boolean }) => {
         const ctx = context()
         const found = await ctx.client.getIssue(key)
-        if (options.json) return printJson(found)
+        if (options.json) {
+          const links = flattenIssueLinks(found)
+          const subtasks = found.fields.subtasks?.map((s) => ({
+            key: s.key,
+            summary: s.fields.summary,
+            status: s.fields.status.name,
+          }))
+          return printJson({
+            ...found,
+            fields: {
+              ...found.fields,
+              issuelinks: links,
+              subtasks,
+            },
+          })
+        }
 
         const { bold, dim } = ctx.out
         const f = found.fields
@@ -104,6 +119,32 @@ export const registerIssueCommands = (program: Command): void => {
             .map((cf) => `${dim(cf.label.padEnd(9))} ${formatField(f[cf.id])}`),
           `${dim("url")}       ${issueUrl(ctx, found.key)}`,
         ]
+
+        const links = flattenIssueLinks(found)
+        if (links.length > 0) {
+          lines.push(
+            "",
+            dim("─── links ───"),
+            "",
+            ...links.map(
+              (l) =>
+                `${l.direction.padEnd(7)} ${l.type.padEnd(12)} ${l.key}  ${dim(l.status.padEnd(12))} ${truncate(l.summary, 60)}`,
+            ),
+          )
+        }
+
+        const subtasks = f.subtasks
+        if (subtasks?.length) {
+          lines.push(
+            "",
+            dim("─── subtasks ───"),
+            "",
+            ...subtasks.map(
+              (s) =>
+                `${s.key}  ${dim(s.fields.status.name.padEnd(12))} ${truncate(s.fields.summary, 60)}`,
+            ),
+          )
+        }
 
         const attachments = locateAttachments(found)
         const filenameOf = (id: string): string | undefined =>

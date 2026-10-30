@@ -96,6 +96,7 @@ jira issue comment edit ABC-123 12345 'Actually fixed in 2.1'
 jira issue delete ABC-123                 # asks first; --yes to confirm in scripts
 jira issue rank ABC-1 ABC-2 --before ABC-3
 jira issue link ABC-1 Blocks ABC-2
+jira issue link list ABC-1
 jira issue watch add ABC-123
 jira issue worklog add ABC-123 '2h 30m'
 jira issue worklog edit ABC-123 456 --time '3h'
@@ -105,6 +106,8 @@ jira issue remotelink add ABC-123 https://example.atlassian.net/wiki/spaces/ABC/
 jira issue remotelink remove ABC-123 789
 jira issue history ABC-123
 ```
+
+`jira issue view` lists the issue's links and subtasks, in plain text and in `--json`.
 
 Bodies accept Markdown — paragraphs, headings, lists, fenced code, links and code spans are converted to ADF.
 
