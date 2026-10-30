@@ -76,25 +76,47 @@ export const registerIssueCommands = (program: Command): void => {
     .description("show one issue")
     .option("--json", "emit JSON")
     .option("--comments", "include comments")
+    .option(
+      "--fields <list>",
+      "restrict the output to these fields, comma-separated",
+    )
     .action(
-      async (key: string, options: { json?: boolean; comments?: boolean }) => {
+      async (
+        key: string,
+        options: {
+          json?: boolean
+          comments?: boolean
+          fields?: string
+        },
+      ) => {
         const ctx = context()
         const found = await ctx.client.getIssue(key)
+        // Field names are Jira's own (`issuetype`, `issuelinks`), matched
+        // case-insensitively; identity — key, summary, url — is not a field
+        // and stays either way.
+        const fields = options.fields
+          ?.split(",")
+          .map((f) => f.trim().toLowerCase())
+          .filter(Boolean)
+        const show = (field: string): boolean =>
+          !fields || fields.includes(field.toLowerCase())
+
         if (options.json) {
-          const links = flattenIssueLinks(found)
-          const subtasks = found.fields.subtasks?.map((s) => ({
-            key: s.key,
-            summary: s.fields.summary,
-            status: s.fields.status.name,
-          }))
-          return printJson({
-            ...found,
-            fields: {
-              ...found.fields,
-              issuelinks: links,
-              subtasks,
-            },
-          })
+          const chosen: Record<string, unknown> = fields
+            ? Object.fromEntries(
+                Object.entries(found.fields).filter(([k]) =>
+                  fields.includes(k.toLowerCase()),
+                ),
+              )
+            : { ...found.fields }
+          if (show("issuelinks")) chosen["issuelinks"] = flattenIssueLinks(found)
+          if (show("subtasks"))
+            chosen["subtasks"] = found.fields.subtasks?.map((s) => ({
+              key: s.key,
+              summary: s.fields.summary,
+              status: s.fields.status.name,
+            }))
+          return printJson({ ...found, fields: chosen })
         }
 
         const { bold, dim } = ctx.out
@@ -102,26 +124,36 @@ export const registerIssueCommands = (program: Command): void => {
         const lines = [
           `${bold(found.key)}  ${f.summary ?? ""}`,
           "",
-          ...(f.parent
+          ...(show("parent") && f.parent
             ? [
                 `${dim("parent")}    ${f.parent.key}  ${truncate(f.parent.fields?.summary ?? "", 60)}`,
               ]
             : []),
-          `${dim("status")}    ${f.status?.name ?? "—"}`,
-          `${dim("type")}      ${f.issuetype?.name ?? "—"}`,
-          `${dim("assignee")}  ${f.assignee?.displayName ?? "unassigned"}`,
-          `${dim("reporter")}  ${f.reporter?.displayName ?? "—"}`,
-          ...(f.labels?.length
+          ...(show("status")
+            ? [`${dim("status")}    ${f.status?.name ?? "—"}`]
+            : []),
+          ...(show("issuetype")
+            ? [`${dim("type")}      ${f.issuetype?.name ?? "—"}`]
+            : []),
+          ...(show("assignee")
+            ? [`${dim("assignee")}  ${f.assignee?.displayName ?? "unassigned"}`]
+            : []),
+          ...(show("reporter")
+            ? [`${dim("reporter")}  ${f.reporter?.displayName ?? "—"}`]
+            : []),
+          ...(show("labels") && f.labels?.length
             ? [`${dim("labels")}    ${f.labels.join(", ")}`]
             : []),
           ...ctx.client.customFields
-            .filter((cf) => f[cf.id] != null)
+            .filter((cf) => f[cf.id] != null && show(cf.id))
             .map((cf) => `${dim(cf.label.padEnd(9))} ${formatField(f[cf.id])}`),
-          `${dim("url")}       ${issueUrl(ctx, found.key)}`,
+          ...(fields
+            ? []
+            : [`${dim("url")}       ${issueUrl(ctx, found.key)}`]),
         ]
 
         const links = flattenIssueLinks(found)
-        if (links.length > 0) {
+        if (show("issuelinks") && links.length > 0) {
           lines.push(
             "",
             dim("─── links ───"),
@@ -134,7 +166,7 @@ export const registerIssueCommands = (program: Command): void => {
         }
 
         const subtasks = f.subtasks
-        if (subtasks?.length) {
+        if (show("subtasks") && subtasks?.length) {
           lines.push(
             "",
             dim("─── subtasks ───"),
@@ -150,7 +182,7 @@ export const registerIssueCommands = (program: Command): void => {
         const filenameOf = (id: string): string | undefined =>
           attachments.find((a) => a.id === id)?.filename
 
-        if (attachments.length > 0) {
+        if (!fields && attachments.length > 0) {
           lines.push(
             "",
             dim("─── attachments ───"),
@@ -164,10 +196,10 @@ export const registerIssueCommands = (program: Command): void => {
         }
 
         const description = adfToMarkdown(f.description, filenameOf)
-        if (description)
+        if (show("description") && description)
           lines.push("", dim("─── description ───"), "", description)
 
-        if (options.comments && f.comment?.comments?.length) {
+        if (options.comments && show("comment") && f.comment?.comments?.length) {
           lines.push("", dim("─── comments ───"))
           for (const c of f.comment.comments) {
             lines.push(
@@ -202,23 +234,55 @@ export const registerIssueCommands = (program: Command): void => {
           process.stdout.write(
             `${table(transitions, [
               { header: "ID", value: (t) => t.id },
-              { header: "NAME", value: (t) => t.name },
-              { header: "TO", value: (t) => t.to?.name ?? "—" },
+              { header: "NAME → TO", value: (t) => `${t.name} → ${t.to?.name ?? "—"}` },
             ])}\n`,
           )
+          process.stderr.write(TRANSITION_HINT + "\n")
           return
         }
 
         const wanted = status.toLowerCase()
-        const match = transitions.find(
+        const byName = transitions.filter(
           (t) => t.name.toLowerCase() === wanted || t.id === status,
         )
+        const byTarget = transitions.filter(
+          (t) => t.to?.name.toLowerCase() === wanted,
+        )
+        // A transition name always wins over a status name, ids keep working
+        // as they always have, and a status that several transitions reach is
+        // refused rather than resolved to whichever came first. Only the
+        // status reading is ambiguous-checkable: a named transition settles
+        // the move even when other transitions reach the same status.
+        const match =
+          byName.length > 0
+            ? byName.length === 1
+              ? byName[0]
+              : undefined
+            : byTarget.length === 1
+              ? byTarget[0]
+              : undefined
+        if (byName.length > 1) {
+          throw exitError(
+            1,
+            `'${status}' matches ${byName.length} transitions on ${key}: ${byName
+              .map((t) => `${t.name} → ${t.to?.name ?? "—"}`)
+              .join("; ")}`,
+          )
+        }
+        if (byName.length === 0 && byTarget.length > 1) {
+          throw exitError(
+            1,
+            `${byTarget.length} transitions reach '${status}' on ${key}: ${byTarget
+              .map((t) => `${t.name} → ${t.to?.name ?? "—"}`)
+              .join("; ")}\nUse a transition name instead`,
+          )
+        }
         if (!match) {
           throw exitError(
             1,
-            `no transition '${status}' on ${key}. Available: ${transitions
-              .map((t) => t.name)
-              .join(", ")}`,
+            `no transition or status '${status}' on ${key}. Available:\n${transitions
+              .map((t) => `  ${t.name} → ${t.to?.name ?? "—"}`)
+              .join("\n")}\n${TRANSITION_HINT}`,
           )
         }
 
@@ -257,6 +321,9 @@ export const registerIssueCommands = (program: Command): void => {
 
 const issueUrl = (ctx: Context, key: string): string =>
   `${ctx.config.baseUrl.replace(/\/$/, "")}/browse/${key}`
+
+const TRANSITION_HINT =
+  "the argument may be either the transition name or its target status"
 
 const formatField = (value: unknown): string => {
   if (value == null) return "—"

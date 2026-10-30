@@ -151,3 +151,94 @@ describe("issue view text", () => {
     expect(out).not.toContain("─── subtasks ───")
   })
 })
+
+describe("issue view --fields", () => {
+  const rich = issue({
+    summary: "A sample issue",
+    status: { name: "In Progress" },
+    issuetype: { name: "Task" },
+    assignee: { displayName: "Ada Lovelace" },
+    reporter: { displayName: "Grace Hopper" },
+    parent: { key: "ABC-9", fields: { summary: "A parent issue" } },
+    labels: ["first pass"],
+    issuelinks: [
+      {
+        id: "10",
+        type: {
+          id: "10000",
+          name: "Relates",
+          inward: "relates to",
+          outward: "relates to",
+        },
+        outwardIssue: {
+          key: "ABC-2",
+          fields: { summary: "A related issue", status: { name: "To Do" } },
+        },
+      },
+    ],
+    subtasks: [
+      {
+        key: "ABC-3",
+        fields: { summary: "A subtask", status: { name: "To Do" } },
+      },
+    ],
+  })
+
+  it("keeps only the requested lines in the text output", async () => {
+    client.getIssue.mockResolvedValue(rich)
+
+    await parse(["issue", "view", "ABC-1", "--fields", "status,assignee"])
+
+    const out = String(stdoutWrite.mock.calls[0]?.[0])
+    expect(out).toContain("status    In Progress")
+    expect(out).toContain("assignee  Ada Lovelace")
+    expect(out).not.toContain("─── links ───")
+    expect(out).not.toContain("─── subtasks ───")
+    expect(out).not.toContain("parent")
+    expect(out).not.toContain("reporter")
+    expect(out).not.toContain("url")
+  })
+
+  it("keeps a links section when issuelinks is requested", async () => {
+    client.getIssue.mockResolvedValue(rich)
+
+    await parse(["issue", "view", "ABC-1", "--fields", "issuelinks"])
+
+    const out = String(stdoutWrite.mock.calls[0]?.[0])
+    expect(out).toContain("─── links ───")
+    expect(out).toContain("ABC-2")
+    expect(out).not.toContain("─── subtasks ───")
+    expect(out).not.toContain("In Progress")
+  })
+
+  it("keeps only the requested keys in the JSON output", async () => {
+    client.getIssue.mockResolvedValue(rich)
+
+    await parse(["issue", "view", "ABC-1", "--json", "--fields", "status,parent"])
+
+    const parsed = JSON.parse(String(stdoutWrite.mock.calls[0]?.[0]))
+    expect(Object.keys(parsed.fields)).toEqual(["status", "parent"])
+    expect(parsed.fields.status).toEqual({ name: "In Progress" })
+    expect(parsed.fields.parent.key).toBe("ABC-9")
+  })
+
+  it("still flattens issuelinks in JSON when requested", async () => {
+    client.getIssue.mockResolvedValue(rich)
+
+    await parse(["issue", "view", "ABC-1", "--json", "--fields", "issuelinks"])
+
+    const parsed = JSON.parse(String(stdoutWrite.mock.calls[0]?.[0]))
+    expect(Object.keys(parsed.fields)).toEqual(["issuelinks"])
+    expect(parsed.fields).toEqual({
+      issuelinks: [
+        {
+          direction: "outward",
+          type: "relates to",
+          key: "ABC-2",
+          summary: "A related issue",
+          status: "To Do",
+        },
+      ],
+    })
+  })
+})

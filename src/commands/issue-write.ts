@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs"
 import type { Command } from "commander"
 import { adfToMarkdown, flattenIssueLinks, markdownToAdf } from "@kud/jira"
+import type { JiraClient, JiraIssueLinkType } from "@kud/jira"
 import { table, truncate } from "../output/format.js"
 import { confirmDestructive } from "./confirm.js"
 import { context, exitError, printJson } from "./context.js"
@@ -27,6 +28,59 @@ export const rankPosition = (options: {
 const readBody = (value: string): string =>
   value === "-" ? readFileSync(0, "utf8") : value
 
+/**
+ * A project key is the issue key's prefix up to the dash, which is what the
+ * assignability search needs. Assignability is issue-scoped in Jira, so any
+ * resolve against an issue key prefers that search over a global one.
+ */
+const projectOf = (issueKey: string): string => issueKey.split("-")[0]
+
+/** Commander's repeatable-option collection for `--link <type:key>`. */
+const collectLink = (value: string, prior: string[]): string[] => [
+  ...prior,
+  value,
+]
+
+const messageOf = (e: unknown): string =>
+  e instanceof Error ? e.message : String(e)
+
+/**
+ * `--link` is validated against the instance's own link type names before
+ * anything is created — an unknown type, or a value with no `:KEY`, must fail
+ * while the issue still does not exist.
+ */
+const linkTypes = (ctx: {
+  client: Pick<JiraClient, "getIssueLinkTypes">
+}): Promise<JiraIssueLinkType[]> =>
+  ctx.client.getIssueLinkTypes().then(({ issueLinkTypes }) => issueLinkTypes)
+
+const parseLinkSpecs = (
+  link: string[] | undefined,
+  types: JiraIssueLinkType[],
+): { type: string; key: string }[] => {
+  if (!link?.length) return []
+  const titles = types.map((t) => t.name)
+  return link.map((spec) => {
+    const colon = spec.indexOf(":")
+    const type = colon === -1 ? undefined : spec.slice(0, colon)
+    const key = colon === -1 ? undefined : spec.slice(colon + 1)
+    if (!type || !key)
+      throw exitError(
+        1,
+        `malformed --link '${spec}' — expected <type>:<KEY>, e.g. Relates:ABC-2`,
+      )
+    const resolved = types.find(
+      (t) => t.name.toLowerCase() === type.toLowerCase(),
+    )
+    if (!resolved)
+      throw exitError(
+        1,
+        `no link type '${type}'. Valid: ${titles.join(", ")}`,
+      )
+    return { type: resolved.name, key }
+  })
+}
+
 const resolveAccountId = async (
   who: string,
   projectKey?: string,
@@ -38,19 +92,27 @@ const resolveAccountId = async (
   if (/^[0-9a-f]{24}$|:/.test(who)) return who
 
   const ctx = context()
-  const candidates = projectKey
+  // The assignability search runs wherever the project is known, and falls
+  // back to a global search when it names nobody — so `issue assign` still
+  // finds a person the project list holds back, and `--assignee` on a bare
+  // name works without a project context.
+  const assignable = projectKey
     ? await ctx.client.searchAssignableUsers(who, projectKey)
-    : await ctx.client.searchUsers(who)
+    : []
+  const candidates =
+    assignable.length > 0 ? assignable : await ctx.client.searchUsers(who)
 
   if (candidates.length === 0) throw exitError(1, `no user matching '${who}'`)
-  if (candidates.length > 1)
-    throw exitError(
-      1,
-      `'${who}' matches ${candidates.length} people: ${candidates
-        .map((u) => `${u.displayName} (${u.accountId})`)
-        .join(", ")}`,
-    )
-  return (candidates[0] as { accountId: string }).accountId
+  if (candidates.length > 1) {
+    // Every candidate on stderr, so the message alone is enough to restate the
+    // ask without another round trip; an email when the instance exposes one.
+    for (const u of candidates)
+      process.stderr.write(
+        `${u.displayName}${u.emailAddress ? `  ${u.emailAddress}` : ""}  ${u.accountId}\n`,
+      )
+    throw exitError(1, `'${who}' matches ${candidates.length} people`)
+  }
+  return candidates[0].accountId
 }
 
 export const registerIssueWriteCommands = (issue: Command): void => {
@@ -64,6 +126,13 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .option("-a, --assignee <who>", "assignee, or 'me'")
     .option("-l, --label <label...>", "labels")
     .option("--priority <name>", "priority name")
+    .option("--parent <key>", "parent issue key")
+    .option(
+      "--link <type:key>",
+      "link the new issue to another, repeatable, e.g. Relates:ABC-2",
+      collectLink,
+      [] as string[],
+    )
     .option("--json", "emit JSON")
     .action(
       async (options: {
@@ -74,6 +143,8 @@ export const registerIssueWriteCommands = (issue: Command): void => {
         assignee?: string
         label?: string[]
         priority?: string
+        parent?: string
+        link?: string[]
         json?: boolean
       }) => {
         const ctx = context()
@@ -86,6 +157,7 @@ export const registerIssueWriteCommands = (issue: Command): void => {
           fields["description"] = markdownToAdf(readBody(options.body))
         if (options.label) fields["labels"] = options.label
         if (options.priority) fields["priority"] = { name: options.priority }
+        if (options.parent) fields["parent"] = { key: options.parent }
         if (options.assignee)
           fields["assignee"] = {
             accountId: await resolveAccountId(
@@ -94,9 +166,32 @@ export const registerIssueWriteCommands = (issue: Command): void => {
             ),
           }
 
+        // Known-bad link specs must stop before anything is created, so the
+        // types are fetched and validated up front, and the links themselves
+        // are only attempted once the issue exists. Direction is pass-through:
+        // the new issue goes to the client as outwardIssue, the --link key as
+        // inwardIssue.
+        const links = options.link?.length
+          ? parseLinkSpecs(options.link, await linkTypes(ctx))
+          : []
+
         const created = await ctx.client.createIssue(fields)
-        if (options.json) return printJson(created)
-        process.stdout.write(`${created.key}\n`)
+        if (options.json) printJson(created)
+        else process.stdout.write(`${created.key}\n`)
+
+        for (const link of links) {
+          try {
+            await ctx.client.linkIssues(link.type, created.key, link.key)
+          } catch (e) {
+            // The issue exists regardless; its key was already printed, and
+            // the failure exit must not read as a fully successful create.
+            throw exitError(
+              1,
+              `created ${created.key}, but the ${link.type} link to ${link.key} failed: ${messageOf(e)}`,
+            )
+          }
+          process.stderr.write(`linked ${created.key} ${link.type} ${link.key}\n`)
+        }
       },
     )
 
@@ -107,6 +202,8 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .option("-b, --body <text>", "new description; '-' reads stdin")
     .option("-l, --label <label...>", "replace labels")
     .option("--priority <name>", "priority name")
+    .option("--parent <key>", "parent issue key; 'none' clears it")
+    .option("-a, --assignee <who>", "assignee; 'me' or 'none' both work")
     .action(
       async (
         key: string,
@@ -115,6 +212,8 @@ export const registerIssueWriteCommands = (issue: Command): void => {
           body?: string
           label?: string[]
           priority?: string
+          parent?: string
+          assignee?: string
         },
       ) => {
         const fields: Record<string, unknown> = {}
@@ -123,6 +222,16 @@ export const registerIssueWriteCommands = (issue: Command): void => {
           fields["description"] = markdownToAdf(readBody(options.body))
         if (options.label) fields["labels"] = options.label
         if (options.priority) fields["priority"] = { name: options.priority }
+        if (options.parent !== undefined)
+          fields["parent"] =
+            options.parent === "none" ? null : { key: options.parent }
+        if (options.assignee) {
+          const accountId = await resolveAccountId(
+            options.assignee,
+            projectOf(key),
+          )
+          fields["assignee"] = accountId ? { accountId } : null
+        }
 
         if (Object.keys(fields).length === 0)
           throw exitError(2, "nothing to change — pass at least one option")
@@ -144,9 +253,11 @@ export const registerIssueWriteCommands = (issue: Command): void => {
 
   issue
     .command("assign <key> <who>")
-    .description("assign an issue; 'me' or 'none' both work")
+    .description("assign an issue; 'me', a name, or 'none' all work")
     .action(async (key: string, who: string) => {
-      const accountId = await resolveAccountId(who)
+      // The assignability search runs for the issue's own project, since that
+      // is who the issue can actually be assigned to.
+      const accountId = await resolveAccountId(who, projectOf(key))
       await context().client.assignIssue(key, accountId)
       process.stderr.write(`${key} assigned to ${accountId ? who : "nobody"}\n`)
     })

@@ -39,7 +39,7 @@ const parse = (args: string[]): Promise<unknown> => {
 }
 
 describe("jira api", () => {
-  it("succeeds on an empty 2xx body and prints null, keeping stdout JSON", async () => {
+  it("prints nothing on an empty 2xx body — 'null' would claim data that is not there", async () => {
     // request() resolves to undefined on an empty 2xx body, as link and
     // watcher POSTs return; earlier versions threw "Unexpected end of JSON
     // input".
@@ -53,7 +53,7 @@ describe("jira api", () => {
       "/rest/api/3/issue/ABC-1/watchers",
       { method: "POST" },
     )
-    expect(String(stdoutWrite.mock.calls[0]?.[0])).toBe("null\n")
+    expect(stdoutWrite).not.toHaveBeenCalled()
     expect(stderrWrite).not.toHaveBeenCalled()
   })
 })

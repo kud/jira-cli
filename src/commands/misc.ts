@@ -104,7 +104,10 @@ export const registerApiCommand = (program: Command): void => {
           method,
           ...(options.data ? { body: options.data } : {}),
         })
-        printJson(result ?? null)
+        // An empty 2xx body — a 204, or a 201 with no content — resolves to
+        // undefined; `null` would claim data that is not there.
+        if (result == null) return
+        printJson(result)
       },
     )
 }
