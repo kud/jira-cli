@@ -4,6 +4,23 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.11.0 — 2026-10-30
+
+### Highlights
+
+- **`issue link` now works and tells you so.** It no longer fails with "Unexpected end of JSON input" after the link was created; the fix comes from `@kud/jira` 0.6.0. ([0b12c20](https://github.com/kud/jira-cli/commit/0b12c20764836b84ca9d7954d6c607de2b7d61f6))
+- **See an issue's links with `issue link list`.** `issue view` also shows links and subtasks, in text and in `--json`. ([0b12c20](https://github.com/kud/jira-cli/commit/0b12c20764836b84ca9d7954d6c607de2b7d61f6))
+- **Set parent, links and assignee when you create or edit.** `create` takes `--parent`, `--assignee` and repeatable `--link <type>:<KEY>`, validated before anything is created; `edit` takes `--parent` and `--assignee`. ([a06b1a8](https://github.com/kud/jira-cli/commit/a06b1a8e554b49350e93c17e5c0794e39f08765a))
+- **Assign by name or email.** `assign` and `--assignee` search for the person, and refuse to guess when several match, listing them instead. ([a06b1a8](https://github.com/kud/jira-cli/commit/a06b1a8e554b49350e93c17e5c0794e39f08765a))
+- **`issue view --fields` trims the output** to the fields you ask for, plus key and summary. ([a06b1a8](https://github.com/kud/jira-cli/commit/a06b1a8e554b49350e93c17e5c0794e39f08765a))
+- **`transition` and `move` accept a target status name** as well as a transition name, and transitions are listed as name → status. ([a06b1a8](https://github.com/kud/jira-cli/commit/a06b1a8e554b49350e93c17e5c0794e39f08765a))
+
+### Fixes
+
+- **`jira api` prints nothing on an empty success** instead of `null`. ([a06b1a8](https://github.com/kud/jira-cli/commit/a06b1a8e554b49350e93c17e5c0794e39f08765a))
+
+---
+
 ## 0.10.0 — 2026-10-27
 
 ### Highlights
