@@ -4,6 +4,7 @@ import { createRequire } from "node:module"
 import { fileURLToPath } from "node:url"
 import { Command } from "commander"
 import { configPath, isJiraApiError } from "@kud/jira"
+import { registerAutomationCommands } from "./commands/automation.js"
 import { registerAttachmentCommands } from "./commands/attachment.js"
 import { isExitError } from "./commands/context.js"
 import {
@@ -49,6 +50,7 @@ Examples:
   jira attachment list ABC-123
   jira attachment read ABC-123 error.log | grep -i timeout
   jira search 'project = ABC AND created >= -7d' --json | jq '.[].key'
+  jira automation list --project ABC
 `,
   )
 
@@ -65,6 +67,7 @@ registerEpicCommands(program)
 registerUserCommands(program)
 registerMetaCommands(program)
 registerCountCommand(program)
+registerAutomationCommands(program)
 registerApiCommand(program)
 
 /**
