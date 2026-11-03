@@ -81,7 +81,8 @@ export const explainAuthFailure = (error: unknown): unknown => {
       `Automation API refused ${error.method} (403).\n` +
         "Managing automation rules needs the Jira administrator global permission\n" +
         "(Administer Jira) on the account behind ATLASSIAN_API_TOKEN; project admin is not enough,\n" +
-        "even for rules scoped to that project. Ask a Jira admin to grant it, or to run the command.",
+        "even for rules scoped to that project. Ask a Jira admin to grant it, or to run the command.\n" +
+        "A project admin can still create and edit that project's rules in the Jira web UI.",
     )
   return error
 }
