@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.12.0 — 2026-11-03
+
+### Highlights
+
+- **Manage Jira automation rules from the terminal.** New `automation` commands: `list`, `get`, `create`, `update`, `enable` and `disable`. ([c5b2524](https://github.com/kud/jira-cli/commit/c5b2524065d81076f60f3f17179dbffceaea0b0e))
+- **Rule management needs the Jira administrator global permission.** Without it, Jira refuses the calls; the README now says so. ([c5b2524](https://github.com/kud/jira-cli/commit/c5b2524065d81076f60f3f17179dbffceaea0b0e))
+- **Point at a different Automation API host when you need to.** Set `--host` or `ATLASSIAN_AUTOMATION_HOST`; setting `ATLASSIAN_CLOUD_ID` skips the cloud ID lookup. ([c5b2524](https://github.com/kud/jira-cli/commit/c5b2524065d81076f60f3f17179dbffceaea0b0e))
+
+---
+
 ## 0.11.0 — 2026-10-30
 
 ### Highlights
