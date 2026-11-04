@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.13.0 — 2026-11-04
+
+### Highlights
+
+- **Browse boards from the terminal.** `board list --project` shows a project's boards, and the new `board view <id>` shows columns and the board's filter JQL. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
+- **Add to a description without retyping it.** `issue edit` takes `--prepend-description` and `--append-description`, keeping the existing content. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
+- **Create an issue straight into a status.** `issue create --status "In Progress"` moves it after creation, and skips the move if it is already there. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
+- **Read just the latest comments.** `issue comment list --last [n]` shows only the most recent ones. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
+- **Rank a whole set of issues to the top.** `issue rank --top --jql "project = ACME AND labels = urgent"` ranks everything the query matches. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
+
+---
+
 ## 0.12.0 — 2026-11-03
 
 ### Highlights
