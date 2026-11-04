@@ -12,7 +12,7 @@ All notable changes to this project are documented here.
 - **Add to a description without retyping it.** `issue edit` takes `--prepend-description` and `--append-description`, keeping the existing content. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
 - **Create an issue straight into a status.** `issue create --status "In Progress"` moves it after creation, and skips the move if it is already there. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
 - **Read just the latest comments.** `issue comment list --last [n]` shows only the most recent ones. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
-- **Rank a whole set of issues to the top.** `issue rank --top --jql "project = ACME AND labels = urgent"` ranks everything the query matches. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
+- **Rank issues to the top of a scope.** `issue rank ACME-1 --top --jql "project = ACME AND labels = urgent"` places the given issues above the first issue the query matches. ([0187c03](https://github.com/kud/jira-cli/commit/0187c03487d88a62d3efffb78d1fd1db483b9898))
 
 ---
 
