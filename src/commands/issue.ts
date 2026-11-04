@@ -9,7 +9,11 @@ import {
   warnIfTruncated,
   type Context,
 } from "./context.js"
-import { registerIssueWriteCommands } from "./issue-write.js"
+import {
+  registerIssueWriteCommands,
+  resolveTransition,
+  TRANSITION_HINT,
+} from "./issue-write.js"
 
 import { buildJql, jqlEscape, type ListOptions as JqlOptions } from "@kud/jira"
 
@@ -241,50 +245,7 @@ export const registerIssueCommands = (program: Command): void => {
           return
         }
 
-        const wanted = status.toLowerCase()
-        const byName = transitions.filter(
-          (t) => t.name.toLowerCase() === wanted || t.id === status,
-        )
-        const byTarget = transitions.filter(
-          (t) => t.to?.name.toLowerCase() === wanted,
-        )
-        // A transition name always wins over a status name, ids keep working
-        // as they always have, and a status that several transitions reach is
-        // refused rather than resolved to whichever came first. Only the
-        // status reading is ambiguous-checkable: a named transition settles
-        // the move even when other transitions reach the same status.
-        const match =
-          byName.length > 0
-            ? byName.length === 1
-              ? byName[0]
-              : undefined
-            : byTarget.length === 1
-              ? byTarget[0]
-              : undefined
-        if (byName.length > 1) {
-          throw exitError(
-            1,
-            `'${status}' matches ${byName.length} transitions on ${key}: ${byName
-              .map((t) => `${t.name} → ${t.to?.name ?? "—"}`)
-              .join("; ")}`,
-          )
-        }
-        if (byName.length === 0 && byTarget.length > 1) {
-          throw exitError(
-            1,
-            `${byTarget.length} transitions reach '${status}' on ${key}: ${byTarget
-              .map((t) => `${t.name} → ${t.to?.name ?? "—"}`)
-              .join("; ")}\nUse a transition name instead`,
-          )
-        }
-        if (!match) {
-          throw exitError(
-            1,
-            `no transition or status '${status}' on ${key}. Available:\n${transitions
-              .map((t) => `  ${t.name} → ${t.to?.name ?? "—"}`)
-              .join("\n")}\n${TRANSITION_HINT}`,
-          )
-        }
+        const match = resolveTransition(transitions, key, status)
 
         await ctx.client.transitionIssue(
           key,
@@ -321,9 +282,6 @@ export const registerIssueCommands = (program: Command): void => {
 
 const issueUrl = (ctx: Context, key: string): string =>
   `${ctx.config.baseUrl.replace(/\/$/, "")}/browse/${key}`
-
-const TRANSITION_HINT =
-  "the argument may be either the transition name or its target status"
 
 const formatField = (value: unknown): string => {
   if (value == null) return "—"

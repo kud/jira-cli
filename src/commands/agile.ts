@@ -1,5 +1,12 @@
 import type { Command } from "commander"
-import type { JiraIssue } from "@kud/jira"
+import type {
+  JiraBoard,
+  JiraBoardConfiguration,
+  JiraClient,
+  JiraFilter,
+  JiraIssue,
+} from "@kud/jira"
+import { isJiraApiError } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
 import { context, printJson } from "./context.js"
 
@@ -22,6 +29,37 @@ const writeIssues = (issues: JiraIssue[], json?: boolean): void => {
   process.stdout.write(`${table(issues, issueRows)}\n`)
 }
 
+/**
+ * Scoped boards need the raw endpoint; the unscoped getBoards cannot take a
+ * project. Each response carries its own startAt and isLast, so the next
+ * page starts at startAt plus the page length. Stop on isLast (or its
+ * absence), and on an empty page too: Jira saying isLast: false for a page
+ * with no values would otherwise loop forever.
+ */
+const listProjectBoards = async (
+  request: JiraClient["request"],
+  project: string,
+): Promise<JiraBoard[]> => {
+  const base = `/rest/agile/1.0/board?projectKeyOrId=${encodeURIComponent(project)}`
+  const boards: JiraBoard[] = []
+  let path: string = base
+  while (path) {
+    const page: {
+      values?: JiraBoard[]
+      isLast?: boolean
+      startAt?: number
+    } = await request(path)
+    const pageBoards = page.values ?? []
+    boards.push(...pageBoards)
+    const startAt = (page.startAt ?? 0) + pageBoards.length
+    path =
+      page.isLast !== false || pageBoards.length === 0
+        ? ""
+        : `${base}&startAt=${startAt}`
+  }
+  return boards
+}
+
 export const registerBoardCommands = (program: Command): void => {
   const board = program
     .command("board")
@@ -32,16 +70,82 @@ export const registerBoardCommands = (program: Command): void => {
     .alias("ls")
     .description("list boards")
     .option("--json", "emit JSON")
-    .action(async (options: { json?: boolean }) => {
+    .option("--project <key>", "filter boards by project key")
+    .action(async (options: { json?: boolean; project?: string }) => {
       const ctx = context()
-      const { values } = await ctx.client.getBoards()
-      if (options.json) return printJson(values)
+      const boards = options.project
+        ? await listProjectBoards(ctx.client.request, options.project)
+        : (await ctx.client.getBoards()).values
+      if (options.json) return printJson(boards)
       process.stdout.write(
-        `${table(values, [
+        `${table(boards, [
           { header: "ID", value: (b) => String(b.id) },
           { header: "NAME", value: (b) => b.name },
           { header: "TYPE", value: (b) => b.type ?? "—" },
         ])}\n`,
+      )
+    })
+
+  board
+    .command("view <id>")
+    .description("show a board's configuration and filter")
+    .option("--json", "emit JSON")
+    .action(async (id: string, options: { json?: boolean }) => {
+      const ctx = context()
+      // JiraBoardConfiguration does not declare filter, but the real
+      // configuration response carries filter: { id, self }, and the filter
+      // is the only public way to name a board's JQL.
+      const config = (await ctx.client.getBoardConfiguration(
+        Number(id),
+      )) as JiraBoardConfiguration & { filter?: { id: string; self?: string } }
+      let filter: JiraFilter | null = null
+      let unavailable = !config.filter?.id
+      if (config.filter?.id) {
+        try {
+          filter = await ctx.client.request<JiraFilter>(
+            `/rest/api/3/filter/${config.filter.id}`,
+          )
+        } catch (e) {
+          if (isJiraApiError(e) && (e.status === 403 || e.status === 404))
+            unavailable = true
+          else throw e
+        }
+      }
+
+      const statuses = await ctx.client.getStatuses()
+      const statusMap = new Map(statuses.map((s) => [s.id, s.name]))
+
+      if (options.json) {
+        return printJson({
+          ...config,
+          filter: filter
+            ? { ...config.filter, ...filter }
+            : { ...config.filter, unavailable: true },
+        })
+      }
+
+      const { dim } = ctx.out
+      const columns = config.columnConfig?.columns ?? []
+      const columnLines = columns.map((col) => {
+        const statusNames = col.statuses
+          .map((s) => statusMap.get(s.id) ?? s.id)
+          .join(", ")
+        return `${dim("column")}  ${col.name}  ${dim(statusNames)}`
+      })
+
+      process.stdout.write(
+        `${[
+          config.name,
+          `${dim("type")}  ${config.type ?? "—"}`,
+          `${dim("filter")}  ${
+            filter
+              ? `${filter.name}  ${dim(filter.jql ?? "")}`
+              : unavailable
+                ? "unavailable"
+                : "—"
+          }`,
+          ...columnLines,
+        ].join("\n")}\n`,
       )
     })
 

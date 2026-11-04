@@ -332,3 +332,615 @@ describe("confirmDestructive", () => {
     expect((error as Error).message).toMatch(/--yes/)
   })
 })
+
+describe("rankPosition with --top", () => {
+  it("refuses --top without --jql", () => {
+    let error: unknown
+    try {
+      rankPosition({ top: true })
+    } catch (e) {
+      error = e
+    }
+    expect(isExitError(error)).toBe(true)
+    expect((error as { code: number }).code).toBe(1)
+    expect((error as Error).message).toMatch(/--top requires --jql/)
+  })
+
+  it("refuses --top with --before", () => {
+    let error: unknown
+    try {
+      rankPosition({ top: true, jql: "project = ABC", before: "ABC-1" })
+    } catch (e) {
+      error = e
+    }
+    expect(isExitError(error)).toBe(true)
+    expect((error as { code: number }).code).toBe(1)
+    expect((error as Error).message).toMatch(/mutually exclusive with --before and --after/)
+  })
+
+  it("refuses --top with --after", () => {
+    let error: unknown
+    try {
+      rankPosition({ top: true, jql: "project = ABC", after: "ABC-1" })
+    } catch (e) {
+      error = e
+    }
+    expect(isExitError(error)).toBe(true)
+    expect((error as { code: number }).code).toBe(1)
+    expect((error as Error).message).toMatch(/mutually exclusive with --before and --after/)
+  })
+
+  it("accepts --top with --jql", () => {
+    expect(rankPosition({ top: true, jql: "project = ABC" })).toEqual({
+      top: true,
+      jql: "project = ABC",
+    })
+  })
+})
+
+describe("issue rank --top --jql", () => {
+  const searchIssues = vi.fn()
+  const rankIssues = vi.fn()
+
+  beforeEach(() => {
+    client.searchIssues = searchIssues
+    client.rankIssues = rankIssues
+    searchIssues.mockReset()
+    rankIssues.mockReset()
+  })
+
+  it("refuses --top without --jql", async () => {
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--top"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/--top requires --jql/),
+    })
+  })
+
+  it("refuses --jql without --top", async () => {
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--jql", "project = ABC"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/--jql needs --top/),
+    })
+  })
+
+  it("refuses --top with --before", async () => {
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC", "--before", "ABC-2"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/mutually exclusive with --before and --after/),
+    })
+  })
+
+  it("refuses --top with --after", async () => {
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC", "--after", "ABC-2"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/mutually exclusive with --before and --after/),
+    })
+  })
+
+  it("refuses JQL with ORDER BY other than Rank ASC", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-2" }])
+
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC ORDER BY created DESC"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(
+        /foreign ORDER BY is not supported with --top: 'created DESC'\. Remove it, or use ORDER BY Rank ASC/,
+      ),
+    })
+  })
+
+  it("exits 1 when JQL returns no issues", async () => {
+    searchIssues.mockResolvedValue([])
+
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/no issues match/),
+    })
+  })
+
+  it("does nothing when keys already occupy the top in order", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-1" }, { key: "ABC-2" }, { key: "ABC-3" }])
+
+    await parse(["issue", "rank", "ABC-1", "ABC-2", "--top", "--jql", "project = ABC"])
+
+    expect(rankIssues).not.toHaveBeenCalled()
+    const notes = stderrWrite.mock.calls.map((c) => String(c[0]))
+    expect(notes.join("")).toContain("already at the top in order")
+  })
+
+  it("says so without a rank call when the scope is only the keys", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-1" }])
+
+    await parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC"])
+
+    expect(rankIssues).not.toHaveBeenCalled()
+    expect(stderrWrite.mock.calls.map((c) => String(c[0])).join("")).toContain(
+      "already at the top in order",
+    )
+  })
+
+  it("accepts a bare ORDER BY Rank without appending a second clause", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-2" }, { key: "ABC-1" }])
+
+    await parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC ORDER BY Rank"])
+
+    expect(searchIssues).toHaveBeenCalledWith(
+      "project = ABC ORDER BY Rank",
+      { limit: 2 },
+    )
+    expect(rankIssues).toHaveBeenCalledWith(["ABC-1"], { before: "ABC-2" })
+  })
+
+  it("refuses ORDER BY Rank DESC", async () => {
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC ORDER BY Rank DESC"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/foreign ORDER BY is not supported with --top/),
+    })
+  })
+
+  it("refuses an ORDER BY split by extra spaces instead of appending", async () => {
+    await expect(
+      parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC ORDER  BY created"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/foreign ORDER BY is not supported with --top: 'created'/),
+    })
+    expect(searchIssues).not.toHaveBeenCalled()
+  })
+
+  it("compares keys case-insensitively against the scope", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-1" }, { key: "ABC-2" }, { key: "ABC-3" }])
+
+    await parse(["issue", "rank", "abc-2", "abc-1", "--top", "--jql", "project = ABC"])
+
+    expect(rankIssues).toHaveBeenCalledWith(["abc-2", "abc-1"], { before: "ABC-3" })
+    expect(stderrWrite.mock.calls.map((c) => String(c[0])).join("")).toContain(
+      "before ABC-3",
+    )
+  })
+
+  it("ranks keys before first issue not in keys", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-3" }, { key: "ABC-1" }, { key: "ABC-2" }])
+
+    await parse(["issue", "rank", "ABC-1", "ABC-2", "--top", "--jql", "project = ABC"])
+
+    expect(rankIssues).toHaveBeenCalledWith(["ABC-1", "ABC-2"], { before: "ABC-3" })
+    expect(stderrWrite.mock.calls.map((c) => String(c[0])).join("")).toContain("before ABC-3")
+  })
+
+  it("ranks keys already in scope but out of order, against the next issue", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-2" }, { key: "ABC-1" }, { key: "ABC-3" }])
+
+    await parse(["issue", "rank", "ABC-1", "ABC-2", "--top", "--jql", "project = ABC"])
+
+    expect(rankIssues).toHaveBeenCalledWith(["ABC-1", "ABC-2"], { before: "ABC-3" })
+  })
+
+  it("says there is nothing to rank against when the scope is the keys out of order", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-2" }, { key: "ABC-1" }])
+
+    await parse(["issue", "rank", "ABC-1", "ABC-2", "--top", "--jql", "project = ABC"])
+
+    expect(rankIssues).not.toHaveBeenCalled()
+    expect(stderrWrite.mock.calls.map((c) => String(c[0])).join("")).toContain(
+      "no issue outside the given keys in the scope to rank against",
+    )
+    expect(stderrWrite.mock.calls.map((c) => String(c[0])).join("")).not.toContain(
+      "already at the top in order",
+    )
+  })
+
+  it("appends ORDER BY Rank ASC to the search when JQL has none", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-2" }, { key: "ABC-1" }])
+
+    await parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC"])
+
+    expect(searchIssues).toHaveBeenCalledWith("project = ABC ORDER BY Rank ASC", {
+      limit: 2,
+    })
+  })
+
+  it("accepts JQL already ordered by Rank ASC", async () => {
+    searchIssues.mockResolvedValue([{ key: "ABC-2" }, { key: "ABC-1" }])
+
+    await parse(["issue", "rank", "ABC-1", "--top", "--jql", "project = ABC ORDER BY Rank ASC"])
+
+    expect(searchIssues).toHaveBeenCalledWith(
+      "project = ABC ORDER BY Rank ASC",
+      { limit: 2 },
+    )
+    expect(rankIssues).toHaveBeenCalledWith(["ABC-1"], { before: "ABC-2" })
+  })
+
+  it("never ranks an issue before itself, whichever case the key was typed in", async () => {
+    // abc-1 is the same issue as ABC-1 in the scope, so it is already at the
+    // top and gets the no-op message instead of becoming its own anchor.
+    searchIssues.mockResolvedValue([{ key: "ABC-1" }, { key: "ABC-2" }])
+
+    await parse(["issue", "rank", "abc-1", "--top", "--jql", "project = ABC"])
+
+    expect(rankIssues).not.toHaveBeenCalled()
+    expect(stderrWrite.mock.calls.map((c) => String(c[0])).join("")).toContain(
+      "already at the top in order",
+    )
+  })
+})
+
+describe("issue edit --prepend-description and --append-description", () => {
+  const getIssue = vi.fn()
+  const updateIssue = vi.fn()
+
+  beforeEach(() => {
+    client.getIssue = getIssue
+    client.updateIssue = updateIssue
+    getIssue.mockReset()
+    updateIssue.mockReset()
+  })
+
+  it("prepends markdown to existing description", async () => {
+    getIssue.mockResolvedValue({
+      fields: {
+        description: {
+          type: "doc",
+          version: 1,
+          content: [{ type: "paragraph", content: [{ type: "text", text: "existing" }] }],
+        },
+      },
+    })
+
+    await parse(["issue", "edit", "ABC-5", "--prepend-description", "new "])
+
+    expect(updateIssue).toHaveBeenCalledWith(
+      "ABC-5",
+      expect.objectContaining({
+        description: expect.objectContaining({
+          content: expect.arrayContaining([
+            expect.objectContaining({ content: expect.arrayContaining([expect.objectContaining({ text: "new" })]) }),
+            expect.objectContaining({ content: expect.arrayContaining([expect.objectContaining({ text: "existing" })]) }),
+          ]),
+        }),
+      }),
+    )
+  })
+
+  it("appends markdown to existing description", async () => {
+    getIssue.mockResolvedValue({
+      fields: {
+        description: {
+          type: "doc",
+          version: 1,
+          content: [{ type: "paragraph", content: [{ type: "text", text: "existing" }] }],
+        },
+      },
+    })
+
+    await parse(["issue", "edit", "ABC-5", "--append-description", " appended"])
+
+    expect(updateIssue).toHaveBeenCalledWith(
+      "ABC-5",
+      expect.objectContaining({
+        description: expect.objectContaining({
+          content: expect.arrayContaining([
+            expect.objectContaining({ content: expect.arrayContaining([expect.objectContaining({ text: "existing" })]) }),
+            expect.objectContaining({ content: expect.arrayContaining([expect.objectContaining({ text: "appended" })]) }),
+          ]),
+        }),
+      }),
+    )
+  })
+
+  it("both prepend and append together", async () => {
+    getIssue.mockResolvedValue({
+      fields: {
+        description: {
+          type: "doc",
+          version: 1,
+          content: [{ type: "paragraph", content: [{ type: "text", text: "middle" }] }],
+        },
+      },
+    })
+
+    await parse(["issue", "edit", "ABC-5", "--prepend-description", "first ", "--append-description", " last"])
+
+    const call = updateIssue.mock.calls[0][1] as { description: { content: unknown[] } }
+    const texts = call.description.content.flatMap((c: unknown) =>
+      (c as { content: { text: string }[] }).content?.map((x) => x.text) ?? [],
+    )
+    expect(texts).toEqual(["first", "middle", "last"])
+  })
+
+  it("handles null description as empty", async () => {
+    getIssue.mockResolvedValue({ fields: { description: null } })
+
+    await parse(["issue", "edit", "ABC-5", "--prepend-description", "new"])
+
+    expect(updateIssue).toHaveBeenCalledWith(
+      "ABC-5",
+      expect.objectContaining({
+        description: expect.objectContaining({
+          content: expect.arrayContaining([
+            expect.objectContaining({ content: expect.arrayContaining([expect.objectContaining({ text: "new" })]) }),
+          ]),
+        }),
+      }),
+    )
+  })
+
+  it("exits 2 when prepend and append both read stdin", async () => {
+    // A single invocation would read fd 0 twice, the second read silently
+    // empty; request two edits instead.
+    await expect(
+      parse([
+        "issue", "edit", "ABC-5",
+        "--prepend-description", "-",
+        "--append-description", "-",
+      ]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 2,
+      message: expect.stringMatching(/both read stdin; run two edits instead/),
+    })
+    expect(getIssue).not.toHaveBeenCalled()
+  })
+
+  it("exits 2 when combined with --body", async () => {
+    await expect(
+      parse(["issue", "edit", "ABC-5", "--body", "new", "--prepend-description", "prepend"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 2,
+      message: expect.stringMatching(/mutually exclusive with --body/),
+    })
+    expect(getIssue).not.toHaveBeenCalled()
+  })
+
+  it("does not fetch issue when flags not present", async () => {
+    await parse(["issue", "edit", "ABC-5", "--summary", "new summary"])
+
+    expect(getIssue).not.toHaveBeenCalled()
+  })
+})
+
+describe("issue comment list --last", () => {
+  const request = vi.fn()
+  const getComments = vi.fn()
+
+  beforeEach(() => {
+    client.request = request
+    client.getComments = getComments
+    request.mockReset()
+    getComments.mockReset()
+  })
+
+  it("defaults to 1 when --last is bare", async () => {
+    request.mockResolvedValue({
+      comments: [{ id: "1", author: { displayName: "A" }, created: "2024-01-01T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } }],
+    })
+
+    await parse(["issue", "comment", "list", "ABC-1", "--last"])
+
+    expect(request).toHaveBeenCalledWith(
+      "/rest/api/3/issue/ABC-1/comment?orderBy=-created&maxResults=1",
+    )
+  })
+
+  it("uses specified number", async () => {
+    request.mockResolvedValue({
+      comments: [
+        { id: "1", author: { displayName: "A" }, created: "2024-01-01T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } },
+        { id: "2", author: { displayName: "B" }, created: "2024-01-02T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } },
+      ],
+    })
+
+    await parse(["issue", "comment", "list", "ABC-1", "--last", "2"])
+
+    expect(request).toHaveBeenCalledWith(
+      "/rest/api/3/issue/ABC-1/comment?orderBy=-created&maxResults=2",
+    )
+  })
+
+  it("exits 2 for non-positive n", async () => {
+    await expect(
+      parse(["issue", "comment", "list", "ABC-1", "--last", "0"]),
+    ).rejects.toMatchObject({ name: "ExitError", code: 2 })
+  })
+
+  it("exits 2 for negative n", async () => {
+    await expect(
+      parse(["issue", "comment", "list", "ABC-1", "--last", "-1"]),
+    ).rejects.toMatchObject({ name: "ExitError", code: 2 })
+  })
+
+  it("exits 2 for non-numeric n", async () => {
+    await expect(
+      parse(["issue", "comment", "list", "ABC-1", "--last", "abc"]),
+    ).rejects.toMatchObject({ name: "ExitError", code: 2 })
+  })
+
+  it("exits 2 for values Number() would accept but Jira would not", async () => {
+    await expect(
+      parse(["issue", "comment", "list", "ABC-1", "--last", "1e1"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 2,
+      message: expect.stringMatching(/--last requires a positive integer/),
+    })
+
+    await expect(
+      parse(["issue", "comment", "list", "ABC-1", "--last", "0x10"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 2,
+      message: expect.stringMatching(/--last requires a positive integer/),
+    })
+  })
+
+  it("returns comments oldest-to-newest", async () => {
+    request.mockResolvedValue({
+      comments: [
+        { id: "3", author: { displayName: "C" }, created: "2024-01-03T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } },
+        { id: "2", author: { displayName: "B" }, created: "2024-01-02T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } },
+        { id: "1", author: { displayName: "A" }, created: "2024-01-01T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } },
+      ],
+    })
+
+    await parse(["issue", "comment", "list", "ABC-1", "--last", "3"])
+
+    const output = String(stdoutWrite.mock.calls[0]?.[0])
+    const firstIdx = output.indexOf("A")
+    const lastIdx = output.indexOf("C")
+    expect(firstIdx).toBeLessThan(lastIdx)
+  })
+
+  it("JSON output is an array", async () => {
+    request.mockResolvedValue({
+      comments: [
+        { id: "1", author: { displayName: "A" }, created: "2024-01-01T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } },
+      ],
+    })
+
+    await parse(["issue", "comment", "list", "ABC-1", "--last", "1", "--json"])
+
+    const parsed = JSON.parse(String(stdoutWrite.mock.calls[0]?.[0]))
+    expect(Array.isArray(parsed)).toBe(true)
+  })
+
+  it("unchanged behaviour without --last", async () => {
+    getComments.mockResolvedValue({
+      comments: [
+        { id: "1", author: { displayName: "A" }, created: "2024-01-01T00:00:00.000+0000", body: { type: "doc", version: 1, content: [] } },
+      ],
+    })
+
+    await parse(["issue", "comment", "list", "ABC-1"])
+
+    expect(getComments).toHaveBeenCalledWith("ABC-1")
+    expect(request).not.toHaveBeenCalled()
+  })
+})
+
+describe("issue create --status", () => {
+  const getTransitions = vi.fn()
+  const transitionIssue = vi.fn()
+  const getIssue = vi.fn()
+
+  beforeEach(() => {
+    client.getTransitions = getTransitions
+    client.transitionIssue = transitionIssue
+    client.getIssue = getIssue
+    getTransitions.mockReset()
+    transitionIssue.mockReset()
+    getIssue.mockReset()
+  })
+
+  it("moves issue to status after creation and links", async () => {
+    getTransitions.mockResolvedValue({
+      transitions: [{ id: "20", name: "Start Progress", to: { id: "2", name: "In Progress" } }],
+    })
+    getIssue.mockResolvedValue({
+      key: "ABC-1",
+      fields: { status: { name: "To Do" } },
+    })
+
+    await parse([
+      "issue", "create", "-p", "ABC", "-t", "Task", "-s", "First draft",
+      "--link", "Relates:ABC-2", "--status", "In Progress",
+    ])
+
+    expect(client.createIssue).toHaveBeenCalled()
+    expect(client.linkIssues).toHaveBeenCalled()
+    expect(getTransitions).toHaveBeenCalledWith("ABC-1")
+    expect(transitionIssue).toHaveBeenCalledWith("ABC-1", "20")
+    // Key printed before the move is attempted
+    expect(String(stdoutWrite.mock.calls[0]?.[0])).toBe("ABC-1\n")
+    const notes = stderrWrite.mock.calls.map((c) => String(c[0]))
+    expect(notes).toContain("moved ABC-1 to In Progress\n")
+  })
+
+  it("skips transition when already in that status (case-insensitive)", async () => {
+    getIssue.mockResolvedValue({
+      key: "ABC-1",
+      fields: { status: { name: "in progress" } },
+    })
+
+    await parse([
+      "issue", "create", "-p", "ABC", "-t", "Task", "-s", "First draft",
+      "--status", "In Progress",
+    ])
+
+    expect(getTransitions).not.toHaveBeenCalled()
+    expect(transitionIssue).not.toHaveBeenCalled()
+    expect(stderrWrite.mock.calls.map((c) => String(c[0])).join("")).toContain(
+      "already in 'in progress'",
+    )
+  })
+
+  it("reports failure with key already printed", async () => {
+    getTransitions.mockResolvedValue({
+      transitions: [{ id: "20", name: "Start Progress", to: { id: "2", name: "In Progress" } }],
+    })
+    getIssue.mockResolvedValue({
+      key: "ABC-1",
+      fields: { status: { name: "To Do" } },
+    })
+    transitionIssue.mockRejectedValue(new Error("permission denied"))
+
+    await expect(
+      parse([
+        "issue", "create", "-p", "ABC", "-t", "Task", "-s", "First draft",
+        "--status", "In Progress",
+      ]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/created ABC-1, but moving it to In Progress failed: permission denied/),
+    })
+
+    expect(String(stdoutWrite.mock.calls[0]?.[0])).toBe("ABC-1\n")
+  })
+
+  it("uses shared resolveTransition logic (ambiguity refused)", async () => {
+    getTransitions.mockResolvedValue({
+      transitions: [
+        { id: "10", name: "Finish", to: { id: "3", name: "Done" } },
+        { id: "20", name: "Done here", to: { id: "3", name: "Done" } },
+      ],
+    })
+    getIssue.mockResolvedValue({
+      key: "ABC-1",
+      fields: { status: { name: "To Do" } },
+    })
+
+    await expect(
+      parse([
+        "issue", "create", "-p", "ABC", "-t", "Task", "-s", "First draft",
+        "--status", "Done",
+      ]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 1,
+      message: expect.stringMatching(/Use a transition name instead/),
+    })
+  })
+})
