@@ -16,7 +16,7 @@
     "type": "git",
     "url": "git+https://github.com/kud/jira-cli.git"
   },
-  "homepage": "https://github.com/kud/jira-cli#readme",
+  "homepage": "https://kud.io/projects/jira-cli",
   "bugs": "https://github.com/kud/jira-cli/issues",
   "bin": {
     "jira": "dist/index.js"
