@@ -16,6 +16,7 @@ import {
 import { registerIssueCommands } from "./commands/issue.js"
 import { registerCountCommand, registerMetaCommands } from "./commands/meta.js"
 import { registerUserCommands } from "./commands/people.js"
+import { registerWorkflowCommands } from "./commands/workflow.js"
 import { registerProjectCommands } from "./commands/project.js"
 import {
   registerApiCommand,
@@ -51,6 +52,8 @@ Examples:
   jira attachment read ABC-123 error.log | grep -i timeout
   jira search 'project = ABC AND created >= -7d' --json | jq '.[].key'
   jira automation list --project ABC
+  jira workflow for Bug --project ABC
+  jira whoami --permissions --project ABC
 `,
   )
 
@@ -68,6 +71,7 @@ registerUserCommands(program)
 registerMetaCommands(program)
 registerCountCommand(program)
 registerAutomationCommands(program)
+registerWorkflowCommands(program)
 registerApiCommand(program)
 
 /**
