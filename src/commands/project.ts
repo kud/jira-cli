@@ -1,12 +1,15 @@
 import type { Command } from "commander"
 import { table } from "../output/format.js"
 import { context, printJson } from "./context.js"
+import { registerProjectRoleCommands } from "./project-roles.js"
 
 export const registerProjectCommands = (program: Command): void => {
   const project = program
     .command("project")
     .alias("proj")
-    .description("projects, their versions and components")
+    .description("projects, their versions, components and roles")
+
+  registerProjectRoleCommands(project)
 
   project
     .command("list")
