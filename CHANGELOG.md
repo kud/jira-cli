@@ -4,6 +4,27 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.13.1 — 2026-11-23
+
+### Fixes
+
+- **`assign`, and `--assignee` on `create` and `edit`, no longer pick the wrong person.** A name now resolves only on an exact, unique, active match; otherwise it refuses and lists the candidates. ([5569fcb](https://github.com/kud/jira-cli/commit/5569fcbda31ebd774ba542404d3405019c55da11))
+- **A rejected assignment shows Jira's own error**, and the issue is read back so the recorded assignee is confirmed. ([5569fcb](https://github.com/kud/jira-cli/commit/5569fcbda31ebd774ba542404d3405019c55da11))
+
+### Documentation
+
+- **New usage guide pages and a rewritten README** with a clearer intro, feature list and usage. ([8f80959](https://github.com/kud/jira-cli/commit/8f80959779d8d1aff49a11cfdae5c8d8c18e9fe6), [6bf4f5a](https://github.com/kud/jira-cli/commit/6bf4f5a1a0a18e110bb8c845aedf1def399a41d8))
+- **Clearer guidance on how `issue rank` is used.** ([f145dc4](https://github.com/kud/jira-cli/commit/f145dc415be9180b6c7d70ff0e9e4bc53e00d002))
+
+<details>
+<summary>Internal (3 commits)</summary>
+
+- Added a project icon, pointed the package homepage at the project page, and bumped the checkout and setup-node actions to v7 in CI.
+
+</details>
+
+---
+
 ## 0.13.0 — 2026-11-04
 
 ### Highlights
