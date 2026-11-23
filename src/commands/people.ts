@@ -1,6 +1,7 @@
 import type { Command } from "commander"
 import { table } from "../output/format.js"
-import { context, printJson } from "./context.js"
+import { context, exitError, printJson } from "./context.js"
+import { adminPermissions, formatAdminPermissions } from "./permissions.js"
 
 export const registerUserCommands = (program: Command): void => {
   const user = program.command("user").description("find people")
@@ -34,13 +35,45 @@ export const registerUserCommands = (program: Command): void => {
   program
     .command("whoami")
     .description("show the account these credentials belong to")
+    .option(
+      "--permissions",
+      "also show whether this account is a global admin and a project admin",
+    )
+    .option(
+      "-p, --project <key>",
+      "with --permissions, check project admin on this project",
+    )
     .option("--json", "emit JSON")
-    .action(async (options: { json?: boolean }) => {
-      const ctx = context()
-      const me = await ctx.client.getMe()
-      if (options.json) return printJson(me)
-      process.stdout.write(
-        `${me.displayName} <${me.emailAddress ?? "—"}>\n${ctx.out.dim(me.accountId)}\n`,
-      )
-    })
+    .addHelpText(
+      "after",
+      `
+Examples:
+  jira whoami --permissions
+  jira whoami --permissions --project SHOP
+`,
+    )
+    .action(
+      async (options: {
+        json?: boolean
+        permissions?: boolean
+        project?: string
+      }) => {
+        if (options.project && !options.permissions)
+          throw exitError(1, "--project only applies with --permissions")
+        const ctx = context()
+        const [me, permissions] = await Promise.all([
+          ctx.client.getMe(),
+          options.permissions
+            ? adminPermissions(ctx.client, options.project)
+            : undefined,
+        ])
+        if (options.json)
+          return printJson(permissions ? { ...me, permissions } : me)
+        process.stdout.write(
+          `${me.displayName} <${me.emailAddress ?? "—"}>\n${ctx.out.dim(me.accountId)}\n`,
+        )
+        if (permissions)
+          process.stdout.write(`\n${formatAdminPermissions(permissions)}\n`)
+      },
+    )
 }
