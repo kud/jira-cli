@@ -291,6 +291,29 @@ describe("issue assign by name", () => {
     expect(client.assignIssue).toHaveBeenCalledWith("ABC-1", "acc-1")
   })
 
+  it("assigns the one exact full name among fuzzy matches that share a first name", async () => {
+    client.searchAssignableUsers.mockResolvedValue([
+      { accountId: "acc-1", displayName: "Ada Lovelace" },
+      { accountId: "acc-2", displayName: "Ada Byron" },
+      { accountId: "acc-3", displayName: "Ada King" },
+    ])
+
+    await parse(["issue", "assign", "ABC-1", "ada lovelace"])
+
+    expect(client.assignIssue).toHaveBeenCalledWith("ABC-1", "acc-1")
+  })
+
+  it("treats runs of whitespace, non-breaking ones included, as one space", async () => {
+    client.searchAssignableUsers.mockResolvedValue([
+      { accountId: "acc-1", displayName: "Ada Lovelace " },
+      { accountId: "acc-2", displayName: "Ada Byron" },
+    ])
+
+    await parse(["issue", "assign", "ABC-1", "ada  lovelace"])
+
+    expect(client.assignIssue).toHaveBeenCalledWith("ABC-1", "acc-1")
+  })
+
   it("prints every match on stderr and assigns nobody when two active users share the name", async () => {
     client.searchAssignableUsers.mockResolvedValue([
       {

@@ -191,11 +191,14 @@ const resolveAccountId = async (
   // assign the wrong person. So only an exact, unique, active match proceeds;
   // everything else refuses and lists what was found. "Exact" is a
   // case-insensitive match on the display name or email, never a prefix.
-  const wanted = who.trim().toLowerCase()
+  // Whitespace is folded on both sides: a display name carrying a
+  // non-breaking or doubled space would otherwise never match its own
+  // spelling typed at a prompt.
+  const fold = (s: string | undefined): string | undefined =>
+    s?.replace(/\s+/gu, " ").trim().toLowerCase()
+  const wanted = fold(who)
   const exact = candidates.filter(
-    (u) =>
-      u.displayName?.toLowerCase() === wanted ||
-      u.emailAddress?.toLowerCase() === wanted,
+    (u) => fold(u.displayName) === wanted || fold(u.emailAddress) === wanted,
   )
   const active = exact.filter((u) => u.active !== false)
 
