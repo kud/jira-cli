@@ -2,12 +2,15 @@ import { readFileSync } from "node:fs"
 import type { Command } from "commander"
 import {
   adfToMarkdown,
+  errorMessagesOf,
   flattenIssueLinks,
+  isJiraApiError,
   markdownToAdf,
   type JiraClient,
   type JiraComment,
   type JiraIssueLinkType,
   type JiraTransition,
+  type JiraUser,
 } from "@kud/jira"
 import { table, truncate } from "../output/format.js"
 import { confirmDestructive } from "./confirm.js"
@@ -29,7 +32,10 @@ export const rankPosition = (options: {
   if (top) {
     if (!jql) throw exitError(1, "--top requires --jql")
     if (before || after)
-      throw exitError(1, "--top is mutually exclusive with --before and --after")
+      throw exitError(
+        1,
+        "--top is mutually exclusive with --before and --after",
+      )
     return { top: true, jql }
   }
   if (jql)
@@ -151,10 +157,7 @@ const parseLinkSpecs = (
       (t) => t.name.toLowerCase() === type.toLowerCase(),
     )
     if (!resolved)
-      throw exitError(
-        1,
-        `no link type '${type}'. Valid: ${titles.join(", ")}`,
-      )
+      throw exitError(1, `no link type '${type}'. Valid: ${titles.join(", ")}`)
     return { type: resolved.name, key }
   })
 }
@@ -166,7 +169,8 @@ const resolveAccountId = async (
   if (who === "none" || who === "unassigned") return null
   if (who === "me") return (await context().client.getMe()).accountId
   // An account id is already unambiguous; anything else needs a lookup, and a
-  // lookup that returns two people must not silently pick one.
+  // lookup that does not land on one active, assignable person must refuse
+  // rather than guess.
   if (/^[0-9a-f]{24}$|:/.test(who)) return who
 
   const ctx = context()
@@ -181,17 +185,42 @@ const resolveAccountId = async (
     assignable.length > 0 ? assignable : await ctx.client.searchUsers(who)
 
   if (candidates.length === 0) throw exitError(1, `no user matching '${who}'`)
-  if (candidates.length > 1) {
-    // Every candidate on stderr, so the message alone is enough to restate the
-    // ask without another round trip; an email when the instance exposes one.
-    for (const u of candidates)
-      process.stderr.write(
-        `${u.displayName}${u.emailAddress ? `  ${u.emailAddress}` : ""}  ${u.accountId}\n`,
-      )
-    throw exitError(1, `'${who}' matches ${candidates.length} people`)
-  }
-  return candidates[0].accountId
+
+  // Jira's user search is fuzzy: a query for a deactivated person returns a
+  // *different* active near-name, and taking the sole result would silently
+  // assign the wrong person. So only an exact, unique, active match proceeds;
+  // everything else refuses and lists what was found. "Exact" is a
+  // case-insensitive match on the display name or email, never a prefix.
+  const wanted = who.trim().toLowerCase()
+  const exact = candidates.filter(
+    (u) =>
+      u.displayName?.toLowerCase() === wanted ||
+      u.emailAddress?.toLowerCase() === wanted,
+  )
+  const active = exact.filter((u) => u.active !== false)
+
+  if (active.length === 1) return active[0].accountId
+
+  // Every candidate on stderr, so the message alone is enough to restate the
+  // ask without another round trip; an email when the instance exposes one,
+  // and an inactive marker so a refused deactivated account is legible.
+  for (const u of candidates) process.stderr.write(`${candidateLine(u)}\n`)
+  throw exitError(
+    1,
+    active.length > 1
+      ? `'${who}' matches ${active.length} active users exactly — retry with an account id or email`
+      : exact.length > 0
+        ? `'${who}' matches only inactive or unassignable users — retry with an assignable account`
+        : `'${who}' has no exact match among ${candidates.length} result${
+            candidates.length === 1 ? "" : "s"
+          } — retry with the exact name, email, or account id`,
+  )
 }
+
+const candidateLine = (u: JiraUser): string =>
+  `${u.displayName}${u.emailAddress ? `  ${u.emailAddress}` : ""}  ${u.accountId}${
+    u.active === false ? "  (inactive)" : ""
+  }`
 
 export const registerIssueWriteCommands = (issue: Command): void => {
   issue
@@ -211,7 +240,10 @@ export const registerIssueWriteCommands = (issue: Command): void => {
       collectLink,
       [] as string[],
     )
-    .option("--status <name>", "transition the new issue to this status after creation")
+    .option(
+      "--status <name>",
+      "transition the new issue to this status after creation",
+    )
     .option("--json", "emit JSON")
     .action(
       async (options: {
@@ -270,7 +302,9 @@ export const registerIssueWriteCommands = (issue: Command): void => {
               `created ${created.key}, but the ${link.type} link to ${link.key} failed: ${messageOf(e)}`,
             )
           }
-          process.stderr.write(`linked ${created.key} ${link.type} ${link.key}\n`)
+          process.stderr.write(
+            `linked ${created.key} ${link.type} ${link.key}\n`,
+          )
         }
 
         // The key was already printed; the failure exit must not read as a
@@ -315,8 +349,14 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .description("change an issue's fields")
     .option("-s, --summary <text>", "new summary")
     .option("-b, --body <text>", "new description; '-' reads stdin")
-    .option("--prepend-description <md>", "prepend markdown to the description; '-' reads stdin")
-    .option("--append-description <md>", "append markdown to the description; '-' reads stdin")
+    .option(
+      "--prepend-description <md>",
+      "prepend markdown to the description; '-' reads stdin",
+    )
+    .option(
+      "--append-description <md>",
+      "append markdown to the description; '-' reads stdin",
+    )
     .option("-l, --label <label...>", "replace labels")
     .option("--priority <name>", "priority name")
     .option("--parent <key>", "parent issue key; 'none' clears it")
@@ -335,12 +375,18 @@ export const registerIssueWriteCommands = (issue: Command): void => {
           assignee?: string
         },
       ) => {
-        if (options.body && (options.prependDescription || options.appendDescription))
+        if (
+          options.body &&
+          (options.prependDescription || options.appendDescription)
+        )
           throw exitError(
             2,
             "--prepend-description and --append-description are mutually exclusive with --body",
           )
-        if (options.prependDescription === "-" && options.appendDescription === "-")
+        if (
+          options.prependDescription === "-" &&
+          options.appendDescription === "-"
+        )
           throw exitError(
             2,
             "--prepend-description and --append-description both read stdin; run two edits instead",
@@ -373,9 +419,8 @@ export const registerIssueWriteCommands = (issue: Command): void => {
             typeof existingDescription === "object" &&
             "content" in existingDescription
           ) {
-            existingContent = (
-              existingDescription as { content: unknown[] }
-            ).content
+            existingContent = (existingDescription as { content: unknown[] })
+              .content
           }
           const prependContent = options.prependDescription
             ? markdownToAdf(readBody(options.prependDescription)).content
@@ -412,11 +457,30 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .command("assign <key> <who>")
     .description("assign an issue; 'me', a name, or 'none' all work")
     .action(async (key: string, who: string) => {
+      const ctx = context()
       // The assignability search runs for the issue's own project, since that
       // is who the issue can actually be assigned to.
       const accountId = await resolveAccountId(who, projectOf(key))
-      await context().client.assignIssue(key, accountId)
-      process.stderr.write(`${key} assigned to ${accountId ? who : "nobody"}\n`)
+      try {
+        await ctx.client.assignIssue(key, accountId)
+      } catch (e) {
+        // Jira answers an unassignable account with a 400 ("… cannot be
+        // assigned issues", typically deactivated). Surface its own words and
+        // fail — never let it fall through to a success line.
+        if (isJiraApiError(e))
+          throw exitError(
+            1,
+            `could not assign ${key}: ${errorMessagesOf(e).join("; ")}`,
+          )
+        throw e
+      }
+      // Read the issue back so the outcome shown is Jira's own, not what we
+      // asked for: a request Jira quietly ignores would otherwise read as a
+      // clean success.
+      const after = await ctx.client.getIssue(key)
+      process.stderr.write(
+        `${key} assigned to ${after.fields.assignee?.displayName ?? "nobody"}\n`,
+      )
     })
 
   const comment = issue
@@ -430,7 +494,10 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .option("--json", "emit JSON")
     .option("--last [n]", "show only the n most recent comments (default 1)")
     .action(
-      async (key: string, options: { json?: boolean; last?: string | boolean }) => {
+      async (
+        key: string,
+        options: { json?: boolean; last?: string | boolean },
+      ) => {
         const ctx = context()
         let lastN: number | undefined
         if (options.last !== undefined) {
@@ -672,7 +739,9 @@ export const registerIssueWriteCommands = (issue: Command): void => {
 
   issue
     .command("rank <keys...>")
-    .description("order issues before or after another issue, or at the top of a JQL scope")
+    .description(
+      "order issues before or after another issue, or at the top of a JQL scope",
+    )
     .option("--before <key>", "place the issues before this one")
     .option("--after <key>", "place the issues after this one")
     .option("--top", "rank at the top of the JQL scope (requires --jql)")
@@ -680,7 +749,12 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .action(
       async (
         keys: string[],
-        options: { before?: string; after?: string; top?: boolean; jql?: string },
+        options: {
+          before?: string
+          after?: string
+          top?: boolean
+          jql?: string
+        },
       ) => {
         const position = rankPosition(options)
         if (!("top" in position)) {
