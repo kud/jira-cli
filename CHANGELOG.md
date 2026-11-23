@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.15.0 — 2026-11-23
+
+### Highlights
+
+- **Markdown bodies now render properly in Jira.** `issue create`, `issue edit`, `issue comment` and worklog comments turn `- [ ]` / `- [x]` items into real checkboxes, `**bold**` into bold, and bare URLs and `owner/repo#N` references into links. A fenced code block keeps its language and stays whole across blank lines. ([e026870](https://github.com/kud/jira-cli/commit/e0268704ede55219ebf0f82c1e27e50a7735e273))
+- **Bare issue keys become links to your Jira site.** `Blocked by ABC-7` links `ABC-7` to its issue; standards such as `UTF-8` or `SHA-256` stay text, and nothing inside code is touched. ([e026870](https://github.com/kud/jira-cli/commit/e0268704ede55219ebf0f82c1e27e50a7735e273))
+
+---
+
 ## 0.14.0 — 2026-11-23
 
 ### Highlights
