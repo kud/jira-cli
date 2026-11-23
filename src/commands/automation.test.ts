@@ -166,6 +166,31 @@ describe("explainAuthFailure", () => {
     expect((error as Error).message).toMatch(/classic API token/)
   })
 
+  it.each([
+    [
+      { globalAdmin: false, projectAdmin: false, project: "SHOP" },
+      /not a project admin on SHOP either/,
+    ],
+    [
+      { globalAdmin: false, projectAdmin: true },
+      /project admin on at least one project[\s\S]*jira whoami --permissions --project/,
+    ],
+    [
+      { globalAdmin: false, projectAdmin: false },
+      /not a project admin anywhere/,
+    ],
+    [
+      { globalAdmin: true, projectAdmin: true },
+      /token is the likelier problem/,
+    ],
+  ])("adds what the account can do instead (%o)", (permissions, expected) => {
+    const error = explainAuthFailure(
+      jiraApiError(403, "PUT", `${SITE}/rule/${UUID}/state`, ""),
+      permissions,
+    )
+    expect((error as Error).message).toMatch(expected)
+  })
+
   it("leaves other failures alone", () => {
     const original = jiraApiError(400, "POST", `${SITE}/rule`, "{}")
     expect(explainAuthFailure(original)).toBe(original)
@@ -236,6 +261,33 @@ describe("jira automation list", () => {
     const error = await parse(["list"]).catch((e: unknown) => e)
     expect(isExitError(error) && error.code).toBe(4)
     expect((error as Error).message).toMatch(/Administer Jira/)
+  })
+
+  it("on a 403, says whether this account could do it in the web UI as a project admin", async () => {
+    client.request = routes((path, init) => {
+      if (path.startsWith("/rest/api/3/mypermissions"))
+        return {
+          permissions: {
+            ADMINISTER: { havePermission: false },
+            ADMINISTER_PROJECTS: { havePermission: true },
+          },
+        }
+      throw jiraApiError(403, init?.method ?? "GET", path, "")
+    })
+
+    const error = await parse(["list", "--project", "SHOP"]).catch(
+      (e: unknown) => e,
+    )
+
+    expect(client.request).toHaveBeenCalledWith(
+      "/rest/api/3/mypermissions?permissions=ADMINISTER%2CADMINISTER_PROJECTS&projectKey=SHOP",
+    )
+    expect(isExitError(error) && error.code).toBe(4)
+    const message = (error as Error).message
+    expect(message).toMatch(/Administer Jira/)
+    expect(message).toMatch(/is a project admin on SHOP/)
+    expect(message).toMatch(/Project settings > Automation/)
+    expect(message).not.toMatch(/https?:\/\//)
   })
 
   it("rejects an unknown --state before calling anything", async () => {

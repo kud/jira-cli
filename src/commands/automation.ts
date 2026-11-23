@@ -9,6 +9,7 @@ import {
   warnIfTruncated,
   type Context,
 } from "./context.js"
+import { adminPermissions, type AdminPermissions } from "./permissions.js"
 
 /**
  * Automation lives outside Jira's own REST tree, behind one of two hosts the
@@ -65,7 +66,10 @@ const resolveCloudId = async (
  * rule management refuses a project admin even when the search is scoped to
  * that very project. What is missing is the global permission, not the token.
  */
-export const explainAuthFailure = (error: unknown): unknown => {
+export const explainAuthFailure = (
+  error: unknown,
+  permissions?: AdminPermissions,
+): unknown => {
   if (!isJiraApiError(error)) return error
   if (error.status === 401)
     return exitError(
@@ -82,9 +86,50 @@ export const explainAuthFailure = (error: unknown): unknown => {
         "Managing automation rules needs the Jira administrator global permission\n" +
         "(Administer Jira) on the account behind ATLASSIAN_API_TOKEN; project admin is not enough,\n" +
         "even for rules scoped to that project. Ask a Jira admin to grant it, or to run the command.\n" +
-        "A project admin can still create and edit that project's rules in the Jira web UI.",
+        webUiHint(permissions),
     )
   return error
+}
+
+/**
+ * The web UI is the route a project admin still has, so the 403 says whether
+ * this account is one. No deep link: Atlassian documents the path through
+ * the menus, not a URL for a project's automation page, and a guessed URL
+ * that 404s is worse than none.
+ * https://support.atlassian.com/automation/kb/guide-explaining-how-automation-administration-permissions-work/
+ */
+export const webUiHint = (permissions?: AdminPermissions): string => {
+  const restriction =
+    "unless a Jira admin has turned off 'Allow project administrators to manage project rules'."
+  if (!permissions)
+    return "A project admin can still create and edit that project's rules in the Jira web UI."
+  if (permissions.globalAdmin)
+    return (
+      "Jira reports this account as a Jira administrator, so the token is the likelier problem:\n" +
+      "check ATLASSIAN_API_TOKEN belongs to ATLASSIAN_USER_EMAIL."
+    )
+  if (permissions.project)
+    return permissions.projectAdmin
+      ? `This account is a project admin on ${permissions.project}, so it can manage ${permissions.project}'s rules in the\n` +
+          `Jira web UI (Project settings > Automation), ${restriction}`
+      : `This account is not a project admin on ${permissions.project} either, so the web UI will refuse it too.`
+  return permissions.projectAdmin
+    ? "This account is a project admin on at least one project, so it can manage that project's rules\n" +
+        `in the Jira web UI (Project settings > Automation), ${restriction}\n` +
+        "Check a given project with: jira whoami --permissions --project <KEY>"
+    : "This account is not a project admin anywhere either, so the web UI will refuse it too."
+}
+
+/** A failed probe must never hide the 403 it was meant to explain. */
+const probePermissions = async (
+  client: JiraClient,
+  project?: string,
+): Promise<AdminPermissions | undefined> => {
+  try {
+    return await adminPermissions(client, project)
+  } catch {
+    return undefined
+  }
 }
 
 type Automation = {
@@ -95,6 +140,7 @@ type Automation = {
 
 const automation = async (
   hostFlag: string | undefined,
+  project?: string,
 ): Promise<Automation> => {
   const host = automationHost(hostFlag)
   const ctx = context()
@@ -104,7 +150,11 @@ const automation = async (
     try {
       return await ctx.client.request<T>(`${base}${path}`, init)
     } catch (error) {
-      throw explainAuthFailure(error)
+      const permissions =
+        isJiraApiError(error) && error.status === 403
+          ? await probePermissions(ctx.client, project)
+          : undefined
+      throw explainAuthFailure(error, permissions)
     }
   }
   return { ctx, cloudId, call }
@@ -231,7 +281,10 @@ Examples:
       if (state && !STATES.has(state))
         throw exitError(1, `--state must be ENABLED or DISABLED`)
 
-      const { ctx, cloudId, call } = await automation(options.host)
+      const { ctx, cloudId, call } = await automation(
+        options.host,
+        options.project,
+      )
 
       let scope: string | undefined
       if (options.project) {
