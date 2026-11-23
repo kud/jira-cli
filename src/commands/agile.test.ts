@@ -3,7 +3,7 @@ import type { JiraClient } from "@kud/jira"
 import { jiraApiError } from "@kud/jira"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { palette } from "../output/format.js"
-import { registerBoardCommands } from "./agile.js"
+import { registerBoardCommands, registerSprintCommands } from "./agile.js"
 
 vi.mock("./context.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./context.js")>()
@@ -312,5 +312,37 @@ describe("board view", () => {
 
     const parsed = JSON.parse(String(stdoutWrite.mock.calls[0]?.[0]))
     expect(parsed.filter).toEqual({ id: "100", unavailable: true })
+  })
+})
+describe("sprint add", () => {
+  const parseSprint = (args: string[]): Promise<unknown> => {
+    const program = new Command()
+    registerSprintCommands(program)
+    return program.parseAsync(["node", "jira", "sprint", ...args])
+  }
+
+  it("on a 403, names the issue permissions it needs, not board admin", async () => {
+    client.moveIssuesToSprint = vi
+      .fn()
+      .mockRejectedValue(
+        jiraApiError(403, "POST", "/rest/agile/1.0/sprint/7/issue", ""),
+      )
+
+    await expect(
+      parseSprint(["add", "7", "SHOP-1", "SHOP-2"]),
+    ).rejects.toMatchObject({
+      name: "ExitError",
+      code: 4,
+      message: expect.stringMatching(
+        /Schedule issues and Edit issues permissions on SHOP[\s\S]*Board admin and Manage sprints do not include them/,
+      ),
+    })
+  })
+
+  it("lets any other failure through untouched", async () => {
+    const original = jiraApiError(400, "POST", "/rest/agile/1.0/sprint/7/issue", "")
+    client.moveIssuesToSprint = vi.fn().mockRejectedValue(original)
+
+    await expect(parseSprint(["add", "7", "SHOP-1"])).rejects.toBe(original)
   })
 })

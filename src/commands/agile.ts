@@ -8,7 +8,30 @@ import type {
 } from "@kud/jira"
 import { isJiraApiError } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
-import { context, printJson } from "./context.js"
+import { context, exitError, printJson } from "./context.js"
+
+/**
+ * Moving issues into a sprint is an issue edit, not a board one: Jira wants
+ * Schedule issues and Edit issues on each issue's project (and Rank issues
+ * for an active sprint). Board admin and Manage sprints grant neither, which
+ * is the usual surprise behind this 403.
+ * https://support.atlassian.com/jira-software-cloud/docs/add-issues-to-an-active-sprint/
+ * https://support.atlassian.com/jira/kb/cant-complete-the-sprint
+ */
+export const explainSprintRefusal = (
+  error: unknown,
+  keys: string[],
+): unknown => {
+  if (!isJiraApiError(error) || error.status !== 403) return error
+  const projects = [...new Set(keys.map((k) => k.split("-")[0]))].join(", ")
+  return exitError(
+    4,
+    `Jira refused moving ${keys.join(", ")} into the sprint (403).\n` +
+      `It needs the Schedule issues and Edit issues permissions on ${projects}, plus Rank issues\n` +
+      "for an active sprint. Board admin and Manage sprints do not include them.\n" +
+      `Check with: jira meta permissions ${projects.split(", ")[0]}`,
+  )
+}
 
 const issueRows: Column<JiraIssue>[] = [
   { header: "KEY", value: (i) => i.key },
@@ -236,7 +259,11 @@ export const registerSprintCommands = (program: Command): void => {
     .command("add <sprintId> <keys...>")
     .description("move issues into a sprint")
     .action(async (sprintId: string, keys: string[]) => {
-      await context().client.moveIssuesToSprint(Number(sprintId), keys)
+      try {
+        await context().client.moveIssuesToSprint(Number(sprintId), keys)
+      } catch (error) {
+        throw explainSprintRefusal(error, keys)
+      }
       process.stderr.write(`moved ${keys.join(", ")} to sprint ${sprintId}\n`)
     })
 
