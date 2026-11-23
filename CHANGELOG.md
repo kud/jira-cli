@@ -4,6 +4,21 @@ All notable changes to this project are documented here.
 
 ---
 
+## 0.14.0 — 2026-11-23
+
+### Highlights
+
+- **Read workflows from the terminal.** The new read-only `workflow list`, `workflow get` and `workflow for` show statuses, transitions and conditions, and which workflow an issue type uses. ([5060f0d](https://github.com/kud/jira-cli/commit/5060f0d3408ca192a507d2639e94add6d52fe828))
+- **Check your admin rights up front.** `whoami --permissions` reports global admin, and adding `--project KEY` or `--board ID` covers project and board admin too. ([34b8fc2](https://github.com/kud/jira-cli/commit/34b8fc2ca10d4489163c779798eb021e85bf8a5d), [82be0a1](https://github.com/kud/jira-cli/commit/82be0a1a087377bae0b478ce2d80a0c311605d8d))
+- **A refused automation call now says what to do next.** On a 403, the error tells you whether you can manage rules in the web UI (Project settings > Automation). ([2d2653e](https://github.com/kud/jira-cli/commit/2d2653eb8fb217702f2e96f36ad38d03e7dd5bcf))
+- **`sprint add` refusals name the missing permissions**: Schedule issues, Edit issues and Rank issues, instead of a bare API error. ([848a2c9](https://github.com/kud/jira-cli/commit/848a2c90518f726ed96b4d4a975230ebee89cc48))
+
+### Fixes
+
+- **Assigning by name now works when a display name contains a non-breaking or doubled space.** ([3a3e53e](https://github.com/kud/jira-cli/commit/3a3e53e02ce05cea2283c98cbe58efbe9e35711e))
+
+---
+
 ## 0.13.1 — 2026-11-23
 
 ### Fixes
