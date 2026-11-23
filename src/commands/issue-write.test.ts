@@ -123,6 +123,37 @@ describe("issue create --parent", () => {
   })
 })
 
+describe("issue create --body", () => {
+  it("links a bare issue key to the configured site", async () => {
+    await parse([
+      "issue",
+      "create",
+      "-p",
+      "ABC",
+      "-t",
+      "Task",
+      "-s",
+      "Follow-up",
+      "--body",
+      "Blocked by ABC-7.",
+    ])
+
+    const [fields] = client.createIssue.mock.calls[0] as [
+      { description: { content: { content: unknown[] }[] } },
+    ]
+    expect(fields.description.content[0]?.content).toContainEqual({
+      type: "text",
+      text: "ABC-7",
+      marks: [
+        {
+          type: "link",
+          attrs: { href: "https://example.atlassian.net/browse/ABC-7" },
+        },
+      ],
+    })
+  })
+})
+
 describe("issue create --link", () => {
   it("links each spec after the issue exists, new issue on the outward side", async () => {
     await parse([

@@ -71,7 +71,7 @@ const DEFAULT_SCOPE =
  */
 const boardOptions = (ctx: Context & { board?: number }) => ({
   ...(ctx.config.tabs ? { tabs: ctx.config.tabs } : {}),
-  ...(ctx.board ?? ctx.config.defaultBoard !== undefined
+  ...((ctx.board ?? ctx.config.defaultBoard !== undefined)
     ? { board: ctx.board ?? ctx.config.defaultBoard }
     : {}),
 })
@@ -138,7 +138,10 @@ export const liveData = (
 
   comment: async (key, body) => {
     const { markdownToAdf } = await import("@kud/jira")
-    await ctx.client.addComment(key, markdownToAdf(body))
+    await ctx.client.addComment(
+      key,
+      markdownToAdf(body, { baseUrl: ctx.config.baseUrl }),
+    )
   },
 
   assignToMe: async (key) => {
