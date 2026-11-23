@@ -16,6 +16,10 @@ import { table, truncate } from "../output/format.js"
 import { confirmDestructive } from "./confirm.js"
 import { context, exitError, printJson } from "./context.js"
 
+/** Markdown to ADF, with bare issue keys linked to the configured site. */
+const toAdf = (markdown: string) =>
+  markdownToAdf(markdown, { baseUrl: context().config.baseUrl })
+
 /**
  * Exactly one anchor: Jira's rank endpoint moves issues relative to a single
  * other issue, so "neither" has nothing to aim at and "both" is two orders
@@ -268,8 +272,7 @@ export const registerIssueWriteCommands = (issue: Command): void => {
           issuetype: { name: options.type },
           summary: options.summary,
         }
-        if (options.body)
-          fields["description"] = markdownToAdf(readBody(options.body))
+        if (options.body) fields["description"] = toAdf(readBody(options.body))
         if (options.label) fields["labels"] = options.label
         if (options.priority) fields["priority"] = { name: options.priority }
         if (options.parent) fields["parent"] = { key: options.parent }
@@ -397,8 +400,7 @@ export const registerIssueWriteCommands = (issue: Command): void => {
 
         const fields: Record<string, unknown> = {}
         if (options.summary) fields["summary"] = options.summary
-        if (options.body)
-          fields["description"] = markdownToAdf(readBody(options.body))
+        if (options.body) fields["description"] = toAdf(readBody(options.body))
         if (options.label) fields["labels"] = options.label
         if (options.priority) fields["priority"] = { name: options.priority }
         if (options.parent !== undefined)
@@ -426,10 +428,10 @@ export const registerIssueWriteCommands = (issue: Command): void => {
               .content
           }
           const prependContent = options.prependDescription
-            ? markdownToAdf(readBody(options.prependDescription)).content
+            ? toAdf(readBody(options.prependDescription)).content
             : []
           const appendContent = options.appendDescription
-            ? markdownToAdf(readBody(options.appendDescription)).content
+            ? toAdf(readBody(options.appendDescription)).content
             : []
           fields["description"] = {
             type: "doc",
@@ -543,7 +545,7 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .command("add <key> <body>")
     .description("comment on an issue; '-' reads stdin")
     .action(async (key: string, body: string) => {
-      await context().client.addComment(key, markdownToAdf(readBody(body)))
+      await context().client.addComment(key, toAdf(readBody(body)))
       process.stderr.write(`commented on ${key}\n`)
     })
 
@@ -554,7 +556,7 @@ export const registerIssueWriteCommands = (issue: Command): void => {
       await context().client.updateComment(
         key,
         commentId,
-        markdownToAdf(readBody(text)),
+        toAdf(readBody(text)),
       )
       process.stderr.write(`comment ${commentId} on ${key} updated\n`)
     })
@@ -637,7 +639,7 @@ export const registerIssueWriteCommands = (issue: Command): void => {
       async (key: string, timeSpent: string, options: { body?: string }) => {
         await context().client.addWorklog(key, {
           timeSpent,
-          ...(options.body ? { comment: markdownToAdf(options.body) } : {}),
+          ...(options.body ? { comment: toAdf(options.body) } : {}),
         })
         process.stderr.write(`logged ${timeSpent} on ${key}\n`)
       },
@@ -663,9 +665,7 @@ export const registerIssueWriteCommands = (issue: Command): void => {
 
         await context().client.updateWorklog(key, worklogId, {
           ...(options.time ? { timeSpent: options.time } : {}),
-          ...(options.body
-            ? { comment: markdownToAdf(readBody(options.body)) }
-            : {}),
+          ...(options.body ? { comment: toAdf(readBody(options.body)) } : {}),
           ...(options.started ? { started: options.started } : {}),
         })
         process.stderr.write(`worklog ${worklogId} on ${key} updated\n`)
