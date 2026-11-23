@@ -57,6 +57,75 @@ const parse = (args: string[]): Promise<unknown> => {
   return program.parseAsync(["node", "jira", "whoami", ...args])
 }
 
+describe("jira whoami --permissions --board", () => {
+  const board = (admins: object, extra: object = {}) =>
+    vi.fn(async (path: string) => {
+      if (path.startsWith("/rest/api/3/mypermissions"))
+        return permissions(false, true)
+      if (path === "/rest/agile/1.0/board/42")
+        return { id: 42, name: "SHOP board" }
+      if (path === "/rest/api/3/myself?expand=groups")
+        return { ...ME, groups: { items: [{ name: "shop-leads" }] } }
+      if (path.startsWith("/rest/agile/1.0/board?"))
+        return {
+          isLast: true,
+          values: [
+            {
+              id: 41,
+              name: "SHOP board (old)",
+              admins: { users: [{ accountId: ME.accountId }] },
+            },
+            { id: 42, name: "SHOP board", canEdit: true, admins, ...extra },
+          ],
+        }
+      throw new Error(`unexpected ${path}`)
+    })
+
+  it("finds the board in the expanded list by name, then by ID", async () => {
+    client.request = board({ users: [{ accountId: ME.accountId }] })
+
+    await parse(["--permissions", "--board", "42"])
+
+    const list = client.request.mock.calls
+      .map((c) => c[0] as string)
+      .find((p) => p.startsWith("/rest/agile/1.0/board?"))!
+    const params = new URL(list, "https://acme.atlassian.net").searchParams
+    expect(params.get("name")).toBe("SHOP board")
+    expect(params.get("expand")).toBe("admins,permissions")
+    expect(stdout()).toContain("board admin on SHOP board (42)   yes\n")
+  })
+
+  it("counts a board admin group the account belongs to", async () => {
+    client.request = board({ users: [], groups: [{ name: "shop-leads" }] })
+
+    await parse(["--permissions", "--board", "42", "--json"])
+
+    expect(JSON.parse(stdout()).permissions.board).toEqual({
+      id: 42,
+      name: "SHOP board",
+      boardAdmin: true,
+      canEdit: true,
+    })
+  })
+
+  it("does not read canEdit as board admin, since project admins get it too", async () => {
+    client.request = board({
+      users: [{ accountId: "someone-else" }],
+      groups: [],
+    })
+
+    await parse(["--permissions", "--board", "42"])
+
+    expect(stdout()).toContain("board admin on SHOP board (42)   no\n")
+  })
+
+  it("refuses a board ID that is not a number", async () => {
+    await expect(parse(["--permissions", "--board", "SHOP"])).rejects.toThrow(
+      /board ID/,
+    )
+  })
+})
+
 describe("jira whoami", () => {
   it("asks nothing about permissions unless told to", async () => {
     await parse([])
@@ -99,7 +168,7 @@ describe("jira whoami", () => {
 
   it("refuses --project without --permissions", async () => {
     await expect(parse(["--project", "SHOP"])).rejects.toThrow(
-      /only applies with --permissions/,
+      /only apply with --permissions/,
     )
   })
 })

@@ -1,7 +1,11 @@
 import type { Command } from "commander"
 import { table } from "../output/format.js"
 import { context, exitError, printJson } from "./context.js"
-import { adminPermissions, formatAdminPermissions } from "./permissions.js"
+import {
+  adminPermissions,
+  boardAdmin,
+  formatAdminPermissions,
+} from "./permissions.js"
 
 export const registerUserCommands = (program: Command): void => {
   const user = program.command("user").description("find people")
@@ -43,13 +47,21 @@ export const registerUserCommands = (program: Command): void => {
       "-p, --project <key>",
       "with --permissions, check project admin on this project",
     )
+    .option(
+      "-b, --board <id>",
+      "with --permissions, also check board admin on this board",
+    )
     .option("--json", "emit JSON")
     .addHelpText(
       "after",
       `
+Board admin is a role of its own: it grants board settings, not project
+permissions, so moving issues into a sprint still needs Schedule issues and
+Edit issues on their project.
+
 Examples:
   jira whoami --permissions
-  jira whoami --permissions --project SHOP
+  jira whoami --permissions --project SHOP --board 42
 `,
     )
     .action(
@@ -57,16 +69,29 @@ Examples:
         json?: boolean
         permissions?: boolean
         project?: string
+        board?: string
       }) => {
-        if (options.project && !options.permissions)
-          throw exitError(1, "--project only applies with --permissions")
+        if ((options.project || options.board) && !options.permissions)
+          throw exitError(
+            1,
+            "--project and --board only apply with --permissions",
+          )
+        const boardId =
+          options.board === undefined ? undefined : Number(options.board)
+        if (
+          boardId !== undefined &&
+          (!Number.isInteger(boardId) || boardId < 1)
+        )
+          throw exitError(1, "--board must be a board ID, a positive number")
         const ctx = context()
-        const [me, permissions] = await Promise.all([
+        const [me, admin, board] = await Promise.all([
           ctx.client.getMe(),
           options.permissions
             ? adminPermissions(ctx.client, options.project)
             : undefined,
+          boardId !== undefined ? boardAdmin(ctx.client, boardId) : undefined,
         ])
+        const permissions = admin && (board ? { ...admin, board } : admin)
         if (options.json)
           return printJson(permissions ? { ...me, permissions } : me)
         process.stdout.write(
