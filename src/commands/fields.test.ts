@@ -243,6 +243,29 @@ describe("issue transition --comment --field", () => {
     expect(body.update.comment[0].add.body.type).toBe("doc")
   })
 
+  it("links a bare issue key in the comment to the configured site", async () => {
+    await parse([
+      "transition",
+      "SHOP-1",
+      "Done",
+      "--comment",
+      "Unblocked by SHOP-9",
+    ])
+
+    const [, init] = client.request.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(init.body as string)
+    expect(body.update.comment[0].add.body.content[0].content).toContainEqual({
+      type: "text",
+      text: "SHOP-9",
+      marks: [
+        {
+          type: "link",
+          attrs: { href: "https://acme.atlassian.net/browse/SHOP-9" },
+        },
+      ],
+    })
+  })
+
   it("keeps the plain path when there is no comment", async () => {
     await parse(["transition", "SHOP-1", "Done", "-f", "Story Points=3"])
     expect(client.transitionIssue).toHaveBeenCalledWith("SHOP-1", "31", {

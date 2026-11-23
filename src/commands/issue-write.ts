@@ -163,7 +163,7 @@ export const applyTransition = async (
         transition: { id: transitionId },
         ...(Object.keys(fields).length ? { fields } : {}),
         update: {
-          comment: [{ add: { body: markdownToAdf(readBody(extra.comment)) } }],
+          comment: [{ add: { body: toAdf(readBody(extra.comment)) } }],
         },
       }),
     },
