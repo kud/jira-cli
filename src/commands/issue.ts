@@ -9,7 +9,10 @@ import {
   warnIfTruncated,
   type Context,
 } from "./context.js"
+import { registerBulkCommands } from "./bulk.js"
+import { collect, resolveFields } from "./fields.js"
 import {
+  applyTransition,
   registerIssueWriteCommands,
   resolveTransition,
   TRANSITION_HINT,
@@ -33,6 +36,7 @@ export const registerIssueCommands = (program: Command): void => {
   const issue = program.command("issue").description("work with issues")
 
   registerIssueWriteCommands(issue)
+  registerBulkCommands(issue)
 
   issue
     .command("list")
@@ -223,12 +227,24 @@ export const registerIssueCommands = (program: Command): void => {
     .alias("move")
     .description("move an issue, or list available transitions")
     .option("--resolution <name>", "resolution to set as part of the move")
+    .option("-c, --comment <text>", "comment to add with the move; '-' reads stdin")
+    .option(
+      "-f, --field <name=value>",
+      "set a field the transition screen asks for, repeatable",
+      collect,
+      [] as string[],
+    )
     .option("--json", "emit JSON")
     .action(
       async (
         key: string,
         status: string | undefined,
-        options: { json?: boolean; resolution?: string },
+        options: {
+          json?: boolean
+          resolution?: string
+          comment?: string
+          field: string[]
+        },
       ) => {
         const ctx = context()
         const { transitions } = await ctx.client.getTransitions(key)
@@ -247,13 +263,11 @@ export const registerIssueCommands = (program: Command): void => {
 
         const match = resolveTransition(transitions, key, status)
 
-        await ctx.client.transitionIssue(
-          key,
-          match.id,
-          options.resolution
-            ? { resolution: { name: options.resolution } }
-            : undefined,
-        )
+        await applyTransition(ctx.client, key, match.id, {
+          ...(options.resolution ? { resolution: options.resolution } : {}),
+          ...(options.comment ? { comment: options.comment } : {}),
+          fields: await resolveFields(ctx.client, options.field),
+        })
         if (options.json) return printJson({ key, transition: match })
         process.stdout.write(`${key} → ${match.to?.name ?? match.name}\n`)
       },

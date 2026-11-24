@@ -16,6 +16,7 @@ import {
 import { registerIssueCommands } from "./commands/issue.js"
 import { registerCountCommand, registerMetaCommands } from "./commands/meta.js"
 import { registerUserCommands } from "./commands/people.js"
+import { registerVersionCommands } from "./commands/version.js"
 import { registerWorkflowCommands } from "./commands/workflow.js"
 import { registerProjectCommands } from "./commands/project.js"
 import {
@@ -63,6 +64,7 @@ registerSearchCommand(program)
 registerFieldsCommand(program)
 registerInitCommand(program)
 registerProjectCommands(program)
+registerVersionCommands(program)
 registerBoardCommands(program)
 registerSprintCommands(program)
 registerBacklogCommand(program)

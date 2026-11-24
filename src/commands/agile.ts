@@ -9,6 +9,7 @@ import type {
 import { isJiraApiError } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
 import { context, exitError, printJson } from "./context.js"
+import { registerSprintWriteCommands } from "./sprint-write.js"
 
 /**
  * Moving issues into a sprint is an issue edit, not a board one: Jira wants
@@ -285,6 +286,8 @@ export const registerSprintCommands = (program: Command): void => {
         ].join("\n")}\n`,
       )
     })
+
+  registerSprintWriteCommands(sprint)
 }
 
 export const registerEpicCommands = (program: Command): void => {

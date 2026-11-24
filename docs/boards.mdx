@@ -1,6 +1,6 @@
 ---
 title: 🗂️ Boards and sprints
-description: Browse projects, boards, sprints, epics and the backlog, and move issues into them.
+description: Projects, roles and versions, boards, sprints, epics and the backlog, and the writes a team lead needs on them.
 ---
 
 ## Projects
@@ -11,9 +11,25 @@ jira project view ABC
 jira project versions ABC
 jira project components ABC
 jira project statuses ABC
+jira project roles ABC
+jira project role add ABC Developers grace@example.com
+jira project role add ABC Developers abc-devs --group
+jira project role remove ABC Developers grace@example.com
 ```
 
-`proj` is an alias for `project`. Every subcommand takes `--json`.
+`proj` is an alias for `project`. The read subcommands take `--json`.
+
+`project roles` lists each role with its members. `role add` takes people (name, email or account ID) or, with `--group`, group names; `role remove` asks first. Both need Administer Projects on the project, and a 403 says whether this account has it.
+
+## Versions
+
+```sh
+jira version create 2.5 --project ABC --release-date 2026-12-15
+jira version view 2.4 --project ABC
+jira version release 2.4 --project ABC --move-unresolved-to 2.5
+```
+
+A version is named within its project (`--project`), or given by ID. `view` shows the state, dates, how many issues it fixes and affects, how many are unresolved, and the split by status category. `release` dates it today unless `--date` says otherwise; `--move-unresolved-to` moves its unresolved issues to another version first, and without it the CLI says how many stay behind. Creating and releasing need Administer Projects.
 
 ## Boards
 
@@ -34,9 +50,17 @@ jira sprint list 42 --state active
 jira sprint view 1234
 jira sprint issues 1234
 jira sprint add 1234 ABC-1 ABC-2
+jira sprint create 42 --name 'ABC Sprint 12' --goal 'Checkout' --end 2026-12-14
+jira sprint start 1235 --end 2026-12-14
+jira sprint close 1234 --move-to backlog      # or --move-to 1235
+jira sprint edit 1235 --goal 'Checkout and refunds'
 ```
 
 `sprint list <boardId>` takes `--state active|future|closed`, comma-separated to combine. `sprint add` moves issues into a sprint. That needs the Schedule issues and Edit issues permissions on the issues' project, plus Rank issues for an active sprint; board admin and Manage sprints do not include them, and a 403 says so.
+
+`sprint create <boardId>` takes `--name` (required), `--goal`, `--start` and `--end`. `start` needs an end date, from the sprint or `--end`, and defaults the start to now. `close` (alias `complete`) refuses while issues outside the Done status category remain, listing them, until `--move-to` names a sprint ID or `backlog`. `edit` changes `--name`, `--goal`, `--start` or `--end`. Dates take `YYYY-MM-DD` or ISO 8601.
+
+Creating, starting, closing and editing need the Manage sprints project permission in every project the board's filter can return. Board admin does not include it, and a 403 says so.
 
 ## Epics and backlog
 

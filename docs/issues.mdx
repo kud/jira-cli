@@ -40,6 +40,8 @@ jira issue create -p ABC -t Task -s 'Fix the thing' -b 'Longer **markdown** body
 jira issue create -p ABC -t Task -s 'A sub-task' --parent ABC-100 --link Relates:ABC-99
 jira issue edit ABC-123 --summary 'Better title' --assignee me --parent ABC-100
 jira issue edit ABC-123 --prepend-description '**Update:** finished QA'
+jira issue create -p ABC -t Story -s 'Checkout' --field 'Story Points=5' --component API --fix-version 2.4
+jira issue edit ABC-123 --field 'Team=Payments' --field 'Story Points=none'
 jira issue assign ABC-123 me
 jira issue delete ABC-123
 ```
@@ -49,6 +51,8 @@ jira issue delete ABC-123
 - Bodies are Markdown, converted to Atlassian Document Format. A body of `-` reads stdin.
 - `--link` types are checked against your instance before anything is created, so a typo costs nothing. If creation works but a link or the `--status` move fails, the new key and the failure are reported and the exit is non-zero.
 - `edit` takes `-s`, `-b`, `-l` (replaces labels), `--priority`, `--parent` (`none` clears it) and `-a`. `--prepend-description` and `--append-description` splice Markdown around the existing description and can be combined, but not with `--body`.
+- `--field name=value` sets any field, by name or ID, on `create` and `edit`; repeat it for more. Names resolve through the same list `jira fields` prints, ignoring case, and a name two fields share is refused with both IDs. The value is typed from the field: numbers, options, lists (comma-separated), versions, components, and account IDs for user fields. `none` clears a field, and a value starting with `{` or `[` is sent as JSON for anything rarer.
+- `--component` and `--fix-version` are repeatable and replace the issue's list.
 - People are resolved for you. Names and emails search the project's assignable users first, then everyone. `me` is you, `none` unassigns, and a raw account id passes through. An ambiguous name assigns nothing: matches are printed on stderr and the exit is non-zero.
 
 ## Transitions
@@ -56,9 +60,22 @@ jira issue delete ABC-123
 ```sh
 jira issue transition ABC-123              # list what's available
 jira issue transition ABC-123 'In Review'  # by transition name or target status
+jira issue transition ABC-123 Done --resolution Fixed --comment 'Shipped in 2.4' --field 'Story Points=3'
 ```
 
-Matching is case-insensitive and also accepts a transition id. With no status it prints `name → target status`. `--resolution <name>` sets a resolution as part of the move; `move` is an alias.
+Matching is case-insensitive and also accepts a transition id. With no status it prints `name → target status`. `--resolution <name>` sets a resolution as part of the move; `-c, --comment` adds a comment (Markdown, `-` reads stdin) and `-f, --field name=value` fills fields the transition screen asks for. `move` is an alias.
+
+## Bulk changes
+
+```sh
+jira issue bulk edit --jql 'project = ABC AND labels = triage' --field 'Story Points=3'          # lists, changes nothing
+jira issue bulk edit --jql 'project = ABC AND labels = triage' --field 'Story Points=3' --yes
+jira issue bulk transition --jql 'sprint = 42 AND status = "In Review"' --to Done --yes
+```
+
+Without `--yes`, both list the matching issues and change nothing. `bulk edit` takes `--field`, `--component` and `--fix-version`; `bulk transition` (alias `move`) takes `--to`, `--resolution`, `--comment` and `--field`, and skips issues already in the target status. Both take `-n, --limit` (default 100).
+
+Each issue is changed with its own request, so only Edit issues or Transition issues is needed, not the global Bulk change permission. Failures are listed by key at the end; the exit is 1, or 4 when every failure was a 403.
 
 ## Comments
 
@@ -76,6 +93,7 @@ jira issue comment delete ABC-123 12345
 ```sh
 jira issue link ABC-1 Blocks ABC-2
 jira issue link list ABC-1
+jira issue link remove ABC-1 ABC-2 --type Blocks   # or the link ID from `link list --json`
 jira issue watch add ABC-123 [who]       # yourself by default
 jira issue watch remove ABC-123 [who]
 jira issue watch list ABC-123
@@ -83,6 +101,8 @@ jira issue remotelink add ABC-123 https://example.com/page --title 'Spec'
 jira issue remotelink list ABC-123
 jira issue remotelink remove ABC-123 789
 ```
+
+`link remove` (alias `rm`) takes the other issue's key or the link's ID. When two links join the same issues, `--type` picks one by name or by its inward or outward wording.
 
 `remotelink add` is idempotent: re-adding the same URL updates the existing link.
 
@@ -107,4 +127,4 @@ jira issue rank ABC-1 ABC-2 --top --jql 'project = ABC AND sprint = 42'
 
 ## Deleting safely
 
-`issue delete`, `comment delete`, `worklog delete` and `remotelink remove` ask before acting. Piped or scripted runs refuse unless you pass `--yes`, because Jira has no undo.
+`issue delete`, `comment delete`, `worklog delete`, `link remove` and `remotelink remove` ask before acting. Piped or scripted runs refuse unless you pass `--yes`, because Jira has no undo.

@@ -8,12 +8,15 @@ import {
   markdownToAdf,
   type JiraClient,
   type JiraComment,
+  type JiraIssueLink,
   type JiraIssueLinkType,
   type JiraTransition,
   type JiraUser,
 } from "@kud/jira"
 import { table, truncate } from "../output/format.js"
 import { confirmDestructive } from "./confirm.js"
+import { collect, listFieldSugar, resolveFields } from "./fields.js"
+import { explainRefusal } from "./refusals.js"
 import { context, exitError, printJson } from "./context.js"
 
 /** Markdown to ADF, with bare issue keys linked to the configured site. */
@@ -55,7 +58,7 @@ export const rankPosition = (options: {
 }
 
 /** `-` means stdin, so a comment can be piped in from anything. */
-const readBody = (value: string): string =>
+export const readBody = (value: string): string =>
   value === "-" ? readFileSync(0, "utf8") : value
 
 /**
@@ -123,6 +126,95 @@ export const resolveTransition = (
   return match
 }
 
+/**
+ * A transition that may carry fields and a comment, for screens that ask for
+ * either. Without a comment it goes through the core client as before; with
+ * one, the comment rides in `update`, which is the only place the transition
+ * endpoint takes it.
+ * https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-transitions-post
+ */
+export const applyTransition = async (
+  client: JiraClient,
+  key: string,
+  transitionId: string,
+  extra: {
+    resolution?: string
+    fields?: Record<string, unknown>
+    comment?: string
+  } = {},
+): Promise<void> => {
+  const fields: Record<string, unknown> = {
+    ...(extra.resolution ? { resolution: { name: extra.resolution } } : {}),
+    ...extra.fields,
+  }
+  if (!extra.comment) {
+    await client.transitionIssue(
+      key,
+      transitionId,
+      Object.keys(fields).length ? fields : undefined,
+    )
+    return
+  }
+  await client.request(
+    `/rest/api/3/issue/${encodeURIComponent(key)}/transitions`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        transition: { id: transitionId },
+        ...(Object.keys(fields).length ? { fields } : {}),
+        update: {
+          comment: [{ add: { body: toAdf(readBody(extra.comment)) } }],
+        },
+      }),
+    },
+  )
+}
+
+/**
+ * A link by its ID, or by the other issue's key. Two issues can be joined by
+ * more than one link (Blocks and Relates, say), and deleting the wrong one is
+ * the kind of quiet mistake a confirmation would not catch, so that case
+ * needs --type.
+ */
+export const pickLink = (
+  links: JiraIssueLink[],
+  key: string,
+  target: string,
+  type?: string,
+): JiraIssueLink => {
+  if (/^\d+$/.test(target)) {
+    const byId = links.find((l) => l.id === target)
+    if (!byId) throw exitError(1, `${key} has no link with ID ${target}`)
+    return byId
+  }
+  const wanted = target.toUpperCase()
+  const toTarget = links.filter(
+    (l) =>
+      (l.outwardIssue?.key ?? l.inwardIssue?.key)?.toUpperCase() === wanted,
+  )
+  const matching = type
+    ? toTarget.filter((l) =>
+        [l.type.name, l.type.inward, l.type.outward]
+          .filter(Boolean)
+          .some((n) => n?.toLowerCase() === type.toLowerCase()),
+      )
+    : toTarget
+  if (matching.length === 1) return matching[0] as JiraIssueLink
+  if (toTarget.length === 0)
+    throw exitError(1, `${key} has no link to ${target}`)
+  if (matching.length === 0)
+    throw exitError(
+      1,
+      `${key} has no ${type} link to ${target}; it has: ${toTarget.map((l) => l.type.name).join(", ")}`,
+    )
+  throw exitError(
+    1,
+    `${key} has ${matching.length} links to ${target} (${matching
+      .map((l) => `${l.type.name}, ID ${l.id}`)
+      .join("; ")}) — pass --type or the link ID`,
+  )
+}
+
 /** Commander's repeatable-option collection for `--link <type:key>`. */
 const collectLink = (value: string, prior: string[]): string[] => [
   ...prior,
@@ -166,7 +258,7 @@ const parseLinkSpecs = (
   })
 }
 
-const resolveAccountId = async (
+export const resolveAccountId = async (
   who: string,
   projectKey?: string,
 ): Promise<string | null> => {
@@ -251,6 +343,24 @@ export const registerIssueWriteCommands = (issue: Command): void => {
       "--status <name>",
       "transition the new issue to this status after creation",
     )
+    .option(
+      "-f, --field <name=value>",
+      'set any field by name or ID, repeatable, e.g. "Story Points=5"',
+      collect,
+      [] as string[],
+    )
+    .option(
+      "--component <name>",
+      "component, repeatable",
+      collect,
+      [] as string[],
+    )
+    .option(
+      "--fix-version <name>",
+      "fix version, repeatable",
+      collect,
+      [] as string[],
+    )
     .option("--json", "emit JSON")
     .action(
       async (options: {
@@ -265,6 +375,9 @@ export const registerIssueWriteCommands = (issue: Command): void => {
         link?: string[]
         status?: string
         json?: boolean
+        field: string[]
+        component: string[]
+        fixVersion: string[]
       }) => {
         const ctx = context()
         const fields: Record<string, unknown> = {
@@ -283,6 +396,11 @@ export const registerIssueWriteCommands = (issue: Command): void => {
               options.project,
             ),
           }
+        Object.assign(
+          fields,
+          await resolveFields(ctx.client, options.field),
+          listFieldSugar(options),
+        )
 
         // Known-bad link specs must stop before anything is created, so the
         // types are fetched and validated up front, and the links themselves
@@ -367,6 +485,24 @@ export const registerIssueWriteCommands = (issue: Command): void => {
     .option("--priority <name>", "priority name")
     .option("--parent <key>", "parent issue key; 'none' clears it")
     .option("-a, --assignee <who>", "assignee; 'me' or 'none' both work")
+    .option(
+      "-f, --field <name=value>",
+      "set any field by name or ID, repeatable; 'none' clears it",
+      collect,
+      [] as string[],
+    )
+    .option(
+      "--component <name>",
+      "replace components, repeatable",
+      collect,
+      [] as string[],
+    )
+    .option(
+      "--fix-version <name>",
+      "replace fix versions, repeatable",
+      collect,
+      [] as string[],
+    )
     .action(
       async (
         key: string,
@@ -379,6 +515,9 @@ export const registerIssueWriteCommands = (issue: Command): void => {
           priority?: string
           parent?: string
           assignee?: string
+          field: string[]
+          component: string[]
+          fixVersion: string[]
         },
       ) => {
         if (
@@ -439,6 +578,12 @@ export const registerIssueWriteCommands = (issue: Command): void => {
             content: [...prependContent, ...existingContent, ...appendContent],
           }
         }
+
+        Object.assign(
+          fields,
+          await resolveFields(context().client, options.field),
+          listFieldSugar(options),
+        )
 
         if (Object.keys(fields).length === 0)
           throw exitError(2, "nothing to change — pass at least one option")
@@ -844,6 +989,49 @@ export const registerIssueWriteCommands = (issue: Command): void => {
         ])}\n`,
       )
     })
+
+  link
+    .command("remove <key> <target>")
+    .alias("rm")
+    .description("remove a link, by the other issue's key or the link's ID")
+    .option("--type <name>", "which link, when several join the two issues")
+    .option("--yes", "skip the confirmation")
+    .action(
+      async (
+        key: string,
+        target: string,
+        options: { type?: string; yes?: boolean },
+      ) => {
+        const ctx = context()
+        const found = await ctx.client.getIssue(key)
+        const link = pickLink(
+          (found.fields as { issuelinks?: JiraIssueLink[] }).issuelinks ?? [],
+          key,
+          target,
+          options.type,
+        )
+        const other = link.outwardIssue?.key ?? link.inwardIssue?.key ?? "?"
+        await confirmDestructive(
+          `remove the ${link.type.name} link between ${key} and ${other}`,
+          options,
+        )
+        try {
+          await ctx.client.request(
+            `/rest/api/3/issueLink/${encodeURIComponent(link.id)}`,
+            { method: "DELETE" },
+          )
+        } catch (error) {
+          throw explainRefusal(
+            error,
+            `removing the link between ${key} and ${other}`,
+            "Link issues on at least one of the two projects, and Browse projects on both",
+          )
+        }
+        process.stderr.write(
+          `removed ${link.type.name} link ${key} ↔ ${other}\n`,
+        )
+      },
+    )
 
   link
     .argument("<inward>")
