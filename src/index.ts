@@ -179,5 +179,8 @@ const main = async (): Promise<void> => {
 // also running the CLI against the test runner's own argv.
 const entry = process.argv[1]
 if (entry && fileURLToPath(import.meta.url) === realpathSync(entry)) {
+  // React and Ink are only imported lazily from `main`, after this line, so
+  // the shipped CLI runs React's production build. An explicit NODE_ENV wins.
+  process.env.NODE_ENV ??= "production"
   main().catch(fail)
 }
