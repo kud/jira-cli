@@ -25,7 +25,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -37,17 +37,17 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kud/ink-ui": "0.32.0",
+    "@kud/ink-ui": "0.44.1",
     "@kud/jira": "0.7.0",
-    "@kud/jira-ink": "0.11.0",
+    "@kud/jira-ink": "0.17.1",
     "commander": "14.0.1",
-    "ink": "7.1.1",
-    "react": "19.2.5"
+    "ink": "8.0.0",
+    "react": "19.3.1"
   },
   "devDependencies": {
     "@kud/cli-testing": "0.1.0",
     "@types/node": "24.10.1",
-    "@types/react": "19.2.7",
+    "@types/react": "19.3.0",
     "ink-testing-library": "4.0.0",
     "tsup": "8.5.0",
     "tsx": "4.20.6",

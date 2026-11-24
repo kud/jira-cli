@@ -20,6 +20,9 @@ const seen = (r: { output: () => string }, needle: string): boolean =>
 const settle = (): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, 0))
 
+/** A tab count, drawn as a soft chip between powerline caps, not in parentheses. */
+const chip = (count: string): string => `\uE0B6${count}\uE0B4`
+
 const failing = (message: string): DataSource => ({
   ...mockData(),
   board: async () => {
@@ -74,7 +77,7 @@ describe("issue list screen", () => {
 
     const frame = r.lastFrame()
     expect(frame).toContain("In progress")
-    expect(frame).toContain("(–)")
+    expect(frame).toMatch(/\uE0B6 *–\uE0B4/)
     expect(frame).not.toContain("? help")
     expect(frame).not.toContain("Loading issues…")
     r.unmount()
@@ -107,9 +110,9 @@ describe("board", () => {
     const frame = last(r)
     // The epic is tallied in each of the three tabs it heads a group in:
     // placement is bottom-up, so it is a row in all three and nowhere else.
-    expect(frame).toContain("To do (2)")
-    expect(frame).toContain("In progress (5)")
-    expect(frame).toContain("Done (2)")
+    expect(frame).toContain(`To do ${chip("2")}`)
+    expect(frame).toContain(`In progress ${chip("5")}`)
+    expect(frame).toContain(`Done ${chip("2")}`)
     // The status NAME never reaches the screen — "Blocked" is filed by its
     // category, which is the whole point of a board that knows no workflow.
     expect(frame).not.toContain("Blocked")
@@ -124,7 +127,7 @@ describe("board", () => {
     const frame = last(r)
     // SHOP-300 is a row on this board, so it comes along as a selectable head
     // wherever its children are; SHOP-350 is nobody's row, so it fences.
-    expect(frame).toContain("── Storefront refresh · SHOP-350")
+    expect(frame).toContain("── SHOP-350 Storefront refresh")
     expect(frame).not.toContain("── Basket and checkout correctness")
     expect(frame).toContain("── No epic")
     expect(frame.indexOf("SHOP-300")).toBeLessThan(frame.indexOf("SHOP-412"))
@@ -186,7 +189,7 @@ describe("board", () => {
     // two-ended ▲/▼, which drew half a four-rung scheme as if it were normal.
     expect(row).toContain("↑")
     expect(row).toContain("bug")
-    expect(row).toMatch(/\d+[mhdw] │$/)
+    expect(row).toMatch(/ \d+[mhdw] +│$/)
     r.unmount()
   })
 
