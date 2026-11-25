@@ -294,7 +294,12 @@ describe("jira automation list", () => {
     client.request = vi.fn(async (path: string, init?: RequestInit) => {
       if (path === "/_edge/tenant_info") return { cloudId: CLOUD_ID }
       if (path === "/rest/api/3/project/SHOP")
-        return { id: "10001", key: "SHOP", projectTypeKey: "software", style: "classic" }
+        return {
+          id: "10001",
+          key: "SHOP",
+          projectTypeKey: "software",
+          style: "classic",
+        }
       if (path.startsWith("/rest/api/3/mypermissions"))
         return {
           permissions: {

@@ -216,7 +216,8 @@ describe("jira whoami --permissions automation row", () => {
 
     expect(JSON.parse(stdout()).permissions.automation).toEqual({
       api: false,
-      uiUrl: "https://acme.atlassian.net/jira/software/projects/SHOP/settings/automate",
+      uiUrl:
+        "https://acme.atlassian.net/jira/software/projects/SHOP/settings/automate",
     })
   })
 

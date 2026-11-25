@@ -52,7 +52,9 @@ describe("projectAutomationUrl", () => {
 
   it("gives nothing for an unknown project type", () => {
     expect(
-      projectAutomationUrl(BASE, "SHOP", { projectTypeKey: "product_discovery" }),
+      projectAutomationUrl(BASE, "SHOP", {
+        projectTypeKey: "product_discovery",
+      }),
     ).toBeUndefined()
   })
 })
@@ -61,7 +63,11 @@ describe("readProjectAutomationUrl", () => {
   it("reads the project and derives the page", async () => {
     const request = vi
       .fn()
-      .mockResolvedValue({ key: "SHOP", projectTypeKey: "software", style: "classic" })
+      .mockResolvedValue({
+        key: "SHOP",
+        projectTypeKey: "software",
+        style: "classic",
+      })
     const url = await readProjectAutomationUrl(
       { request } as unknown as JiraClient,
       BASE,
@@ -74,7 +80,9 @@ describe("readProjectAutomationUrl", () => {
   it("gives nothing when the project read fails", async () => {
     const request = vi
       .fn()
-      .mockRejectedValue(jiraApiError(404, "GET", "/rest/api/3/project/SHOP", ""))
+      .mockRejectedValue(
+        jiraApiError(404, "GET", "/rest/api/3/project/SHOP", ""),
+      )
     expect(
       await readProjectAutomationUrl(
         { request } as unknown as JiraClient,
