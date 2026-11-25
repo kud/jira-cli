@@ -8,6 +8,7 @@ import type {
 } from "@kud/jira"
 import { isJiraApiError } from "@kud/jira"
 import { table, truncate, type Column } from "../output/format.js"
+import { registerBoardSettingsCommands } from "./board-settings.js"
 import { context, exitError, printJson } from "./context.js"
 
 /**
@@ -212,6 +213,8 @@ export const registerBoardCommands = (program: Command): void => {
         ])}\n`,
       )
     })
+
+  registerBoardSettingsCommands(board)
 }
 
 export const registerSprintCommands = (program: Command): void => {

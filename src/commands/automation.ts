@@ -9,6 +9,8 @@ import {
   warnIfTruncated,
   type Context,
 } from "./context.js"
+import { readProjectAutomationUrl } from "./automation-ui.js"
+import { refuse } from "./fallback.js"
 import { adminPermissions, type AdminPermissions } from "./permissions.js"
 
 /**
@@ -66,9 +68,18 @@ const resolveCloudId = async (
  * rule management refuses a project admin even when the search is scoped to
  * that very project. What is missing is the global permission, not the token.
  */
+/** What a 403 needs to offer a way out: the project, and the command refused. */
+export type AutomationFallback = {
+  project?: string
+  command?: string
+  open?: boolean
+}
+
 export const explainAuthFailure = (
   error: unknown,
   permissions?: AdminPermissions,
+  uiUrl?: string,
+  fallback: AutomationFallback = {},
 ): unknown => {
   if (!isJiraApiError(error)) return error
   if (error.status === 401)
@@ -79,23 +90,48 @@ export const explainAuthFailure = (
         "the rule management API is closed to OAuth 2.0 and Forge apps.\n" +
         "  id.atlassian.com/manage-profile/security/api-tokens",
     )
-  if (error.status === 403)
+  if (error.status !== 403) return error
+  const detail =
+    `Automation API refused ${error.method} (403).\n` +
+    "Managing automation rules needs the Jira administrator global permission\n" +
+    "(Administer Jira) on the account behind ATLASSIAN_API_TOKEN; project admin is not enough,\n" +
+    "even for rules scoped to that project. Ask a Jira admin to grant it, or to run the command.\n" +
+    webUiHint(permissions)
+  // With no project there is no page to point at, so the explanation stands
+  // alone, as it did before the fallback.
+  if (!fallback.project)
     return exitError(
       4,
-      `Automation API refused ${error.method} (403).\n` +
-        "Managing automation rules needs the Jira administrator global permission\n" +
-        "(Administer Jira) on the account behind ATLASSIAN_API_TOKEN; project admin is not enough,\n" +
-        "even for rules scoped to that project. Ask a Jira admin to grant it, or to run the command.\n" +
-        webUiHint(permissions),
+      detail +
+        (fallback.open
+          ? "\n(--open: no web page is known without a project; pass --project <KEY>)"
+          : ""),
     )
-  return error
+  return refuse(
+    4,
+    {
+      kind: "permission",
+      action: "Managing automation rules",
+      object: `project ${fallback.project}`,
+      url: uiUrl,
+      permission: "the Administer Jira global permission",
+      why: "manage automation rules through the Automation REST API, which project admin does not cover",
+      command: fallback.command,
+      detail,
+    },
+    fallback.open,
+  )
 }
 
 /**
  * The web UI is the route a project admin still has, so the 403 says whether
- * this account is one. No deep link: Atlassian documents the path through
- * the menus, not a URL for a project's automation page, and a guessed URL
- * that 404s is worse than none.
+ * this account is one, and for a known project, where to go. Atlassian
+ * documents the path through the menus, not a URL for a project's automation
+ * page; a project admin kept asking for the link anyway, so the URL is now
+ * derived from the project's type and style (projectAutomationUrl). It is
+ * not verified against every site, which is why the menu path stays next to
+ * it as the fallback, and why a failed project read drops the URL rather
+ * than guessing one.
  * https://support.atlassian.com/automation/kb/guide-explaining-how-automation-administration-permissions-work/
  */
 export const webUiHint = (permissions?: AdminPermissions): string => {
@@ -140,8 +176,9 @@ type Automation = {
 
 const automation = async (
   hostFlag: string | undefined,
-  project?: string,
+  fallback: AutomationFallback = {},
 ): Promise<Automation> => {
+  const { project } = fallback
   const host = automationHost(hostFlag)
   const ctx = context()
   const cloudId = await resolveCloudId(ctx.client)
@@ -154,7 +191,20 @@ const automation = async (
         isJiraApiError(error) && error.status === 403
           ? await probePermissions(ctx.client, project)
           : undefined
-      throw explainAuthFailure(error, permissions)
+      // The page is offered unless the account is known not to be able to
+      // use it: a Jira admin is refused for another reason, and an account
+      // that is not a project admin would be refused there too.
+      const uiUrl =
+        project &&
+        permissions?.globalAdmin !== true &&
+        permissions?.projectAdmin !== false
+          ? await readProjectAutomationUrl(
+              ctx.client,
+              ctx.config.baseUrl,
+              project,
+            )
+          : undefined
+      throw explainAuthFailure(error, permissions, uiUrl, fallback)
     }
   }
   return { ctx, cloudId, call }
@@ -214,12 +264,28 @@ const readRuleFile = (file: string): object => {
 
 const STATES = new Set(["ENABLED", "DISABLED"])
 
-type HostOption = { host?: string }
+type HostOption = { host?: string; open?: boolean; project?: string }
+
+const OPEN_HELP =
+  "if Jira refuses, open the project's automation page in a browser (needs --project)"
 
 const hostOption = (command: Command): Command =>
+  command
+    .option(
+      "--host <site|api>",
+      "where to reach the Automation API: the site gateway, or api.atlassian.com (env: ATLASSIAN_AUTOMATION_HOST)",
+    )
+    .option("--open", OPEN_HELP)
+
+/**
+ * A rule's own project is unknown until it is read, and a refused read
+ * cannot tell it, so the commands on one rule take it as an option, used
+ * only to point a refusal at the right page.
+ */
+const projectOption = (command: Command): Command =>
   command.option(
-    "--host <site|api>",
-    "where to reach the Automation API: the site gateway, or api.atlassian.com (env: ATLASSIAN_AUTOMATION_HOST)",
+    "-p, --project <key>",
+    "the rule's project, so a refusal can link its automation page",
   )
 
 const setState = (
@@ -228,9 +294,15 @@ const setState = (
   state: RuleState,
 ): void => {
   hostOption(
-    automationCommand.command(`${name} <uuid>`).description(`${name} a rule`),
+    projectOption(
+      automationCommand.command(`${name} <uuid>`).description(`${name} a rule`),
+    ),
   ).action(async (uuid: string, options: HostOption) => {
-    const { call } = await automation(options.host)
+    const { call } = await automation(options.host, {
+      project: options.project,
+      command: `jira automation ${name} ${uuid}`,
+      open: options.open,
+    })
     await call(`/rule/${encodeURIComponent(uuid)}/state`, {
       method: "PUT",
       body: JSON.stringify({ value: state }),
@@ -281,10 +353,11 @@ Examples:
       if (state && !STATES.has(state))
         throw exitError(1, `--state must be ENABLED or DISABLED`)
 
-      const { ctx, cloudId, call } = await automation(
-        options.host,
-        options.project,
-      )
+      const { ctx, cloudId, call } = await automation(options.host, {
+        project: options.project,
+        command: `jira automation list${options.project ? ` --project ${options.project}` : ""}`,
+        open: options.open,
+      })
 
       let scope: string | undefined
       if (options.project) {
@@ -333,27 +406,39 @@ Examples:
   )
 
   hostOption(
-    automationCommand
-      .command("get <uuid>")
-      .description("print a rule's full configuration as JSON")
-      .option(
-        "--redact",
-        "redact sensitive fields such as secrets in web requests",
-      ),
+    projectOption(
+      automationCommand
+        .command("get <uuid>")
+        .description("print a rule's full configuration as JSON")
+        .option(
+          "--redact",
+          "redact sensitive fields such as secrets in web requests",
+        ),
+    ),
   ).action(async (uuid: string, options: HostOption & { redact?: boolean }) => {
-    const { call } = await automation(options.host)
+    const { call } = await automation(options.host, {
+      project: options.project,
+      command: `jira automation get ${uuid}`,
+      open: options.open,
+    })
     const query = options.redact ? "?redactSensitiveFields=true" : ""
     printJson(await call(`/rule/${encodeURIComponent(uuid)}${query}`))
   })
 
   hostOption(
-    automationCommand
-      .command("create")
-      .description("create a rule from a JSON file (the shape `get` prints)")
-      .requiredOption("-f, --file <path>", "rule JSON, or - for stdin"),
+    projectOption(
+      automationCommand
+        .command("create")
+        .description("create a rule from a JSON file (the shape `get` prints)")
+        .requiredOption("-f, --file <path>", "rule JSON, or - for stdin"),
+    ),
   ).action(async (options: HostOption & { file: string }) => {
     const body = readRuleFile(options.file)
-    const { call } = await automation(options.host)
+    const { call } = await automation(options.host, {
+      project: options.project,
+      command: `jira automation create --file ${options.file}`,
+      open: options.open,
+    })
     const created = await call<{ ruleUuid?: string }>("/rule", {
       method: "POST",
       body: JSON.stringify(body),
@@ -362,15 +447,21 @@ Examples:
   })
 
   hostOption(
-    automationCommand
-      .command("update <uuid>")
-      .description(
-        "replace a rule with the JSON in a file (the shape `get` prints)",
-      )
-      .requiredOption("-f, --file <path>", "rule JSON, or - for stdin"),
+    projectOption(
+      automationCommand
+        .command("update <uuid>")
+        .description(
+          "replace a rule with the JSON in a file (the shape `get` prints)",
+        )
+        .requiredOption("-f, --file <path>", "rule JSON, or - for stdin"),
+    ),
   ).action(async (uuid: string, options: HostOption & { file: string }) => {
     const body = readRuleFile(options.file)
-    const { call } = await automation(options.host)
+    const { call } = await automation(options.host, {
+      project: options.project,
+      command: `jira automation update ${uuid} --file ${options.file}`,
+      open: options.open,
+    })
     await call(`/rule/${encodeURIComponent(uuid)}`, {
       method: "PUT",
       body: JSON.stringify(body),

@@ -162,7 +162,12 @@ describe("jira whoami", () => {
 
     expect(JSON.parse(stdout())).toEqual({
       ...ME,
-      permissions: { globalAdmin: false, projectAdmin: true, project: "SHOP" },
+      permissions: {
+        globalAdmin: false,
+        projectAdmin: true,
+        project: "SHOP",
+        automation: { api: false },
+      },
     })
   })
 
@@ -170,5 +175,59 @@ describe("jira whoami", () => {
     await expect(parse(["--project", "SHOP"])).rejects.toThrow(
       /only apply with --permissions/,
     )
+  })
+})
+
+describe("jira whoami --permissions automation row", () => {
+  const routed = (administer: boolean, projects: boolean) =>
+    vi.fn(async (path: string) => {
+      if (path.startsWith("/rest/api/3/mypermissions"))
+        return permissions(administer, projects)
+      if (path === "/rest/api/3/project/SHOP")
+        return { key: "SHOP", projectTypeKey: "software", style: "next-gen" }
+      throw new Error(`unexpected ${path}`)
+    })
+
+  it("says yes for a Jira admin", async () => {
+    client.request = routed(true, true)
+
+    await parse(["--permissions"])
+
+    expect(stdout()).toContain("automation rules (REST API)      yes\n")
+  })
+
+  it("gives a project admin the web UI page for that project", async () => {
+    client.request = routed(false, true)
+
+    await parse(["--permissions", "--project", "SHOP"])
+
+    expect(stdout()).toContain(
+      "automation rules (REST API)      no — needs Administer Jira\n",
+    )
+    expect(stdout()).toContain(
+      "open: https://acme.atlassian.net/jira/software/projects/SHOP/settings/automate  (Project settings > Automation)",
+    )
+  })
+
+  it("puts the page in --json", async () => {
+    client.request = routed(false, true)
+
+    await parse(["--permissions", "--project", "SHOP", "--json"])
+
+    expect(JSON.parse(stdout()).permissions.automation).toEqual({
+      api: false,
+      uiUrl:
+        "https://acme.atlassian.net/jira/software/projects/SHOP/settings/automate",
+    })
+  })
+
+  it("gives neither the API nor a page to an account that is neither admin", async () => {
+    client.request = routed(false, false)
+
+    await parse(["--permissions", "--project", "SHOP"])
+
+    expect(stdout()).toContain("no — needs Administer Jira")
+    expect(stdout()).not.toMatch(/web UI|open:/)
+    expect(client.request).not.toHaveBeenCalledWith("/rest/api/3/project/SHOP")
   })
 })

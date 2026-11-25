@@ -20,7 +20,7 @@
 - **Attachments as text** — list what is attached, with the comment it came from, and print text files straight to stdout or download the rest
 - **Plain and pipeable** — black and white output, `--json` on every read, stable exit codes
 - **Full issue workflow** — create, edit, transition (with a resolution), comment, link, watch, rank and log work
-- **Projects, boards and sprints** — browse projects, boards, sprints, epics and the backlog
+- **Projects, boards and sprints** — browse projects, boards, sprints, epics and the backlog, and read a board's settings
 - **Automation rules** — list, export, import and switch Jira Automation rules, with secrets redacted on request
 - **Workflows** — read statuses, transitions and conditions, and find the workflow an issue type uses; `whoami --permissions` says what the account may administer
 - **Interactive board** — bare `jira` opens your issues as tabs, with search and in-place writes; Ink loads only for this view
@@ -55,6 +55,8 @@ $ jira issue worklog edit ACME-1234 456 --time 3h --started 2026-10-27T09:00:00.
 $ jira issue comment delete ACME-1234 12345
 $ jira user search ada --project ACME
 $ jira project view ACME
+$ jira board settings 42
+$ jira board colours strategy 42 priority --private-api   # dry run until --yes
 $ jira sprint view 1234
 $ jira search 'project = ACME AND created >= -7d' --json | jq -r '.[].key'
 $ jira automation get 0192e5ac-0e25-71de-ba7b-d972e6a2049a --redact

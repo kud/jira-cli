@@ -11,7 +11,16 @@ export type AdminPermissions = {
   projectAdmin: boolean
   project?: string
   board?: BoardAdmin
+  automation?: AutomationAccess
 }
+
+/**
+ * The Automation REST API takes Administer Jira and nothing less, so `api`
+ * is the global admin flag under another name. `uiUrl` is the project's
+ * automation page, given when a project was asked about and this account
+ * administers it: the web UI is the route left to a project admin.
+ */
+export type AutomationAccess = { api: boolean; uiUrl?: string }
 
 /**
  * Board admin is its own role, held by a user or through a group, and has
@@ -128,6 +137,17 @@ export const formatAdminPermissions = (p: AdminPermissions): string => {
       yesNo(p.projectAdmin),
     ],
   ]
+  if (p.automation) {
+    rows.push([
+      "automation rules (REST API)",
+      p.automation.api ? "yes" : "no — needs Administer Jira",
+    ])
+    if (p.automation.uiUrl)
+      rows.push([
+        "automation rules (web UI)",
+        `open: ${p.automation.uiUrl}  (Project settings > Automation)`,
+      ])
+  }
   if (p.board)
     rows.push([
       `board admin on ${p.board.name ?? "board"} (${p.board.id})`,
