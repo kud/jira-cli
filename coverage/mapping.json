@@ -1,0 +1,1159 @@
+{
+  "$comment": "Hand-maintained. Every operation in coverage/spec-*.json resolves to exactly one status: an entry under operations wins, then a deprecated flag in the spec (implies wontDo: deprecated), then the tag default. Regenerate docs/coverage.md with npm run coverage.",
+  "reasons": {
+    "admin-only": {
+      "label": "Admin only",
+      "why": "needs the Administer Jira global permission",
+      "fallback": "ask a Jira admin (the refusal message drafts the request)"
+    },
+    "app-only": {
+      "label": "App only",
+      "why": "callable by Connect or Forge apps, or OAuth integrations",
+      "fallback": "not reachable with an API token"
+    },
+    "deprecated": {
+      "label": "Deprecated",
+      "why": "marked deprecated in the spec",
+      "fallback": "use the replacement Atlassian names in the reference"
+    },
+    "premium-only": {
+      "label": "Premium only",
+      "why": "Jira Premium (Plans) features",
+      "fallback": "open the plan in the web UI"
+    },
+    "other": {
+      "label": "Other",
+      "why": "see the note on the row",
+      "fallback": "see the note on the row"
+    }
+  },
+  "platform": {
+    "tags": {
+      "(untagged)": {
+        "notWrapped": true
+      },
+      "Agents": {
+        "notWrapped": true
+      },
+      "Announcement banner": {
+        "wontDo": "admin-only"
+      },
+      "App data policies": {
+        "wontDo": "app-only"
+      },
+      "App migration": {
+        "wontDo": "app-only"
+      },
+      "App properties": {
+        "wontDo": "app-only"
+      },
+      "Application roles": {
+        "wontDo": "admin-only"
+      },
+      "Audit records": {
+        "wontDo": "admin-only"
+      },
+      "Avatars": {
+        "notWrapped": true
+      },
+      "Classification levels": {
+        "notWrapped": true
+      },
+      "Dashboards": {
+        "notWrapped": true
+      },
+      "Dynamic modules": {
+        "wontDo": "app-only"
+      },
+      "Field schemes": {
+        "wontDo": "admin-only"
+      },
+      "Filter sharing": {
+        "notWrapped": true
+      },
+      "Filters": {
+        "notWrapped": true
+      },
+      "Group and user picker": {
+        "notWrapped": true
+      },
+      "Groups": {
+        "notWrapped": true
+      },
+      "Issue attachments": {
+        "notWrapped": true
+      },
+      "Issue bulk operations": {
+        "notWrapped": true
+      },
+      "Issue comment properties": {
+        "notWrapped": true
+      },
+      "Issue comments": {
+        "notWrapped": true
+      },
+      "Issue custom field associations": {
+        "wontDo": "admin-only"
+      },
+      "Issue custom field configuration (apps)": {
+        "wontDo": "app-only"
+      },
+      "Issue custom field contexts": {
+        "notWrapped": true
+      },
+      "Issue custom field options (apps)": {
+        "wontDo": "app-only"
+      },
+      "Issue custom field options": {
+        "notWrapped": true
+      },
+      "Issue custom field values (apps)": {
+        "wontDo": "app-only"
+      },
+      "Issue field configurations": {
+        "wontDo": "admin-only"
+      },
+      "Issue fields": {
+        "notWrapped": true
+      },
+      "Issue link types": {
+        "notWrapped": true
+      },
+      "Issue links": {
+        "notWrapped": true
+      },
+      "Issue navigator settings": {
+        "wontDo": "admin-only"
+      },
+      "Issue notification schemes": {
+        "notWrapped": true
+      },
+      "Issue panels": {
+        "wontDo": "app-only"
+      },
+      "Issue priorities": {
+        "notWrapped": true
+      },
+      "Issue properties": {
+        "notWrapped": true
+      },
+      "Issue redaction": {
+        "notWrapped": true
+      },
+      "Issue remote links": {
+        "notWrapped": true
+      },
+      "Issue resolutions": {
+        "notWrapped": true
+      },
+      "Issue search": {
+        "notWrapped": true
+      },
+      "Issue security level": {
+        "notWrapped": true
+      },
+      "Issue security schemes": {
+        "notWrapped": true
+      },
+      "Issue type properties": {
+        "notWrapped": true
+      },
+      "Issue type schemes": {
+        "wontDo": "admin-only"
+      },
+      "Issue type screen schemes": {
+        "wontDo": "admin-only"
+      },
+      "Issue types": {
+        "notWrapped": true
+      },
+      "Issue votes": {
+        "notWrapped": true
+      },
+      "Issue watchers": {
+        "notWrapped": true
+      },
+      "Issue worklog properties": {
+        "notWrapped": true
+      },
+      "Issue worklogs": {
+        "notWrapped": true
+      },
+      "Issues": {
+        "notWrapped": true
+      },
+      "JQL functions (apps)": {
+        "wontDo": "app-only"
+      },
+      "JQL": {
+        "notWrapped": true
+      },
+      "Jira expressions": {
+        "notWrapped": true
+      },
+      "Jira settings": {
+        "notWrapped": true
+      },
+      "Labels": {
+        "notWrapped": true
+      },
+      "License metrics": {
+        "notWrapped": true
+      },
+      "Migration of Connect modules to Forge": {
+        "wontDo": "app-only"
+      },
+      "Myself": {
+        "notWrapped": true
+      },
+      "Permission schemes": {
+        "notWrapped": true
+      },
+      "Permissions": {
+        "notWrapped": true
+      },
+      "Plans": {
+        "wontDo": "premium-only"
+      },
+      "Policies": {
+        "notWrapped": true
+      },
+      "Priority schemes": {
+        "wontDo": "admin-only"
+      },
+      "Project avatars": {
+        "notWrapped": true
+      },
+      "Project categories": {
+        "notWrapped": true
+      },
+      "Project classification levels": {
+        "notWrapped": true
+      },
+      "Project components": {
+        "notWrapped": true
+      },
+      "Project email": {
+        "notWrapped": true
+      },
+      "Project features": {
+        "notWrapped": true
+      },
+      "Project key and name validation": {
+        "notWrapped": true
+      },
+      "Project permission schemes": {
+        "notWrapped": true
+      },
+      "Project properties": {
+        "notWrapped": true
+      },
+      "Project role actors": {
+        "notWrapped": true
+      },
+      "Project roles": {
+        "notWrapped": true
+      },
+      "Project templates": {
+        "notWrapped": true
+      },
+      "Project types": {
+        "notWrapped": true
+      },
+      "Project versions": {
+        "notWrapped": true
+      },
+      "Projects": {
+        "notWrapped": true
+      },
+      "Screen schemes": {
+        "wontDo": "admin-only"
+      },
+      "Screen tab fields": {
+        "notWrapped": true
+      },
+      "Screen tabs": {
+        "notWrapped": true
+      },
+      "Screens": {
+        "notWrapped": true
+      },
+      "Server info": {
+        "notWrapped": true
+      },
+      "Service Registry": {
+        "wontDo": "app-only"
+      },
+      "Status": {
+        "notWrapped": true
+      },
+      "Tasks": {
+        "notWrapped": true,
+        "note": "polling for async tasks, needed only by native bulk operations"
+      },
+      "Teams in plan": {
+        "wontDo": "premium-only"
+      },
+      "Time tracking": {
+        "wontDo": "admin-only"
+      },
+      "UI modifications (apps)": {
+        "wontDo": "app-only"
+      },
+      "User properties": {
+        "notWrapped": true,
+        "note": "own properties only; any other user needs Administer Jira"
+      },
+      "User search": {
+        "notWrapped": true
+      },
+      "Users": {
+        "notWrapped": true
+      },
+      "Webhooks": {
+        "wontDo": "app-only"
+      },
+      "Workflow scheme drafts": {
+        "wontDo": "admin-only"
+      },
+      "Workflow scheme project associations": {
+        "wontDo": "admin-only"
+      },
+      "Workflow schemes": {
+        "notWrapped": true
+      },
+      "Workflow status categories": {
+        "notWrapped": true
+      },
+      "Workflow statuses": {
+        "notWrapped": true
+      },
+      "Workflow transition rules": {
+        "wontDo": "app-only"
+      },
+      "Workflows": {
+        "notWrapped": true
+      }
+    },
+    "operations": {
+      "addActorUsers": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "addAttachment": {
+        "command": "jira attachment upload"
+      },
+      "addComment": {
+        "command": "jira issue comment add"
+      },
+      "addFieldToDefaultScreen": {
+        "wontDo": "admin-only"
+      },
+      "addIssueTypesToContext": {
+        "wontDo": "admin-only"
+      },
+      "addNotifications": {
+        "wontDo": "admin-only"
+      },
+      "addProjectRoleActorsToRole": {
+        "wontDo": "admin-only"
+      },
+      "addScreenTab": {
+        "wontDo": "admin-only"
+      },
+      "addScreenTabField": {
+        "wontDo": "admin-only"
+      },
+      "addSecurityLevel": {
+        "wontDo": "admin-only"
+      },
+      "addSecurityLevelMembers": {
+        "wontDo": "admin-only"
+      },
+      "addWatcher": {
+        "command": "jira issue watch add"
+      },
+      "addWorklog": {
+        "command": "jira issue worklog add"
+      },
+      "archiveProject": {
+        "wontDo": "admin-only"
+      },
+      "assignIssue": {
+        "command": "jira issue assign"
+      },
+      "assignPermissionScheme": {
+        "wontDo": "admin-only"
+      },
+      "assignProjectsToCustomFieldContext": {
+        "wontDo": "admin-only"
+      },
+      "associateSchemesToProjects": {
+        "wontDo": "admin-only"
+      },
+      "changeFilterOwner": {
+        "wontDo": "admin-only"
+      },
+      "countIssues": {
+        "command": "jira count"
+      },
+      "createCustomField": {
+        "wontDo": "admin-only"
+      },
+      "createCustomFieldContext": {
+        "wontDo": "admin-only"
+      },
+      "createCustomFieldOption": {
+        "wontDo": "admin-only"
+      },
+      "createIssue": {
+        "command": "jira issue create"
+      },
+      "createIssueLinkType": {
+        "wontDo": "admin-only"
+      },
+      "createIssueSecurityScheme": {
+        "wontDo": "admin-only"
+      },
+      "createIssueType": {
+        "wontDo": "admin-only"
+      },
+      "createIssueTypeAvatar": {
+        "wontDo": "admin-only"
+      },
+      "createNotificationScheme": {
+        "wontDo": "admin-only"
+      },
+      "createOrUpdateRemoteIssueLink": {
+        "command": "jira issue remotelink add"
+      },
+      "createPermissionGrant": {
+        "wontDo": "admin-only"
+      },
+      "createPermissionScheme": {
+        "wontDo": "admin-only"
+      },
+      "createPriority": {
+        "wontDo": "admin-only"
+      },
+      "createProject": {
+        "wontDo": "admin-only"
+      },
+      "createProjectCategory": {
+        "wontDo": "admin-only"
+      },
+      "createProjectRole": {
+        "wontDo": "admin-only"
+      },
+      "createProjectWithCustomTemplate": {
+        "wontDo": "admin-only"
+      },
+      "createResolution": {
+        "wontDo": "admin-only"
+      },
+      "createScreen": {
+        "wontDo": "admin-only"
+      },
+      "createUser": {
+        "wontDo": "admin-only"
+      },
+      "createVersion": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "createWorkflowScheme": {
+        "wontDo": "admin-only"
+      },
+      "deleteActor": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "deleteAvatar": {
+        "wontDo": "admin-only"
+      },
+      "deleteComment": {
+        "command": "jira issue comment delete"
+      },
+      "deleteCustomField": {
+        "wontDo": "admin-only"
+      },
+      "deleteCustomFieldContext": {
+        "wontDo": "admin-only"
+      },
+      "deleteCustomFieldOption": {
+        "wontDo": "admin-only"
+      },
+      "deleteDefaultWorkflow": {
+        "wontDo": "admin-only"
+      },
+      "deleteFilter": {
+        "wontDo": "admin-only"
+      },
+      "deleteInactiveWorkflow": {
+        "wontDo": "admin-only"
+      },
+      "deleteIssue": {
+        "command": "jira issue delete"
+      },
+      "deleteIssueLink": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "deleteIssueLinkType": {
+        "wontDo": "admin-only"
+      },
+      "deleteIssueType": {
+        "wontDo": "admin-only"
+      },
+      "deleteIssueTypeProperty": {
+        "wontDo": "admin-only"
+      },
+      "deleteNotificationScheme": {
+        "wontDo": "admin-only"
+      },
+      "deletePermissionScheme": {
+        "wontDo": "admin-only"
+      },
+      "deletePermissionSchemeEntity": {
+        "wontDo": "admin-only"
+      },
+      "deletePriority": {
+        "wontDo": "admin-only"
+      },
+      "deleteProject": {
+        "wontDo": "admin-only"
+      },
+      "deleteProjectAsynchronously": {
+        "wontDo": "admin-only"
+      },
+      "deleteProjectRole": {
+        "wontDo": "admin-only"
+      },
+      "deleteProjectRoleActorsFromRole": {
+        "wontDo": "admin-only"
+      },
+      "deleteRemoteIssueLinkById": {
+        "command": "jira issue remotelink remove"
+      },
+      "deleteResolution": {
+        "wontDo": "admin-only"
+      },
+      "deleteScreenTab": {
+        "wontDo": "admin-only"
+      },
+      "deleteSecurityScheme": {
+        "wontDo": "admin-only"
+      },
+      "deleteWorkflowMapping": {
+        "wontDo": "admin-only"
+      },
+      "deleteWorkflowScheme": {
+        "wontDo": "admin-only"
+      },
+      "deleteWorkflowSchemeIssueType": {
+        "wontDo": "admin-only"
+      },
+      "deleteWorklog": {
+        "command": "jira issue worklog delete"
+      },
+      "doTransition": {
+        "command": [
+          "jira issue transition",
+          "jira issue create"
+        ]
+      },
+      "editIssue": {
+        "command": "jira issue edit"
+      },
+      "findAssignableUsers": {
+        "command": [
+          "jira user search",
+          "jira issue assign"
+        ]
+      },
+      "findUsers": {
+        "command": [
+          "jira user search",
+          "jira issue assign"
+        ]
+      },
+      "fullyUpdateProjectRole": {
+        "wontDo": "admin-only"
+      },
+      "getAdvancedSettings": {
+        "wontDo": "admin-only"
+      },
+      "getAllLabels": {
+        "command": "jira meta labels"
+      },
+      "getAllProjectRoles": {
+        "wontDo": "admin-only"
+      },
+      "getAllProjects": {
+        "command": "jira project list"
+      },
+      "getAllStatuses": {
+        "command": "jira project statuses"
+      },
+      "getAllWorkflowSchemes": {
+        "wontDo": "admin-only"
+      },
+      "getApplicationProperty": {
+        "wontDo": "admin-only"
+      },
+      "getApproximateApplicationLicenseCount": {
+        "wontDo": "admin-only"
+      },
+      "getApproximateLicenseCount": {
+        "wontDo": "admin-only"
+      },
+      "getAttachmentContent": {
+        "command": [
+          "jira attachment read",
+          "jira attachment get"
+        ]
+      },
+      "getAuditEntries": {
+        "wontDo": "admin-only"
+      },
+      "getAvailableScreenFields": {
+        "wontDo": "admin-only"
+      },
+      "getBulkScreenTabs": {
+        "wontDo": "admin-only"
+      },
+      "getChangeLogs": {
+        "command": "jira issue history"
+      },
+      "getComments": {
+        "command": "jira issue comment list"
+      },
+      "getContextDefaultValues": {
+        "wontDo": "admin-only"
+      },
+      "getContextsForField": {
+        "wontDo": "admin-only"
+      },
+      "getContextsForFieldDeprecated": {
+        "wontDo": "admin-only"
+      },
+      "getCurrentUser": {
+        "command": [
+          "jira whoami",
+          "jira issue assign"
+        ]
+      },
+      "getCustomFieldContextsForProjectsAndIssueTypes": {
+        "wontDo": "admin-only"
+      },
+      "getDefaultValues": {
+        "wontDo": "admin-only"
+      },
+      "getDefaultWorkflow": {
+        "wontDo": "admin-only"
+      },
+      "getEvents": {
+        "wontDo": "admin-only"
+      },
+      "getFieldProjectAssociations": {
+        "wontDo": "admin-only"
+      },
+      "getFields": {
+        "command": "jira fields"
+      },
+      "getFilter": {
+        "command": "jira board view"
+      },
+      "getFiltersPaginated": {
+        "command": "jira meta filters"
+      },
+      "getIssue": {
+        "command": [
+          "jira issue view",
+          "jira issue edit",
+          "jira issue assign",
+          "jira issue create",
+          "jira issue link list",
+          "jira attachment list",
+          "jira attachment read",
+          "jira attachment get"
+        ]
+      },
+      "getIssueAllTypes": {
+        "command": "jira meta issuetypes"
+      },
+      "getIssueLinkTypes": {
+        "command": [
+          "jira meta linktypes",
+          "jira issue link"
+        ]
+      },
+      "getIssueSecurityLevelMembers": {
+        "wontDo": "admin-only"
+      },
+      "getIssueSecuritySchemes": {
+        "wontDo": "admin-only"
+      },
+      "getIssueTypeMappingsForContexts": {
+        "wontDo": "admin-only"
+      },
+      "getIssueWatchers": {
+        "command": "jira issue watch list"
+      },
+      "getIssueWorklog": {
+        "command": "jira issue worklog list"
+      },
+      "getMyPermissions": {
+        "command": [
+          "jira meta permissions",
+          "jira whoami"
+        ]
+      },
+      "getOptionsForContext": {
+        "wontDo": "admin-only"
+      },
+      "getPriorities": {
+        "command": "jira meta priorities"
+      },
+      "getProject": {
+        "command": [
+          "jira project view",
+          "jira automation list",
+          "jira workflow for"
+        ]
+      },
+      "getProjectComponents": {
+        "command": "jira project components"
+      },
+      "getProjectContextMapping": {
+        "wontDo": "admin-only"
+      },
+      "getProjectRole": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "getProjectRoleActorsForRole": {
+        "wontDo": "admin-only"
+      },
+      "getProjectRoleById": {
+        "wontDo": "admin-only"
+      },
+      "getProjectRoles": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "getProjectVersions": {
+        "command": "jira project versions"
+      },
+      "getRemoteIssueLinks": {
+        "command": "jira issue remotelink list"
+      },
+      "getResolutions": {
+        "command": "jira meta resolutions"
+      },
+      "getScreens": {
+        "wontDo": "admin-only"
+      },
+      "getScreensForField": {
+        "wontDo": "admin-only"
+      },
+      "getSecurityLevelMembers": {
+        "wontDo": "admin-only"
+      },
+      "getSecurityLevels": {
+        "wontDo": "admin-only"
+      },
+      "getServerInfo": {
+        "command": "jira meta server"
+      },
+      "getStatuses": {
+        "command": [
+          "jira meta statuses",
+          "jira board view",
+          "jira board settings"
+        ]
+      },
+      "getTransitions": {
+        "command": [
+          "jira issue transition",
+          "jira issue create"
+        ]
+      },
+      "getTrashedFieldsPaginated": {
+        "wontDo": "admin-only"
+      },
+      "getUserDefaultColumns": {
+        "wontDo": "admin-only"
+      },
+      "getUserEmail": {
+        "wontDo": "app-only",
+        "note": "Connect apps approved by Atlassian only"
+      },
+      "getUserEmailBulk": {
+        "wontDo": "app-only",
+        "note": "Connect apps approved by Atlassian only"
+      },
+      "getVersion": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "getWorkflow": {
+        "wontDo": "admin-only"
+      },
+      "getWorkflowScheme": {
+        "wontDo": "admin-only"
+      },
+      "getWorkflowSchemeIssueType": {
+        "wontDo": "admin-only"
+      },
+      "getWorkflowsPaginated": {
+        "wontDo": "admin-only"
+      },
+      "getWorklogsByIssueIdAndWorklogId": {
+        "wontDo": "other",
+        "note": "undocumented internal endpoint, untagged in the spec"
+      },
+      "linkIssues": {
+        "command": [
+          "jira issue link",
+          "jira issue create"
+        ]
+      },
+      "movePriorities": {
+        "wontDo": "admin-only"
+      },
+      "moveResolutions": {
+        "wontDo": "admin-only"
+      },
+      "moveScreenTab": {
+        "wontDo": "admin-only"
+      },
+      "moveScreenTabField": {
+        "wontDo": "admin-only"
+      },
+      "partialUpdateProjectRole": {
+        "wontDo": "admin-only"
+      },
+      "readWorkflowSchemes": {
+        "command": "jira workflow for"
+      },
+      "readWorkflows": {
+        "command": [
+          "jira workflow get",
+          "jira workflow for"
+        ]
+      },
+      "removeCustomFieldContextFromProjects": {
+        "wontDo": "admin-only"
+      },
+      "removeIssueTypesFromContext": {
+        "wontDo": "admin-only"
+      },
+      "removeLevel": {
+        "wontDo": "admin-only"
+      },
+      "removeMemberFromSecurityLevel": {
+        "wontDo": "admin-only"
+      },
+      "removeNotificationFromNotificationScheme": {
+        "wontDo": "admin-only"
+      },
+      "removeProjectCategory": {
+        "wontDo": "admin-only"
+      },
+      "removeScreenTabField": {
+        "wontDo": "admin-only"
+      },
+      "removeWatcher": {
+        "command": "jira issue watch remove"
+      },
+      "renameScreenTab": {
+        "wontDo": "admin-only"
+      },
+      "reorderCustomFieldOptions": {
+        "wontDo": "admin-only"
+      },
+      "replaceCustomFieldOption": {
+        "wontDo": "admin-only"
+      },
+      "resetUserColumns": {
+        "wontDo": "admin-only"
+      },
+      "restoreCustomField": {
+        "wontDo": "admin-only"
+      },
+      "sanitiseJqlQueries": {
+        "wontDo": "admin-only"
+      },
+      "searchAndReconsileIssuesUsingJqlPost": {
+        "command": [
+          "jira search",
+          "jira issue list",
+          "jira issue rank"
+        ]
+      },
+      "searchProjectsUsingSecuritySchemes": {
+        "wontDo": "admin-only"
+      },
+      "searchSecuritySchemes": {
+        "wontDo": "admin-only"
+      },
+      "searchWorkflows": {
+        "command": "jira workflow list"
+      },
+      "setApplicationProperty": {
+        "wontDo": "admin-only"
+      },
+      "setDefaultLevels": {
+        "wontDo": "admin-only"
+      },
+      "setDefaultPriority": {
+        "wontDo": "admin-only"
+      },
+      "setDefaultResolution": {
+        "wontDo": "admin-only"
+      },
+      "setDefaultValues": {
+        "wontDo": "admin-only"
+      },
+      "setIssueTypeProperty": {
+        "wontDo": "admin-only"
+      },
+      "setUserColumns": {
+        "wontDo": "admin-only"
+      },
+      "setWorkflowSchemeIssueType": {
+        "wontDo": "admin-only"
+      },
+      "storeAvatar": {
+        "wontDo": "admin-only"
+      },
+      "switchWorkflowSchemeForProject": {
+        "wontDo": "admin-only"
+      },
+      "trashCustomField": {
+        "wontDo": "admin-only"
+      },
+      "updateComment": {
+        "command": "jira issue comment edit"
+      },
+      "updateCustomField": {
+        "wontDo": "admin-only"
+      },
+      "updateCustomFieldContext": {
+        "wontDo": "admin-only"
+      },
+      "updateCustomFieldOption": {
+        "wontDo": "admin-only"
+      },
+      "updateDefaultWorkflow": {
+        "wontDo": "admin-only"
+      },
+      "updateIssueLinkType": {
+        "wontDo": "admin-only"
+      },
+      "updateIssueSecurityScheme": {
+        "wontDo": "admin-only"
+      },
+      "updateIssueType": {
+        "wontDo": "admin-only"
+      },
+      "updateNotificationScheme": {
+        "wontDo": "admin-only"
+      },
+      "updatePermissionScheme": {
+        "wontDo": "admin-only"
+      },
+      "updatePriority": {
+        "wontDo": "admin-only"
+      },
+      "updateProjectCategory": {
+        "wontDo": "admin-only"
+      },
+      "updateResolution": {
+        "wontDo": "admin-only"
+      },
+      "updateScreen": {
+        "wontDo": "admin-only"
+      },
+      "updateSecurityLevel": {
+        "wontDo": "admin-only"
+      },
+      "updateVersion": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "updateWorkflowMapping": {
+        "wontDo": "admin-only"
+      },
+      "updateWorkflowScheme": {
+        "wontDo": "admin-only"
+      },
+      "updateWorklog": {
+        "command": "jira issue worklog edit"
+      }
+    }
+  },
+  "software": {
+    "tags": {
+      "Backlog": {
+        "notWrapped": true
+      },
+      "Board": {
+        "notWrapped": true
+      },
+      "Builds": {
+        "wontDo": "app-only"
+      },
+      "Deployments": {
+        "wontDo": "app-only"
+      },
+      "DevOps Components": {
+        "wontDo": "app-only"
+      },
+      "Development Information": {
+        "wontDo": "app-only"
+      },
+      "Epic": {
+        "notWrapped": true
+      },
+      "Feature Flags": {
+        "wontDo": "app-only"
+      },
+      "Issue": {
+        "notWrapped": true
+      },
+      "Operations": {
+        "wontDo": "app-only"
+      },
+      "Remote Links": {
+        "wontDo": "app-only"
+      },
+      "Security Information": {
+        "wontDo": "app-only"
+      },
+      "Sprint": {
+        "notWrapped": true
+      }
+    },
+    "operations": {
+      "createSprint": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "getAllBoards": {
+        "command": [
+          "jira board list",
+          "jira whoami"
+        ]
+      },
+      "getAllQuickFilters": {
+        "command": [
+          "jira board quickfilters",
+          "jira board settings"
+        ]
+      },
+      "getAllSprints": {
+        "command": "jira sprint list"
+      },
+      "getBoard": {
+        "command": "jira whoami"
+      },
+      "getConfiguration": {
+        "command": [
+          "jira board view",
+          "jira board settings"
+        ]
+      },
+      "getEpics": {
+        "command": "jira board epics"
+      },
+      "getFeaturesForBoard": {
+        "command": "jira board settings"
+      },
+      "getIssuesForBacklog": {
+        "command": "jira board backlog"
+      },
+      "getIssuesForBoard": {
+        "command": "jira board issues"
+      },
+      "getIssuesForEpic": {
+        "command": "jira epic"
+      },
+      "getIssuesForSprint": {
+        "command": "jira sprint issues"
+      },
+      "getSprint": {
+        "command": "jira sprint view"
+      },
+      "moveIssuesToBacklog": {
+        "command": "jira backlog add"
+      },
+      "moveIssuesToSprintAndRank": {
+        "command": "jira sprint add"
+      },
+      "partiallyUpdateSprint": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      },
+      "rankIssues": {
+        "command": "jira issue rank"
+      },
+      "updateSprint": {
+        "notWrapped": true,
+        "note": "in kud/jira-cli#5"
+      }
+    }
+  },
+  "private": {
+    "commands": {
+      "getEditModel": [
+        "jira board settings",
+        "jira board swimlanes",
+        "jira board colours"
+      ],
+      "setCardColorStrategy": [
+        "jira board colours strategy"
+      ],
+      "addCardColor": [
+        "jira board colours set"
+      ],
+      "updateCardColor": [
+        "jira board colours set"
+      ],
+      "removeCardColor": [
+        "jira board colours remove"
+      ]
+    },
+    "unwrapped": [
+      {
+        "capability": "Quick filters: create, edit, delete, reorder",
+        "note": "public API reads them; writes exist only in the private API"
+      },
+      {
+        "capability": "Swimlanes: strategy, create, edit, delete",
+        "note": "read through the edit model"
+      },
+      {
+        "capability": "Columns: add, rename, move, status mapping, WIP limits",
+        "note": "public API reads them"
+      },
+      {
+        "capability": "Card layout fields",
+        "note": "read through the edit model"
+      },
+      {
+        "capability": "Working days and non-working dates",
+        "note": "read through the edit model"
+      },
+      {
+        "capability": "Estimation statistic and time tracking",
+        "note": "public API reads them"
+      },
+      {
+        "capability": "Board administrators",
+        "note": "read through the edit model and board?expand=admins"
+      }
+    ]
+  }
+}

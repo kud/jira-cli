@@ -34,7 +34,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "coverage": "node scripts/coverage.mjs"
   },
   "dependencies": {
     "@kud/ink-ui": "0.44.1",

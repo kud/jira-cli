@@ -1,0 +1,6304 @@
+{
+  "source": "https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json",
+  "version": "1001.0.0-SNAPSHOT-a1fc4d005619e709a58adeb772d9c58e534ec761",
+  "operations": [
+    {
+      "operationId": "getWorklogsByIssueIdAndWorklogId",
+      "method": "POST",
+      "path": "/rest/internal/api/latest/worklog/bulk",
+      "tags": [],
+      "summary": "Get worklogs by issue id and worklog id",
+      "deprecated": false
+    },
+    {
+      "operationId": "startBatch",
+      "method": "POST",
+      "path": "/rest/api/3/agents/bulk/invoke/batch",
+      "tags": [
+        "Agents"
+      ],
+      "summary": "Bulk start agent sessions (batch)",
+      "deprecated": false
+    },
+    {
+      "operationId": "startUniform",
+      "method": "POST",
+      "path": "/rest/api/3/agents/bulk/invoke/uniform",
+      "tags": [
+        "Agents"
+      ],
+      "summary": "Bulk start agent sessions (uniform)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBanner",
+      "method": "GET",
+      "path": "/rest/api/3/announcementBanner",
+      "tags": [
+        "Announcement banner"
+      ],
+      "summary": "Get announcement banner configuration",
+      "deprecated": false
+    },
+    {
+      "operationId": "setBanner",
+      "method": "PUT",
+      "path": "/rest/api/3/announcementBanner",
+      "tags": [
+        "Announcement banner"
+      ],
+      "summary": "Update announcement banner configuration",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPolicy",
+      "method": "GET",
+      "path": "/rest/api/3/data-policy",
+      "tags": [
+        "App data policies"
+      ],
+      "summary": "Get data policy for the workspace",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPolicies",
+      "method": "GET",
+      "path": "/rest/api/3/data-policy/project",
+      "tags": [
+        "App data policies"
+      ],
+      "summary": "Get data policy for projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "AppIssueFieldValueUpdateResource.updateIssueFields_put",
+      "method": "PUT",
+      "path": "/rest/atlassian-connect/1/migration/field",
+      "tags": [
+        "App migration"
+      ],
+      "summary": "Bulk update custom field value",
+      "deprecated": false
+    },
+    {
+      "operationId": "MigrationResource.updateEntityPropertiesValue_put",
+      "method": "PUT",
+      "path": "/rest/atlassian-connect/1/migration/properties/{entityType}",
+      "tags": [
+        "App migration"
+      ],
+      "summary": "Bulk update entity properties",
+      "deprecated": false
+    },
+    {
+      "operationId": "MigrationResource.workflowRuleSearch_post",
+      "method": "POST",
+      "path": "/rest/atlassian-connect/1/migration/workflow/rule/search",
+      "tags": [
+        "App migration"
+      ],
+      "summary": "Get workflow transition rule configurations",
+      "deprecated": false
+    },
+    {
+      "operationId": "AddonPropertiesResource.getAddonProperties_get",
+      "method": "GET",
+      "path": "/rest/atlassian-connect/1/addons/{addonKey}/properties",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Get app properties",
+      "deprecated": false
+    },
+    {
+      "operationId": "AddonPropertiesResource.deleteAddonProperty_delete",
+      "method": "DELETE",
+      "path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Delete app property",
+      "deprecated": false
+    },
+    {
+      "operationId": "AddonPropertiesResource.getAddonProperty_get",
+      "method": "GET",
+      "path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Get app property",
+      "deprecated": false
+    },
+    {
+      "operationId": "AddonPropertiesResource.putAddonProperty_put",
+      "method": "PUT",
+      "path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Set app property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getForgeAppPropertyKeys",
+      "method": "GET",
+      "path": "/rest/forge/1/app/properties",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Get app property keys (Forge)",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteForgeAppProperty",
+      "method": "DELETE",
+      "path": "/rest/forge/1/app/properties/{propertyKey}",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Delete app property (Forge)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getForgeAppProperty",
+      "method": "GET",
+      "path": "/rest/forge/1/app/properties/{propertyKey}",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Get app property (Forge)",
+      "deprecated": false
+    },
+    {
+      "operationId": "putForgeAppProperty",
+      "method": "PUT",
+      "path": "/rest/forge/1/app/properties/{propertyKey}",
+      "tags": [
+        "App properties"
+      ],
+      "summary": "Set app property (Forge)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllApplicationRoles",
+      "method": "GET",
+      "path": "/rest/api/3/applicationrole",
+      "tags": [
+        "Application roles"
+      ],
+      "summary": "Get all application roles",
+      "deprecated": false
+    },
+    {
+      "operationId": "getApplicationRole",
+      "method": "GET",
+      "path": "/rest/api/3/applicationrole/{key}",
+      "tags": [
+        "Application roles"
+      ],
+      "summary": "Get application role",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAuditRecords",
+      "method": "GET",
+      "path": "/rest/api/3/auditing/record",
+      "tags": [
+        "Audit records"
+      ],
+      "summary": "Get audit records",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllSystemAvatars",
+      "method": "GET",
+      "path": "/rest/api/3/avatar/{type}/system",
+      "tags": [
+        "Avatars"
+      ],
+      "summary": "Get system avatars by type",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvatars",
+      "method": "GET",
+      "path": "/rest/api/3/universal_avatar/type/{type}/owner/{entityId}",
+      "tags": [
+        "Avatars"
+      ],
+      "summary": "Get avatars",
+      "deprecated": false
+    },
+    {
+      "operationId": "storeAvatar",
+      "method": "POST",
+      "path": "/rest/api/3/universal_avatar/type/{type}/owner/{entityId}",
+      "tags": [
+        "Avatars"
+      ],
+      "summary": "Load avatar",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteAvatar",
+      "method": "DELETE",
+      "path": "/rest/api/3/universal_avatar/type/{type}/owner/{owningObjectId}/avatar/{id}",
+      "tags": [
+        "Avatars"
+      ],
+      "summary": "Delete avatar",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvatarImageByType",
+      "method": "GET",
+      "path": "/rest/api/3/universal_avatar/view/type/{type}",
+      "tags": [
+        "Avatars"
+      ],
+      "summary": "Get avatar image by type",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvatarImageByID",
+      "method": "GET",
+      "path": "/rest/api/3/universal_avatar/view/type/{type}/avatar/{id}",
+      "tags": [
+        "Avatars"
+      ],
+      "summary": "Get avatar image by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvatarImageByOwner",
+      "method": "GET",
+      "path": "/rest/api/3/universal_avatar/view/type/{type}/owner/{entityId}",
+      "tags": [
+        "Avatars"
+      ],
+      "summary": "Get avatar image by owner",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllUserDataClassificationLevels",
+      "method": "GET",
+      "path": "/rest/api/3/classification-levels",
+      "tags": [
+        "Classification levels"
+      ],
+      "summary": "Get all classification levels",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllDashboards",
+      "method": "GET",
+      "path": "/rest/api/3/dashboard",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Get all dashboards",
+      "deprecated": false
+    },
+    {
+      "operationId": "createDashboard",
+      "method": "POST",
+      "path": "/rest/api/3/dashboard",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Create dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllGadgets",
+      "method": "GET",
+      "path": "/rest/api/3/dashboard/{dashboardId}/gadget",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Get gadgets",
+      "deprecated": false
+    },
+    {
+      "operationId": "addGadget",
+      "method": "POST",
+      "path": "/rest/api/3/dashboard/{dashboardId}/gadget",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Add gadget to dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeGadget",
+      "method": "DELETE",
+      "path": "/rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Remove gadget from dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateGadget",
+      "method": "PUT",
+      "path": "/rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Update gadget on dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDashboardItemPropertyKeys",
+      "method": "GET",
+      "path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Get dashboard item property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteDashboardItemProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Delete dashboard item property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDashboardItemProperty",
+      "method": "GET",
+      "path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Get dashboard item property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setDashboardItemProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Set dashboard item property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteDashboard",
+      "method": "DELETE",
+      "path": "/rest/api/3/dashboard/{id}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Delete dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDashboard",
+      "method": "GET",
+      "path": "/rest/api/3/dashboard/{id}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Get dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateDashboard",
+      "method": "PUT",
+      "path": "/rest/api/3/dashboard/{id}",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Update dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "copyDashboard",
+      "method": "POST",
+      "path": "/rest/api/3/dashboard/{id}/copy",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Copy dashboard",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkEditDashboards",
+      "method": "PUT",
+      "path": "/rest/api/3/dashboard/bulk/edit",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Bulk edit dashboards",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllAvailableDashboardGadgets",
+      "method": "GET",
+      "path": "/rest/api/3/dashboard/gadgets",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Get available gadgets",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDashboardsPaginated",
+      "method": "GET",
+      "path": "/rest/api/3/dashboard/search",
+      "tags": [
+        "Dashboards"
+      ],
+      "summary": "Search for dashboards",
+      "deprecated": false
+    },
+    {
+      "operationId": "DynamicModulesResource.removeModules_delete",
+      "method": "DELETE",
+      "path": "/rest/atlassian-connect/1/app/module/dynamic",
+      "tags": [
+        "Dynamic modules"
+      ],
+      "summary": "Remove modules",
+      "deprecated": false
+    },
+    {
+      "operationId": "DynamicModulesResource.getModules_get",
+      "method": "GET",
+      "path": "/rest/atlassian-connect/1/app/module/dynamic",
+      "tags": [
+        "Dynamic modules"
+      ],
+      "summary": "Get modules",
+      "deprecated": false
+    },
+    {
+      "operationId": "DynamicModulesResource.registerModules_post",
+      "method": "POST",
+      "path": "/rest/atlassian-connect/1/app/module/dynamic",
+      "tags": [
+        "Dynamic modules"
+      ],
+      "summary": "Register modules",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFieldAssociationSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/config/fieldschemes",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Get field schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createFieldAssociationScheme",
+      "method": "POST",
+      "path": "/rest/api/3/config/fieldschemes",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Create field scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteFieldAssociationScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/config/fieldschemes/{id}",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Delete a field scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFieldAssociationSchemeById",
+      "method": "GET",
+      "path": "/rest/api/3/config/fieldschemes/{id}",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Get field scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateFieldAssociationScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/config/fieldschemes/{id}",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Update field scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "cloneFieldAssociationScheme",
+      "method": "POST",
+      "path": "/rest/api/3/config/fieldschemes/{id}/clone",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Clone field scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchFieldAssociationSchemeFields",
+      "method": "GET",
+      "path": "/rest/api/3/config/fieldschemes/{id}/fields",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Search field scheme fields",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFieldAssociationSchemeItemParameters",
+      "method": "GET",
+      "path": "/rest/api/3/config/fieldschemes/{id}/fields/{fieldId}/parameters",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Get field parameters",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchFieldAssociationSchemeProjects",
+      "method": "GET",
+      "path": "/rest/api/3/config/fieldschemes/{id}/projects",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Search field scheme projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeFieldsAssociatedWithSchemes",
+      "method": "DELETE",
+      "path": "/rest/api/3/config/fieldschemes/fields",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Remove fields associated with field schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateFieldsAssociatedWithSchemes",
+      "method": "PUT",
+      "path": "/rest/api/3/config/fieldschemes/fields",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Update fields associated with field schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeFieldAssociationSchemeItemParameters",
+      "method": "DELETE",
+      "path": "/rest/api/3/config/fieldschemes/fields/parameters",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Remove field parameters",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateFieldAssociationSchemeItemParameters",
+      "method": "PUT",
+      "path": "/rest/api/3/config/fieldschemes/fields/parameters",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Update field parameters",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectsWithFieldSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/config/fieldschemes/projects",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Get projects with field schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "associateProjectsToFieldAssociationSchemes",
+      "method": "PUT",
+      "path": "/rest/api/3/config/fieldschemes/projects",
+      "tags": [
+        "Field schemes"
+      ],
+      "summary": "Associate projects to field schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSharePermissions",
+      "method": "GET",
+      "path": "/rest/api/3/filter/{id}/permission",
+      "tags": [
+        "Filter sharing"
+      ],
+      "summary": "Get share permissions",
+      "deprecated": false
+    },
+    {
+      "operationId": "addSharePermission",
+      "method": "POST",
+      "path": "/rest/api/3/filter/{id}/permission",
+      "tags": [
+        "Filter sharing"
+      ],
+      "summary": "Add share permission",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteSharePermission",
+      "method": "DELETE",
+      "path": "/rest/api/3/filter/{id}/permission/{permissionId}",
+      "tags": [
+        "Filter sharing"
+      ],
+      "summary": "Delete share permission",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSharePermission",
+      "method": "GET",
+      "path": "/rest/api/3/filter/{id}/permission/{permissionId}",
+      "tags": [
+        "Filter sharing"
+      ],
+      "summary": "Get share permission",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDefaultShareScope",
+      "method": "GET",
+      "path": "/rest/api/3/filter/defaultShareScope",
+      "tags": [
+        "Filter sharing"
+      ],
+      "summary": "Get default share scope",
+      "deprecated": false
+    },
+    {
+      "operationId": "setDefaultShareScope",
+      "method": "PUT",
+      "path": "/rest/api/3/filter/defaultShareScope",
+      "tags": [
+        "Filter sharing"
+      ],
+      "summary": "Set default share scope",
+      "deprecated": false
+    },
+    {
+      "operationId": "createFilter",
+      "method": "POST",
+      "path": "/rest/api/3/filter",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Create filter",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteFilter",
+      "method": "DELETE",
+      "path": "/rest/api/3/filter/{id}",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Delete filter",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFilter",
+      "method": "GET",
+      "path": "/rest/api/3/filter/{id}",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Get filter",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateFilter",
+      "method": "PUT",
+      "path": "/rest/api/3/filter/{id}",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Update filter",
+      "deprecated": false
+    },
+    {
+      "operationId": "resetColumns",
+      "method": "DELETE",
+      "path": "/rest/api/3/filter/{id}/columns",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Reset columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "getColumns",
+      "method": "GET",
+      "path": "/rest/api/3/filter/{id}/columns",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Get columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "setColumns",
+      "method": "PUT",
+      "path": "/rest/api/3/filter/{id}/columns",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Set columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteFavouriteForFilter",
+      "method": "DELETE",
+      "path": "/rest/api/3/filter/{id}/favourite",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Remove filter as favorite",
+      "deprecated": false
+    },
+    {
+      "operationId": "setFavouriteForFilter",
+      "method": "PUT",
+      "path": "/rest/api/3/filter/{id}/favourite",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Add filter as favorite",
+      "deprecated": false
+    },
+    {
+      "operationId": "changeFilterOwner",
+      "method": "PUT",
+      "path": "/rest/api/3/filter/{id}/owner",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Change filter owner",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFavouriteFilters",
+      "method": "GET",
+      "path": "/rest/api/3/filter/favourite",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Get favorite filters",
+      "deprecated": false
+    },
+    {
+      "operationId": "getMyFilters",
+      "method": "GET",
+      "path": "/rest/api/3/filter/my",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Get my filters",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFiltersPaginated",
+      "method": "GET",
+      "path": "/rest/api/3/filter/search",
+      "tags": [
+        "Filters"
+      ],
+      "summary": "Search for filters",
+      "deprecated": false
+    },
+    {
+      "operationId": "findUsersAndGroups",
+      "method": "GET",
+      "path": "/rest/api/3/groupuserpicker",
+      "tags": [
+        "Group and user picker"
+      ],
+      "summary": "Find users and groups",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeGroup",
+      "method": "DELETE",
+      "path": "/rest/api/3/group",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Remove group",
+      "deprecated": false
+    },
+    {
+      "operationId": "getGroup",
+      "method": "GET",
+      "path": "/rest/api/3/group",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Get group",
+      "deprecated": true
+    },
+    {
+      "operationId": "createGroup",
+      "method": "POST",
+      "path": "/rest/api/3/group",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Create group",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkGetGroups",
+      "method": "GET",
+      "path": "/rest/api/3/group/bulk",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Bulk get groups",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUsersFromGroup",
+      "method": "GET",
+      "path": "/rest/api/3/group/member",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Get users from group",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeUserFromGroup",
+      "method": "DELETE",
+      "path": "/rest/api/3/group/user",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Remove user from group",
+      "deprecated": false
+    },
+    {
+      "operationId": "addUserToGroup",
+      "method": "POST",
+      "path": "/rest/api/3/group/user",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Add user to group",
+      "deprecated": false
+    },
+    {
+      "operationId": "findGroups",
+      "method": "GET",
+      "path": "/rest/api/3/groups/picker",
+      "tags": [
+        "Groups"
+      ],
+      "summary": "Find groups",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeAttachment",
+      "method": "DELETE",
+      "path": "/rest/api/3/attachment/{id}",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Delete attachment",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAttachment",
+      "method": "GET",
+      "path": "/rest/api/3/attachment/{id}",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Get attachment metadata",
+      "deprecated": false
+    },
+    {
+      "operationId": "expandAttachmentForHumans",
+      "method": "GET",
+      "path": "/rest/api/3/attachment/{id}/expand/human",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Get all metadata for an expanded attachment",
+      "deprecated": false
+    },
+    {
+      "operationId": "expandAttachmentForMachines",
+      "method": "GET",
+      "path": "/rest/api/3/attachment/{id}/expand/raw",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Get contents metadata for an expanded attachment",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAttachmentContent",
+      "method": "GET",
+      "path": "/rest/api/3/attachment/content/{id}",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Get attachment content",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAttachmentMeta",
+      "method": "GET",
+      "path": "/rest/api/3/attachment/meta",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Get Jira attachment settings",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAttachmentThumbnail",
+      "method": "GET",
+      "path": "/rest/api/3/attachment/thumbnail/{id}",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Get attachment thumbnail",
+      "deprecated": false
+    },
+    {
+      "operationId": "addAttachment",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/attachments",
+      "tags": [
+        "Issue attachments"
+      ],
+      "summary": "Add attachment",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitBulkDelete",
+      "method": "POST",
+      "path": "/rest/api/3/bulk/issues/delete",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Bulk delete issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBulkEditableFields",
+      "method": "GET",
+      "path": "/rest/api/3/bulk/issues/fields",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Get bulk editable fields",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitBulkEdit",
+      "method": "POST",
+      "path": "/rest/api/3/bulk/issues/fields",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Bulk edit issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitBulkMove",
+      "method": "POST",
+      "path": "/rest/api/3/bulk/issues/move",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Bulk move issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvailableTransitions",
+      "method": "GET",
+      "path": "/rest/api/3/bulk/issues/transition",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Get available transitions",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitBulkTransition",
+      "method": "POST",
+      "path": "/rest/api/3/bulk/issues/transition",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Bulk transition issue statuses",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitBulkUnwatch",
+      "method": "POST",
+      "path": "/rest/api/3/bulk/issues/unwatch",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Bulk unwatch issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitBulkWatch",
+      "method": "POST",
+      "path": "/rest/api/3/bulk/issues/watch",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Bulk watch issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBulkOperationProgress",
+      "method": "GET",
+      "path": "/rest/api/3/bulk/queue/{taskId}",
+      "tags": [
+        "Issue bulk operations"
+      ],
+      "summary": "Get bulk issue operation progress",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCommentPropertyKeys",
+      "method": "GET",
+      "path": "/rest/api/3/comment/{commentId}/properties",
+      "tags": [
+        "Issue comment properties"
+      ],
+      "summary": "Get comment property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteCommentProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/comment/{commentId}/properties/{propertyKey}",
+      "tags": [
+        "Issue comment properties"
+      ],
+      "summary": "Delete comment property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCommentProperty",
+      "method": "GET",
+      "path": "/rest/api/3/comment/{commentId}/properties/{propertyKey}",
+      "tags": [
+        "Issue comment properties"
+      ],
+      "summary": "Get comment property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setCommentProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/comment/{commentId}/properties/{propertyKey}",
+      "tags": [
+        "Issue comment properties"
+      ],
+      "summary": "Set comment property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCommentsByIds",
+      "method": "POST",
+      "path": "/rest/api/3/comment/list",
+      "tags": [
+        "Issue comments"
+      ],
+      "summary": "Get comments by IDs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getComments",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/comment",
+      "tags": [
+        "Issue comments"
+      ],
+      "summary": "Get comments",
+      "deprecated": false
+    },
+    {
+      "operationId": "addComment",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/comment",
+      "tags": [
+        "Issue comments"
+      ],
+      "summary": "Add comment",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteComment",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}",
+      "tags": [
+        "Issue comments"
+      ],
+      "summary": "Delete comment",
+      "deprecated": false
+    },
+    {
+      "operationId": "getComment",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}",
+      "tags": [
+        "Issue comments"
+      ],
+      "summary": "Get comment",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateComment",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}",
+      "tags": [
+        "Issue comments"
+      ],
+      "summary": "Update comment",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeAssociations",
+      "method": "DELETE",
+      "path": "/rest/api/3/field/association",
+      "tags": [
+        "Issue custom field associations"
+      ],
+      "summary": "Remove associations",
+      "deprecated": false
+    },
+    {
+      "operationId": "createAssociations",
+      "method": "PUT",
+      "path": "/rest/api/3/field/association",
+      "tags": [
+        "Issue custom field associations"
+      ],
+      "summary": "Create associations",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCustomFieldConfiguration",
+      "method": "GET",
+      "path": "/rest/api/3/app/field/{fieldIdOrKey}/context/configuration",
+      "tags": [
+        "Issue custom field configuration (apps)"
+      ],
+      "summary": "Get custom field configurations",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateCustomFieldConfiguration",
+      "method": "PUT",
+      "path": "/rest/api/3/app/field/{fieldIdOrKey}/context/configuration",
+      "tags": [
+        "Issue custom field configuration (apps)"
+      ],
+      "summary": "Update custom field configurations",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCustomFieldsConfigurations",
+      "method": "POST",
+      "path": "/rest/api/3/app/field/context/configuration/list",
+      "tags": [
+        "Issue custom field configuration (apps)"
+      ],
+      "summary": "Bulk get custom field configurations",
+      "deprecated": false
+    },
+    {
+      "operationId": "getContextsForField",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/context",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Get custom field contexts",
+      "deprecated": false
+    },
+    {
+      "operationId": "createCustomFieldContext",
+      "method": "POST",
+      "path": "/rest/api/3/field/{fieldId}/context",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Create custom field context",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteCustomFieldContext",
+      "method": "DELETE",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Delete custom field context",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateCustomFieldContext",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Update custom field context",
+      "deprecated": false
+    },
+    {
+      "operationId": "addIssueTypesToContext",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/issuetype",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Add issue types to context",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeIssueTypesFromContext",
+      "method": "POST",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/issuetype/remove",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Remove issue types from context",
+      "deprecated": false
+    },
+    {
+      "operationId": "assignProjectsToCustomFieldContext",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/project",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Assign custom field context to projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeCustomFieldContextFromProjects",
+      "method": "POST",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/project/remove",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Remove custom field context from projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDefaultValues",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/context/defaultValue",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Get custom field contexts default values",
+      "deprecated": true
+    },
+    {
+      "operationId": "setDefaultValues",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}/context/defaultValue",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Set custom field contexts default values",
+      "deprecated": true
+    },
+    {
+      "operationId": "getContextDefaultValues",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/context/defaultValues",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Get default values for a custom field grouped by context and issue type",
+      "deprecated": false
+    },
+    {
+      "operationId": "setContextDefaultValues",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}/context/defaultValues",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Set default values for a custom field by context and issue type",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypeMappingsForContexts",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/context/issuetypemapping",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Get issue types for custom field context",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCustomFieldContextsForProjectsAndIssueTypes",
+      "method": "POST",
+      "path": "/rest/api/3/field/{fieldId}/context/mapping",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Get custom field contexts for projects and issue types",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectContextMapping",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/context/projectmapping",
+      "tags": [
+        "Issue custom field contexts"
+      ],
+      "summary": "Get project mappings for custom field context",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCustomFieldOption",
+      "method": "GET",
+      "path": "/rest/api/3/customFieldOption/{id}",
+      "tags": [
+        "Issue custom field options"
+      ],
+      "summary": "Get custom field option",
+      "deprecated": false
+    },
+    {
+      "operationId": "getOptionsForContext",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/option",
+      "tags": [
+        "Issue custom field options"
+      ],
+      "summary": "Get custom field options (context)",
+      "deprecated": false
+    },
+    {
+      "operationId": "createCustomFieldOption",
+      "method": "POST",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/option",
+      "tags": [
+        "Issue custom field options"
+      ],
+      "summary": "Create custom field options (context)",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateCustomFieldOption",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/option",
+      "tags": [
+        "Issue custom field options"
+      ],
+      "summary": "Update custom field options (context)",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteCustomFieldOption",
+      "method": "DELETE",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/option/{optionId}",
+      "tags": [
+        "Issue custom field options"
+      ],
+      "summary": "Delete custom field options (context)",
+      "deprecated": false
+    },
+    {
+      "operationId": "replaceCustomFieldOption",
+      "method": "DELETE",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/option/{optionId}/issue",
+      "tags": [
+        "Issue custom field options"
+      ],
+      "summary": "Replace custom field options",
+      "deprecated": false
+    },
+    {
+      "operationId": "reorderCustomFieldOptions",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}/context/{contextId}/option/move",
+      "tags": [
+        "Issue custom field options"
+      ],
+      "summary": "Reorder custom field options (context)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllIssueFieldOptions",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldKey}/option",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Get all issue field options",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssueFieldOption",
+      "method": "POST",
+      "path": "/rest/api/3/field/{fieldKey}/option",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Create issue field option",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueFieldOption",
+      "method": "DELETE",
+      "path": "/rest/api/3/field/{fieldKey}/option/{optionId}",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Delete issue field option",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueFieldOption",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldKey}/option/{optionId}",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Get issue field option",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateIssueFieldOption",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldKey}/option/{optionId}",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Update issue field option",
+      "deprecated": false
+    },
+    {
+      "operationId": "replaceIssueFieldOption",
+      "method": "DELETE",
+      "path": "/rest/api/3/field/{fieldKey}/option/{optionId}/issue",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Replace issue field option",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSelectableIssueFieldOptions",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldKey}/option/suggestions/edit",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Get selectable issue field options",
+      "deprecated": false
+    },
+    {
+      "operationId": "getVisibleIssueFieldOptions",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldKey}/option/suggestions/search",
+      "tags": [
+        "Issue custom field options (apps)"
+      ],
+      "summary": "Get visible issue field options",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateCustomFieldValue",
+      "method": "PUT",
+      "path": "/rest/api/3/app/field/{fieldIdOrKey}/value",
+      "tags": [
+        "Issue custom field values (apps)"
+      ],
+      "summary": "Update custom field value",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateMultipleCustomFieldValues",
+      "method": "POST",
+      "path": "/rest/api/3/app/field/value",
+      "tags": [
+        "Issue custom field values (apps)"
+      ],
+      "summary": "Update custom fields",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllFieldConfigurations",
+      "method": "GET",
+      "path": "/rest/api/3/fieldconfiguration",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Get all field configurations",
+      "deprecated": true
+    },
+    {
+      "operationId": "createFieldConfiguration",
+      "method": "POST",
+      "path": "/rest/api/3/fieldconfiguration",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Create field configuration",
+      "deprecated": true
+    },
+    {
+      "operationId": "deleteFieldConfiguration",
+      "method": "DELETE",
+      "path": "/rest/api/3/fieldconfiguration/{id}",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Delete field configuration",
+      "deprecated": true
+    },
+    {
+      "operationId": "updateFieldConfiguration",
+      "method": "PUT",
+      "path": "/rest/api/3/fieldconfiguration/{id}",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Update field configuration",
+      "deprecated": true
+    },
+    {
+      "operationId": "getFieldConfigurationItems",
+      "method": "GET",
+      "path": "/rest/api/3/fieldconfiguration/{id}/fields",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Get field configuration items",
+      "deprecated": true
+    },
+    {
+      "operationId": "updateFieldConfigurationItems",
+      "method": "PUT",
+      "path": "/rest/api/3/fieldconfiguration/{id}/fields",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Update field configuration items",
+      "deprecated": true
+    },
+    {
+      "operationId": "getAllFieldConfigurationSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/fieldconfigurationscheme",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Get all field configuration schemes",
+      "deprecated": true
+    },
+    {
+      "operationId": "createFieldConfigurationScheme",
+      "method": "POST",
+      "path": "/rest/api/3/fieldconfigurationscheme",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Create field configuration scheme",
+      "deprecated": true
+    },
+    {
+      "operationId": "deleteFieldConfigurationScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/fieldconfigurationscheme/{id}",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Delete field configuration scheme",
+      "deprecated": true
+    },
+    {
+      "operationId": "updateFieldConfigurationScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/fieldconfigurationscheme/{id}",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Update field configuration scheme",
+      "deprecated": true
+    },
+    {
+      "operationId": "setFieldConfigurationSchemeMapping",
+      "method": "PUT",
+      "path": "/rest/api/3/fieldconfigurationscheme/{id}/mapping",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Assign issue types to field configurations",
+      "deprecated": true
+    },
+    {
+      "operationId": "removeIssueTypesFromGlobalFieldConfigurationScheme",
+      "method": "POST",
+      "path": "/rest/api/3/fieldconfigurationscheme/{id}/mapping/delete",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Remove issue types from field configuration scheme",
+      "deprecated": true
+    },
+    {
+      "operationId": "getFieldConfigurationSchemeMappings",
+      "method": "GET",
+      "path": "/rest/api/3/fieldconfigurationscheme/mapping",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Get field configuration issue type items",
+      "deprecated": true
+    },
+    {
+      "operationId": "getFieldConfigurationSchemeProjectMapping",
+      "method": "GET",
+      "path": "/rest/api/3/fieldconfigurationscheme/project",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Get field configuration schemes for projects",
+      "deprecated": true
+    },
+    {
+      "operationId": "assignFieldConfigurationSchemeToProject",
+      "method": "PUT",
+      "path": "/rest/api/3/fieldconfigurationscheme/project",
+      "tags": [
+        "Issue field configurations"
+      ],
+      "summary": "Assign field configuration scheme to project",
+      "deprecated": true
+    },
+    {
+      "operationId": "getFields",
+      "method": "GET",
+      "path": "/rest/api/3/field",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Get fields",
+      "deprecated": false
+    },
+    {
+      "operationId": "createCustomField",
+      "method": "POST",
+      "path": "/rest/api/3/field",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Create custom field",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateCustomField",
+      "method": "PUT",
+      "path": "/rest/api/3/field/{fieldId}",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Update custom field",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFieldProjectAssociations",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/association/project",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Get field project associations",
+      "deprecated": false
+    },
+    {
+      "operationId": "getContextsForFieldDeprecated",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/contexts",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Get contexts for a field",
+      "deprecated": true
+    },
+    {
+      "operationId": "deleteCustomField",
+      "method": "DELETE",
+      "path": "/rest/api/3/field/{id}",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Delete custom field",
+      "deprecated": false
+    },
+    {
+      "operationId": "restoreCustomField",
+      "method": "POST",
+      "path": "/rest/api/3/field/{id}/restore",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Restore custom field from trash",
+      "deprecated": false
+    },
+    {
+      "operationId": "trashCustomField",
+      "method": "POST",
+      "path": "/rest/api/3/field/{id}/trash",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Move custom field to trash",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFieldsPaginated",
+      "method": "GET",
+      "path": "/rest/api/3/field/search",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Get fields paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "getTrashedFieldsPaginated",
+      "method": "GET",
+      "path": "/rest/api/3/field/search/trashed",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Get fields in trash paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectFields",
+      "method": "GET",
+      "path": "/rest/api/3/projects/fields",
+      "tags": [
+        "Issue fields"
+      ],
+      "summary": "Get fields for projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueLinkTypes",
+      "method": "GET",
+      "path": "/rest/api/3/issueLinkType",
+      "tags": [
+        "Issue link types"
+      ],
+      "summary": "Get issue link types",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssueLinkType",
+      "method": "POST",
+      "path": "/rest/api/3/issueLinkType",
+      "tags": [
+        "Issue link types"
+      ],
+      "summary": "Create issue link type",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueLinkType",
+      "method": "DELETE",
+      "path": "/rest/api/3/issueLinkType/{issueLinkTypeId}",
+      "tags": [
+        "Issue link types"
+      ],
+      "summary": "Delete issue link type",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueLinkType",
+      "method": "GET",
+      "path": "/rest/api/3/issueLinkType/{issueLinkTypeId}",
+      "tags": [
+        "Issue link types"
+      ],
+      "summary": "Get issue link type",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateIssueLinkType",
+      "method": "PUT",
+      "path": "/rest/api/3/issueLinkType/{issueLinkTypeId}",
+      "tags": [
+        "Issue link types"
+      ],
+      "summary": "Update issue link type",
+      "deprecated": false
+    },
+    {
+      "operationId": "linkIssues",
+      "method": "POST",
+      "path": "/rest/api/3/issueLink",
+      "tags": [
+        "Issue links"
+      ],
+      "summary": "Create issue link",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueLink",
+      "method": "DELETE",
+      "path": "/rest/api/3/issueLink/{linkId}",
+      "tags": [
+        "Issue links"
+      ],
+      "summary": "Delete issue link",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueLink",
+      "method": "GET",
+      "path": "/rest/api/3/issueLink/{linkId}",
+      "tags": [
+        "Issue links"
+      ],
+      "summary": "Get issue link",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueNavigatorDefaultColumns",
+      "method": "GET",
+      "path": "/rest/api/3/settings/columns",
+      "tags": [
+        "Issue navigator settings"
+      ],
+      "summary": "Get issue navigator default columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "setIssueNavigatorDefaultColumns",
+      "method": "PUT",
+      "path": "/rest/api/3/settings/columns",
+      "tags": [
+        "Issue navigator settings"
+      ],
+      "summary": "Set issue navigator default columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "getNotificationSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/notificationscheme",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Get notification schemes paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "createNotificationScheme",
+      "method": "POST",
+      "path": "/rest/api/3/notificationscheme",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Create notification scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getNotificationScheme",
+      "method": "GET",
+      "path": "/rest/api/3/notificationscheme/{id}",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Get notification scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateNotificationScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/notificationscheme/{id}",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Update notification scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "addNotifications",
+      "method": "PUT",
+      "path": "/rest/api/3/notificationscheme/{id}/notification",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Add notifications to notification scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteNotificationScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/notificationscheme/{notificationSchemeId}",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Delete notification scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeNotificationFromNotificationScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/notificationscheme/{notificationSchemeId}/notification/{notificationId}",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Remove notification from notification scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getNotificationSchemeToProjectMappings",
+      "method": "GET",
+      "path": "/rest/api/3/notificationscheme/project",
+      "tags": [
+        "Issue notification schemes"
+      ],
+      "summary": "Get projects using notification schemes paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkPinUnpinProjectsAsync",
+      "method": "POST",
+      "path": "/rest/api/3/forge/panel/action/bulk/async",
+      "tags": [
+        "Issue panels"
+      ],
+      "summary": "Bulk pin or unpin issue panel to projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBulkPinStatus",
+      "method": "POST",
+      "path": "/rest/api/3/forge/panel/action/bulk/status",
+      "tags": [
+        "Issue panels"
+      ],
+      "summary": "Get issue panel pin status for projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPriorities",
+      "method": "GET",
+      "path": "/rest/api/3/priority",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Get priorities",
+      "deprecated": true
+    },
+    {
+      "operationId": "createPriority",
+      "method": "POST",
+      "path": "/rest/api/3/priority",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Create priority",
+      "deprecated": false
+    },
+    {
+      "operationId": "deletePriority",
+      "method": "DELETE",
+      "path": "/rest/api/3/priority/{id}",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Delete priority",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPriority",
+      "method": "GET",
+      "path": "/rest/api/3/priority/{id}",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Get priority",
+      "deprecated": false
+    },
+    {
+      "operationId": "updatePriority",
+      "method": "PUT",
+      "path": "/rest/api/3/priority/{id}",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Update priority",
+      "deprecated": false
+    },
+    {
+      "operationId": "setDefaultPriority",
+      "method": "PUT",
+      "path": "/rest/api/3/priority/default",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Set default priority",
+      "deprecated": false
+    },
+    {
+      "operationId": "movePriorities",
+      "method": "PUT",
+      "path": "/rest/api/3/priority/move",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Move priorities",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchPriorities",
+      "method": "GET",
+      "path": "/rest/api/3/priority/search",
+      "tags": [
+        "Issue priorities"
+      ],
+      "summary": "Search priorities",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuePropertyKeys",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/properties",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Get issue property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Delete issue property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueProperty",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Get issue property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setIssueProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Set issue property",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkSetIssuesPropertiesList",
+      "method": "POST",
+      "path": "/rest/api/3/issue/properties",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Bulk set issues properties by list",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkDeleteIssueProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/properties/{propertyKey}",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Bulk delete issue property",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkSetIssueProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/properties/{propertyKey}",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Bulk set issue property",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkSetIssuePropertiesByIssue",
+      "method": "POST",
+      "path": "/rest/api/3/issue/properties/multi",
+      "tags": [
+        "Issue properties"
+      ],
+      "summary": "Bulk set issue properties by issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "redact",
+      "method": "POST",
+      "path": "/rest/api/3/redact",
+      "tags": [
+        "Issue redaction"
+      ],
+      "summary": "Redact",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRedactionStatus",
+      "method": "GET",
+      "path": "/rest/api/3/redact/status/{jobId}",
+      "tags": [
+        "Issue redaction"
+      ],
+      "summary": "Get redaction status",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteRemoteIssueLinkByGlobalId",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/remotelink",
+      "tags": [
+        "Issue remote links"
+      ],
+      "summary": "Delete remote issue link by global ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRemoteIssueLinks",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/remotelink",
+      "tags": [
+        "Issue remote links"
+      ],
+      "summary": "Get remote issue links",
+      "deprecated": false
+    },
+    {
+      "operationId": "createOrUpdateRemoteIssueLink",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/remotelink",
+      "tags": [
+        "Issue remote links"
+      ],
+      "summary": "Create or update remote issue link",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteRemoteIssueLinkById",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}",
+      "tags": [
+        "Issue remote links"
+      ],
+      "summary": "Delete remote issue link by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRemoteIssueLinkById",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}",
+      "tags": [
+        "Issue remote links"
+      ],
+      "summary": "Get remote issue link by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateRemoteIssueLink",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}",
+      "tags": [
+        "Issue remote links"
+      ],
+      "summary": "Update remote issue link by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getResolutions",
+      "method": "GET",
+      "path": "/rest/api/3/resolution",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Get resolutions",
+      "deprecated": true
+    },
+    {
+      "operationId": "createResolution",
+      "method": "POST",
+      "path": "/rest/api/3/resolution",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Create resolution",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteResolution",
+      "method": "DELETE",
+      "path": "/rest/api/3/resolution/{id}",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Delete resolution",
+      "deprecated": false
+    },
+    {
+      "operationId": "getResolution",
+      "method": "GET",
+      "path": "/rest/api/3/resolution/{id}",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Get resolution",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateResolution",
+      "method": "PUT",
+      "path": "/rest/api/3/resolution/{id}",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Update resolution",
+      "deprecated": false
+    },
+    {
+      "operationId": "setDefaultResolution",
+      "method": "PUT",
+      "path": "/rest/api/3/resolution/default",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Set default resolution",
+      "deprecated": false
+    },
+    {
+      "operationId": "moveResolutions",
+      "method": "PUT",
+      "path": "/rest/api/3/resolution/move",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Move resolutions",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchResolutions",
+      "method": "GET",
+      "path": "/rest/api/3/resolution/search",
+      "tags": [
+        "Issue resolutions"
+      ],
+      "summary": "Search resolutions",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuePickerResource",
+      "method": "GET",
+      "path": "/rest/api/3/issue/picker",
+      "tags": [
+        "Issue search"
+      ],
+      "summary": "Get issue picker suggestions",
+      "deprecated": false
+    },
+    {
+      "operationId": "matchIssues",
+      "method": "POST",
+      "path": "/rest/api/3/jql/match",
+      "tags": [
+        "Issue search"
+      ],
+      "summary": "Check issues against JQL",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchForIssuesUsingJql",
+      "method": "GET",
+      "path": "/rest/api/3/search",
+      "tags": [
+        "Issue search"
+      ],
+      "summary": "Currently being removed. Search for issues using JQL (GET)",
+      "deprecated": true
+    },
+    {
+      "operationId": "searchForIssuesUsingJqlPost",
+      "method": "POST",
+      "path": "/rest/api/3/search",
+      "tags": [
+        "Issue search"
+      ],
+      "summary": "Currently being removed. Search for issues using JQL (POST)",
+      "deprecated": true
+    },
+    {
+      "operationId": "countIssues",
+      "method": "POST",
+      "path": "/rest/api/3/search/approximate-count",
+      "tags": [
+        "Issue search"
+      ],
+      "summary": "Count issues using JQL",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchAndReconsileIssuesUsingJql",
+      "method": "GET",
+      "path": "/rest/api/3/search/jql",
+      "tags": [
+        "Issue search"
+      ],
+      "summary": "Search for issues using JQL enhanced search (GET)",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchAndReconsileIssuesUsingJqlPost",
+      "method": "POST",
+      "path": "/rest/api/3/search/jql",
+      "tags": [
+        "Issue search"
+      ],
+      "summary": "Search for issues using JQL enhanced search (POST)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueSecurityLevelMembers",
+      "method": "GET",
+      "path": "/rest/api/3/issuesecurityschemes/{issueSecuritySchemeId}/members",
+      "tags": [
+        "Issue security level"
+      ],
+      "summary": "Get issue security level members by issue security scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueSecurityLevel",
+      "method": "GET",
+      "path": "/rest/api/3/securitylevel/{id}",
+      "tags": [
+        "Issue security level"
+      ],
+      "summary": "Get issue security level",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueSecuritySchemes",
+      "method": "GET",
+      "path": "/rest/api/3/issuesecurityschemes",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Get issue security schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssueSecurityScheme",
+      "method": "POST",
+      "path": "/rest/api/3/issuesecurityschemes",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Create issue security scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueSecurityScheme",
+      "method": "GET",
+      "path": "/rest/api/3/issuesecurityschemes/{id}",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Get issue security scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateIssueSecurityScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/issuesecurityschemes/{id}",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Update issue security scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteSecurityScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuesecurityschemes/{schemeId}",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Delete issue security scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "addSecurityLevel",
+      "method": "PUT",
+      "path": "/rest/api/3/issuesecurityschemes/{schemeId}/level",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Add issue security levels",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeLevel",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Remove issue security level",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateSecurityLevel",
+      "method": "PUT",
+      "path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Update issue security level",
+      "deprecated": false
+    },
+    {
+      "operationId": "addSecurityLevelMembers",
+      "method": "PUT",
+      "path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}/member",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Add issue security level members",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeMemberFromSecurityLevel",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}/member/{memberId}",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Remove member from issue security level",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSecurityLevels",
+      "method": "GET",
+      "path": "/rest/api/3/issuesecurityschemes/level",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Get issue security levels",
+      "deprecated": false
+    },
+    {
+      "operationId": "setDefaultLevels",
+      "method": "PUT",
+      "path": "/rest/api/3/issuesecurityschemes/level/default",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Set default issue security levels",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSecurityLevelMembers",
+      "method": "GET",
+      "path": "/rest/api/3/issuesecurityschemes/level/member",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Get issue security level members",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchProjectsUsingSecuritySchemes",
+      "method": "GET",
+      "path": "/rest/api/3/issuesecurityschemes/project",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Get projects using issue security schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "associateSchemesToProjects",
+      "method": "PUT",
+      "path": "/rest/api/3/issuesecurityschemes/project",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Associate security scheme to project",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchSecuritySchemes",
+      "method": "GET",
+      "path": "/rest/api/3/issuesecurityschemes/search",
+      "tags": [
+        "Issue security schemes"
+      ],
+      "summary": "Search issue security schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypePropertyKeys",
+      "method": "GET",
+      "path": "/rest/api/3/issuetype/{issueTypeId}/properties",
+      "tags": [
+        "Issue type properties"
+      ],
+      "summary": "Get issue type property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueTypeProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}",
+      "tags": [
+        "Issue type properties"
+      ],
+      "summary": "Delete issue type property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypeProperty",
+      "method": "GET",
+      "path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}",
+      "tags": [
+        "Issue type properties"
+      ],
+      "summary": "Get issue type property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setIssueTypeProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}",
+      "tags": [
+        "Issue type properties"
+      ],
+      "summary": "Set issue type property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllIssueTypeSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/issuetypescheme",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Get all issue type schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssueTypeScheme",
+      "method": "POST",
+      "path": "/rest/api/3/issuetypescheme",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Create issue type scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueTypeScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Delete issue type scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateIssueTypeScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Update issue type scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "addIssueTypesToIssueTypeScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Add issue types to issue type scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeIssueTypeFromIssueTypeScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype/{issueTypeId}",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Remove issue type from issue type scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "reorderIssueTypesInIssueTypeScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype/move",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Change order of issue types",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypeSchemesMapping",
+      "method": "GET",
+      "path": "/rest/api/3/issuetypescheme/mapping",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Get issue type scheme items",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypeSchemeForProjects",
+      "method": "GET",
+      "path": "/rest/api/3/issuetypescheme/project",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Get issue type schemes for projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "assignIssueTypeSchemeToProject",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescheme/project",
+      "tags": [
+        "Issue type schemes"
+      ],
+      "summary": "Assign issue type scheme to project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypeScreenSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/issuetypescreenscheme",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Get issue type screen schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssueTypeScreenScheme",
+      "method": "POST",
+      "path": "/rest/api/3/issuetypescreenscheme",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Create issue type screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueTypeScreenScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Delete issue type screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateIssueTypeScreenScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Update issue type screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "appendMappingsForIssueTypeScreenScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Append mappings to issue type screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateDefaultScreenScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping/default",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Update issue type screen scheme default screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeMappingsFromIssueTypeScreenScheme",
+      "method": "POST",
+      "path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping/remove",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Remove mappings from issue type screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectsForIssueTypeScreenScheme",
+      "method": "GET",
+      "path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/project",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Get issue type screen scheme projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypeScreenSchemeMappings",
+      "method": "GET",
+      "path": "/rest/api/3/issuetypescreenscheme/mapping",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Get issue type screen scheme items",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypeScreenSchemeProjectAssociations",
+      "method": "GET",
+      "path": "/rest/api/3/issuetypescreenscheme/project",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Get issue type screen schemes for projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "assignIssueTypeScreenSchemeToProject",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetypescreenscheme/project",
+      "tags": [
+        "Issue type screen schemes"
+      ],
+      "summary": "Assign issue type screen scheme to project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueAllTypes",
+      "method": "GET",
+      "path": "/rest/api/3/issuetype",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Get all issue types for user",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssueType",
+      "method": "POST",
+      "path": "/rest/api/3/issuetype",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Create issue type",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssueType",
+      "method": "DELETE",
+      "path": "/rest/api/3/issuetype/{id}",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Delete issue type",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueType",
+      "method": "GET",
+      "path": "/rest/api/3/issuetype/{id}",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Get issue type",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateIssueType",
+      "method": "PUT",
+      "path": "/rest/api/3/issuetype/{id}",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Update issue type",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAlternativeIssueTypes",
+      "method": "GET",
+      "path": "/rest/api/3/issuetype/{id}/alternatives",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Get alternative issue types",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssueTypeAvatar",
+      "method": "POST",
+      "path": "/rest/api/3/issuetype/{id}/avatar2",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Load issue type avatar",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueTypesForProject",
+      "method": "GET",
+      "path": "/rest/api/3/issuetype/project",
+      "tags": [
+        "Issue types"
+      ],
+      "summary": "Get issue types for project",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeVote",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/votes",
+      "tags": [
+        "Issue votes"
+      ],
+      "summary": "Delete vote",
+      "deprecated": false
+    },
+    {
+      "operationId": "getVotes",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/votes",
+      "tags": [
+        "Issue votes"
+      ],
+      "summary": "Get votes",
+      "deprecated": false
+    },
+    {
+      "operationId": "addVote",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/votes",
+      "tags": [
+        "Issue votes"
+      ],
+      "summary": "Add vote",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeWatcher",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/watchers",
+      "tags": [
+        "Issue watchers"
+      ],
+      "summary": "Delete watcher",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueWatchers",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/watchers",
+      "tags": [
+        "Issue watchers"
+      ],
+      "summary": "Get issue watchers",
+      "deprecated": false
+    },
+    {
+      "operationId": "addWatcher",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/watchers",
+      "tags": [
+        "Issue watchers"
+      ],
+      "summary": "Add watcher",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIsWatchingIssueBulk",
+      "method": "POST",
+      "path": "/rest/api/3/issue/watching",
+      "tags": [
+        "Issue watchers"
+      ],
+      "summary": "Get is watching issue bulk",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorklogPropertyKeys",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties",
+      "tags": [
+        "Issue worklog properties"
+      ],
+      "summary": "Get worklog property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorklogProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}",
+      "tags": [
+        "Issue worklog properties"
+      ],
+      "summary": "Delete worklog property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorklogProperty",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}",
+      "tags": [
+        "Issue worklog properties"
+      ],
+      "summary": "Get worklog property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setWorklogProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}",
+      "tags": [
+        "Issue worklog properties"
+      ],
+      "summary": "Set worklog property",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkDeleteWorklogs",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Bulk delete worklogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueWorklog",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Get issue worklogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "addWorklog",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Add worklog",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorklog",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Delete worklog",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorklog",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Get worklog",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateWorklog",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Update worklog",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkMoveWorklogs",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/worklog/move",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Bulk move worklogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIdsOfWorklogsDeletedSince",
+      "method": "GET",
+      "path": "/rest/api/3/worklog/deleted",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Get IDs of deleted worklogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorklogsForIds",
+      "method": "POST",
+      "path": "/rest/api/3/worklog/list",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Get worklogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIdsOfWorklogsModifiedSince",
+      "method": "GET",
+      "path": "/rest/api/3/worklog/updated",
+      "tags": [
+        "Issue worklogs"
+      ],
+      "summary": "Get IDs of updated worklogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBulkChangelogs",
+      "method": "POST",
+      "path": "/rest/api/3/changelog/bulkfetch",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Bulk fetch changelogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getEvents",
+      "method": "GET",
+      "path": "/rest/api/3/events",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get events",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssue",
+      "method": "POST",
+      "path": "/rest/api/3/issue",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Create issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIssue",
+      "method": "DELETE",
+      "path": "/rest/api/3/issue/{issueIdOrKey}",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Delete issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssue",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "editIssue",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/{issueIdOrKey}",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Edit issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "assignIssue",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/assignee",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Assign issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "getChangeLogs",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/changelog",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get changelogs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getChangeLogsByIds",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/changelog/list",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get changelogs by IDs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getEditIssueMeta",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/editmeta",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get edit issue metadata",
+      "deprecated": false
+    },
+    {
+      "operationId": "notify",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/notify",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Send notification for issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "getTransitions",
+      "method": "GET",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/transitions",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get transitions",
+      "deprecated": false
+    },
+    {
+      "operationId": "doTransition",
+      "method": "POST",
+      "path": "/rest/api/3/issue/{issueIdOrKey}/transitions",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Transition issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "archiveIssuesAsync",
+      "method": "POST",
+      "path": "/rest/api/3/issue/archive",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Archive issue(s) by JQL",
+      "deprecated": false
+    },
+    {
+      "operationId": "archiveIssues",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/archive",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Archive issue(s) by issue ID/key",
+      "deprecated": false
+    },
+    {
+      "operationId": "createIssues",
+      "method": "POST",
+      "path": "/rest/api/3/issue/bulk",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Bulk create issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkFetchIssues",
+      "method": "POST",
+      "path": "/rest/api/3/issue/bulkfetch",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Bulk fetch issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCreateIssueMeta",
+      "method": "GET",
+      "path": "/rest/api/3/issue/createmeta",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get create issue metadata",
+      "deprecated": true
+    },
+    {
+      "operationId": "getCreateIssueMetaIssueTypes",
+      "method": "GET",
+      "path": "/rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get create metadata issue types for a project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getCreateIssueMetaIssueTypeId",
+      "method": "GET",
+      "path": "/rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes/{issueTypeId}",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get create field metadata for a project and issue type id",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueAdfLimitReport",
+      "method": "GET",
+      "path": "/rest/api/3/issue/limit/adf/report",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get issue adf limit report",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueLimitReport",
+      "method": "GET",
+      "path": "/rest/api/3/issue/limit/report",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Get issue limit report",
+      "deprecated": false
+    },
+    {
+      "operationId": "unarchiveIssues",
+      "method": "PUT",
+      "path": "/rest/api/3/issue/unarchive",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Unarchive issue(s) by issue keys/ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "exportArchivedIssues",
+      "method": "PUT",
+      "path": "/rest/api/3/issues/archive/export",
+      "tags": [
+        "Issues"
+      ],
+      "summary": "Export archived issue(s)",
+      "deprecated": false
+    },
+    {
+      "operationId": "analyseExpression",
+      "method": "POST",
+      "path": "/rest/api/3/expression/analyse",
+      "tags": [
+        "Jira expressions"
+      ],
+      "summary": "Analyse Jira expression",
+      "deprecated": false
+    },
+    {
+      "operationId": "evaluateJiraExpression",
+      "method": "POST",
+      "path": "/rest/api/3/expression/eval",
+      "tags": [
+        "Jira expressions"
+      ],
+      "summary": "Currently being removed. Evaluate Jira expression",
+      "deprecated": true
+    },
+    {
+      "operationId": "evaluateJSISJiraExpression",
+      "method": "POST",
+      "path": "/rest/api/3/expression/evaluate",
+      "tags": [
+        "Jira expressions"
+      ],
+      "summary": "Evaluate Jira expression using enhanced search API",
+      "deprecated": false
+    },
+    {
+      "operationId": "getApplicationProperty",
+      "method": "GET",
+      "path": "/rest/api/3/application-properties",
+      "tags": [
+        "Jira settings"
+      ],
+      "summary": "Get application property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setApplicationProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/application-properties/{id}",
+      "tags": [
+        "Jira settings"
+      ],
+      "summary": "Set application property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAdvancedSettings",
+      "method": "GET",
+      "path": "/rest/api/3/application-properties/advanced-settings",
+      "tags": [
+        "Jira settings"
+      ],
+      "summary": "Get advanced settings",
+      "deprecated": false
+    },
+    {
+      "operationId": "getConfiguration",
+      "method": "GET",
+      "path": "/rest/api/3/configuration",
+      "tags": [
+        "Jira settings"
+      ],
+      "summary": "Get global settings",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAuditEntries",
+      "method": "GET",
+      "path": "/rest/api/3/invalid-jqls-access-log",
+      "tags": [
+        "JQL"
+      ],
+      "summary": "Get invalid JQL searches",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAutoComplete",
+      "method": "GET",
+      "path": "/rest/api/3/jql/autocompletedata",
+      "tags": [
+        "JQL"
+      ],
+      "summary": "Get field reference data (GET)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAutoCompletePost",
+      "method": "POST",
+      "path": "/rest/api/3/jql/autocompletedata",
+      "tags": [
+        "JQL"
+      ],
+      "summary": "Get field reference data (POST)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFieldAutoCompleteForQueryString",
+      "method": "GET",
+      "path": "/rest/api/3/jql/autocompletedata/suggestions",
+      "tags": [
+        "JQL"
+      ],
+      "summary": "Get field auto complete suggestions",
+      "deprecated": false
+    },
+    {
+      "operationId": "parseJqlQueries",
+      "method": "POST",
+      "path": "/rest/api/3/jql/parse",
+      "tags": [
+        "JQL"
+      ],
+      "summary": "Parse JQL query",
+      "deprecated": false
+    },
+    {
+      "operationId": "migrateQueries",
+      "method": "POST",
+      "path": "/rest/api/3/jql/pdcleaner",
+      "tags": [
+        "JQL"
+      ],
+      "summary": "Convert user identifiers to account IDs in JQL queries",
+      "deprecated": false
+    },
+    {
+      "operationId": "sanitiseJqlQueries",
+      "method": "POST",
+      "path": "/rest/api/3/jql/sanitize",
+      "tags": [
+        "JQL"
+      ],
+      "summary": "Sanitize JQL queries",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPrecomputations",
+      "method": "GET",
+      "path": "/rest/api/3/jql/function/computation",
+      "tags": [
+        "JQL functions (apps)"
+      ],
+      "summary": "Get precomputations (apps)",
+      "deprecated": false
+    },
+    {
+      "operationId": "updatePrecomputations",
+      "method": "POST",
+      "path": "/rest/api/3/jql/function/computation",
+      "tags": [
+        "JQL functions (apps)"
+      ],
+      "summary": "Update precomputations (apps)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPrecomputationsByID",
+      "method": "POST",
+      "path": "/rest/api/3/jql/function/computation/search",
+      "tags": [
+        "JQL functions (apps)"
+      ],
+      "summary": "Get precomputations by ID (apps)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllLabels",
+      "method": "GET",
+      "path": "/rest/api/3/label",
+      "tags": [
+        "Labels"
+      ],
+      "summary": "Get all labels",
+      "deprecated": false
+    },
+    {
+      "operationId": "getLicense",
+      "method": "GET",
+      "path": "/rest/api/3/instance/license",
+      "tags": [
+        "License metrics"
+      ],
+      "summary": "Get license",
+      "deprecated": false
+    },
+    {
+      "operationId": "getApproximateLicenseCount",
+      "method": "GET",
+      "path": "/rest/api/3/license/approximateLicenseCount",
+      "tags": [
+        "License metrics"
+      ],
+      "summary": "Get approximate license count",
+      "deprecated": false
+    },
+    {
+      "operationId": "getApproximateApplicationLicenseCount",
+      "method": "GET",
+      "path": "/rest/api/3/license/approximateLicenseCount/product/{applicationKey}",
+      "tags": [
+        "License metrics"
+      ],
+      "summary": "Get approximate application license count",
+      "deprecated": false
+    },
+    {
+      "operationId": "ConnectToForgeMigrationFetchTaskResource.fetchMigrationTask_get",
+      "method": "GET",
+      "path": "/rest/atlassian-connect/1/migration/{connectKey}/{jiraIssueFieldsKey}/task",
+      "tags": [
+        "Migration of Connect modules to Forge"
+      ],
+      "summary": "Get Connect issue field migration task",
+      "deprecated": false
+    },
+    {
+      "operationId": "ConnectToForgeMigrationTaskSubmissionResource.submitTask_post",
+      "method": "POST",
+      "path": "/rest/atlassian-connect/1/migration/{connectKey}/{jiraIssueFieldsKey}/task",
+      "tags": [
+        "Migration of Connect modules to Forge"
+      ],
+      "summary": "Submit Connect issue field migration task",
+      "deprecated": false
+    },
+    {
+      "operationId": "removePreference",
+      "method": "DELETE",
+      "path": "/rest/api/3/mypreferences",
+      "tags": [
+        "Myself"
+      ],
+      "summary": "Delete preference",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPreference",
+      "method": "GET",
+      "path": "/rest/api/3/mypreferences",
+      "tags": [
+        "Myself"
+      ],
+      "summary": "Get preference",
+      "deprecated": false
+    },
+    {
+      "operationId": "setPreference",
+      "method": "PUT",
+      "path": "/rest/api/3/mypreferences",
+      "tags": [
+        "Myself"
+      ],
+      "summary": "Set preference",
+      "deprecated": false
+    },
+    {
+      "operationId": "getLocale",
+      "method": "GET",
+      "path": "/rest/api/3/mypreferences/locale",
+      "tags": [
+        "Myself"
+      ],
+      "summary": "Get locale",
+      "deprecated": false
+    },
+    {
+      "operationId": "setLocale",
+      "method": "PUT",
+      "path": "/rest/api/3/mypreferences/locale",
+      "tags": [
+        "Myself"
+      ],
+      "summary": "Set locale",
+      "deprecated": true
+    },
+    {
+      "operationId": "getCurrentUser",
+      "method": "GET",
+      "path": "/rest/api/3/myself",
+      "tags": [
+        "Myself"
+      ],
+      "summary": "Get current user",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllPermissionSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/permissionscheme",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Get all permission schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createPermissionScheme",
+      "method": "POST",
+      "path": "/rest/api/3/permissionscheme",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Create permission scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deletePermissionScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/permissionscheme/{schemeId}",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Delete permission scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPermissionScheme",
+      "method": "GET",
+      "path": "/rest/api/3/permissionscheme/{schemeId}",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Get permission scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updatePermissionScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/permissionscheme/{schemeId}",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Update permission scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPermissionSchemeGrants",
+      "method": "GET",
+      "path": "/rest/api/3/permissionscheme/{schemeId}/permission",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Get permission scheme grants",
+      "deprecated": false
+    },
+    {
+      "operationId": "createPermissionGrant",
+      "method": "POST",
+      "path": "/rest/api/3/permissionscheme/{schemeId}/permission",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Create permission grant",
+      "deprecated": false
+    },
+    {
+      "operationId": "deletePermissionSchemeEntity",
+      "method": "DELETE",
+      "path": "/rest/api/3/permissionscheme/{schemeId}/permission/{permissionId}",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Delete permission scheme grant",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPermissionSchemeGrant",
+      "method": "GET",
+      "path": "/rest/api/3/permissionscheme/{schemeId}/permission/{permissionId}",
+      "tags": [
+        "Permission schemes"
+      ],
+      "summary": "Get permission scheme grant",
+      "deprecated": false
+    },
+    {
+      "operationId": "getMyPermissions",
+      "method": "GET",
+      "path": "/rest/api/3/mypermissions",
+      "tags": [
+        "Permissions"
+      ],
+      "summary": "Get my permissions",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllPermissions",
+      "method": "GET",
+      "path": "/rest/api/3/permissions",
+      "tags": [
+        "Permissions"
+      ],
+      "summary": "Get all permissions",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBulkPermissions",
+      "method": "POST",
+      "path": "/rest/api/3/permissions/check",
+      "tags": [
+        "Permissions"
+      ],
+      "summary": "Get bulk permissions",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPermittedProjects",
+      "method": "POST",
+      "path": "/rest/api/3/permissions/project",
+      "tags": [
+        "Permissions"
+      ],
+      "summary": "Get permitted projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPlans",
+      "method": "GET",
+      "path": "/rest/api/3/plans/plan",
+      "tags": [
+        "Plans"
+      ],
+      "summary": "Get plans paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "createPlan",
+      "method": "POST",
+      "path": "/rest/api/3/plans/plan",
+      "tags": [
+        "Plans"
+      ],
+      "summary": "Create plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPlan",
+      "method": "GET",
+      "path": "/rest/api/3/plans/plan/{planId}",
+      "tags": [
+        "Plans"
+      ],
+      "summary": "Get plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "updatePlan",
+      "method": "PUT",
+      "path": "/rest/api/3/plans/plan/{planId}",
+      "tags": [
+        "Plans"
+      ],
+      "summary": "Update plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "archivePlan",
+      "method": "PUT",
+      "path": "/rest/api/3/plans/plan/{planId}/archive",
+      "tags": [
+        "Plans"
+      ],
+      "summary": "Archive plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "duplicatePlan",
+      "method": "POST",
+      "path": "/rest/api/3/plans/plan/{planId}/duplicate",
+      "tags": [
+        "Plans"
+      ],
+      "summary": "Duplicate plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "trashPlan",
+      "method": "PUT",
+      "path": "/rest/api/3/plans/plan/{planId}/trash",
+      "tags": [
+        "Plans"
+      ],
+      "summary": "Trash plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "listPolicies",
+      "method": "GET",
+      "path": "/rest/api/3/policies",
+      "tags": [
+        "Policies"
+      ],
+      "summary": "Get all policies",
+      "deprecated": false
+    },
+    {
+      "operationId": "addPolicyToProjects",
+      "method": "POST",
+      "path": "/rest/api/3/policies/{policyId}/apply",
+      "tags": [
+        "Policies"
+      ],
+      "summary": "Apply a policy to projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "removePolicyFromProjects",
+      "method": "POST",
+      "path": "/rest/api/3/policies/{policyId}/remove",
+      "tags": [
+        "Policies"
+      ],
+      "summary": "Remove a policy from projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPolicyState",
+      "method": "GET",
+      "path": "/rest/api/3/policies/project/{projectIdOrKey}",
+      "tags": [
+        "Policies"
+      ],
+      "summary": "Get project policy state",
+      "deprecated": false
+    },
+    {
+      "operationId": "setProjectPolicies",
+      "method": "PUT",
+      "path": "/rest/api/3/policies/project/{projectIdOrKey}/policies",
+      "tags": [
+        "Policies"
+      ],
+      "summary": "Set the policies applied to a project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectRules",
+      "method": "GET",
+      "path": "/rest/api/3/policies/project/{projectIdOrKey}/rules",
+      "tags": [
+        "Policies"
+      ],
+      "summary": "Get project policy rules",
+      "deprecated": false
+    },
+    {
+      "operationId": "validatePolicyApplication",
+      "method": "POST",
+      "path": "/rest/api/3/policies/project/{projectIdOrKey}/validate",
+      "tags": [
+        "Policies"
+      ],
+      "summary": "Validate policy application to a project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPrioritySchemes",
+      "method": "GET",
+      "path": "/rest/api/3/priorityscheme",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Get priority schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createPriorityScheme",
+      "method": "POST",
+      "path": "/rest/api/3/priorityscheme",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Create priority scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deletePriorityScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/priorityscheme/{schemeId}",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Delete priority scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updatePriorityScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/priorityscheme/{schemeId}",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Update priority scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPrioritiesByPriorityScheme",
+      "method": "GET",
+      "path": "/rest/api/3/priorityscheme/{schemeId}/priorities",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Get priorities by priority scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectsByPriorityScheme",
+      "method": "GET",
+      "path": "/rest/api/3/priorityscheme/{schemeId}/projects",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Get projects by priority scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "suggestedPrioritiesForMappings",
+      "method": "POST",
+      "path": "/rest/api/3/priorityscheme/mappings",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Suggested priorities for mappings",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvailablePrioritiesByPriorityScheme",
+      "method": "GET",
+      "path": "/rest/api/3/priorityscheme/priorities/available",
+      "tags": [
+        "Priority schemes"
+      ],
+      "summary": "Get available priorities by priority scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateProjectAvatar",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectIdOrKey}/avatar",
+      "tags": [
+        "Project avatars"
+      ],
+      "summary": "Set project avatar",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteProjectAvatar",
+      "method": "DELETE",
+      "path": "/rest/api/3/project/{projectIdOrKey}/avatar/{id}",
+      "tags": [
+        "Project avatars"
+      ],
+      "summary": "Delete project avatar",
+      "deprecated": false
+    },
+    {
+      "operationId": "createProjectAvatar",
+      "method": "POST",
+      "path": "/rest/api/3/project/{projectIdOrKey}/avatar2",
+      "tags": [
+        "Project avatars"
+      ],
+      "summary": "Load project avatar",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllProjectAvatars",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/avatars",
+      "tags": [
+        "Project avatars"
+      ],
+      "summary": "Get all project avatars",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllProjectCategories",
+      "method": "GET",
+      "path": "/rest/api/3/projectCategory",
+      "tags": [
+        "Project categories"
+      ],
+      "summary": "Get all project categories",
+      "deprecated": false
+    },
+    {
+      "operationId": "createProjectCategory",
+      "method": "POST",
+      "path": "/rest/api/3/projectCategory",
+      "tags": [
+        "Project categories"
+      ],
+      "summary": "Create project category",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeProjectCategory",
+      "method": "DELETE",
+      "path": "/rest/api/3/projectCategory/{id}",
+      "tags": [
+        "Project categories"
+      ],
+      "summary": "Delete project category",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectCategoryById",
+      "method": "GET",
+      "path": "/rest/api/3/projectCategory/{id}",
+      "tags": [
+        "Project categories"
+      ],
+      "summary": "Get project category by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateProjectCategory",
+      "method": "PUT",
+      "path": "/rest/api/3/projectCategory/{id}",
+      "tags": [
+        "Project categories"
+      ],
+      "summary": "Update project category",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectClassificationConfig",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/classification-config",
+      "tags": [
+        "Project classification levels"
+      ],
+      "summary": "Get the classification configuration for a project",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeDefaultProjectClassification",
+      "method": "DELETE",
+      "path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default",
+      "tags": [
+        "Project classification levels"
+      ],
+      "summary": "Remove the default data classification level from a project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDefaultProjectClassification",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default",
+      "tags": [
+        "Project classification levels"
+      ],
+      "summary": "Get the default data classification level of a project",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateDefaultProjectClassification",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default",
+      "tags": [
+        "Project classification levels"
+      ],
+      "summary": "Update the default data classification level of a project",
+      "deprecated": false
+    },
+    {
+      "operationId": "findComponentsForProjects",
+      "method": "GET",
+      "path": "/rest/api/3/component",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Find components for projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "createComponent",
+      "method": "POST",
+      "path": "/rest/api/3/component",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Create component",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteComponent",
+      "method": "DELETE",
+      "path": "/rest/api/3/component/{id}",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Delete component",
+      "deprecated": false
+    },
+    {
+      "operationId": "getComponent",
+      "method": "GET",
+      "path": "/rest/api/3/component/{id}",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Get component",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateComponent",
+      "method": "PUT",
+      "path": "/rest/api/3/component/{id}",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Update component",
+      "deprecated": false
+    },
+    {
+      "operationId": "getComponentRelatedIssues",
+      "method": "GET",
+      "path": "/rest/api/3/component/{id}/relatedIssueCounts",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Get component issues count",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectComponentsPaginated",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/component",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Get project components paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectComponents",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/components",
+      "tags": [
+        "Project components"
+      ],
+      "summary": "Get project components",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectEmail",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectId}/email",
+      "tags": [
+        "Project email"
+      ],
+      "summary": "Get project's sender email",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateProjectEmail",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectId}/email",
+      "tags": [
+        "Project email"
+      ],
+      "summary": "Set project's sender email",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFeaturesForProject",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/features",
+      "tags": [
+        "Project features"
+      ],
+      "summary": "Get project features",
+      "deprecated": false
+    },
+    {
+      "operationId": "toggleFeatureForProject",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectIdOrKey}/features/{featureKey}",
+      "tags": [
+        "Project features"
+      ],
+      "summary": "Set project feature state",
+      "deprecated": false
+    },
+    {
+      "operationId": "validateProjectKey",
+      "method": "GET",
+      "path": "/rest/api/3/projectvalidate/key",
+      "tags": [
+        "Project key and name validation"
+      ],
+      "summary": "Validate project key",
+      "deprecated": false
+    },
+    {
+      "operationId": "getValidProjectKey",
+      "method": "GET",
+      "path": "/rest/api/3/projectvalidate/validProjectKey",
+      "tags": [
+        "Project key and name validation"
+      ],
+      "summary": "Get valid project key",
+      "deprecated": false
+    },
+    {
+      "operationId": "getValidProjectName",
+      "method": "GET",
+      "path": "/rest/api/3/projectvalidate/validProjectName",
+      "tags": [
+        "Project key and name validation"
+      ],
+      "summary": "Get valid project name",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectIssueSecurityScheme",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectKeyOrId}/issuesecuritylevelscheme",
+      "tags": [
+        "Project permission schemes"
+      ],
+      "summary": "Get project issue security scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAssignedPermissionScheme",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectKeyOrId}/permissionscheme",
+      "tags": [
+        "Project permission schemes"
+      ],
+      "summary": "Get assigned permission scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "assignPermissionScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectKeyOrId}/permissionscheme",
+      "tags": [
+        "Project permission schemes"
+      ],
+      "summary": "Assign permission scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSecurityLevelsForProject",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectKeyOrId}/securitylevel",
+      "tags": [
+        "Project permission schemes"
+      ],
+      "summary": "Get project issue security levels",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectPropertyKeys",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/properties",
+      "tags": [
+        "Project properties"
+      ],
+      "summary": "Get project property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteProjectProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}",
+      "tags": [
+        "Project properties"
+      ],
+      "summary": "Delete project property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectProperty",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}",
+      "tags": [
+        "Project properties"
+      ],
+      "summary": "Get project property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setProjectProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}",
+      "tags": [
+        "Project properties"
+      ],
+      "summary": "Set project property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteActor",
+      "method": "DELETE",
+      "path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+      "tags": [
+        "Project role actors"
+      ],
+      "summary": "Delete actors from project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "addActorUsers",
+      "method": "POST",
+      "path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+      "tags": [
+        "Project role actors"
+      ],
+      "summary": "Add actors to project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "setActors",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+      "tags": [
+        "Project role actors"
+      ],
+      "summary": "Set actors for project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteProjectRoleActorsFromRole",
+      "method": "DELETE",
+      "path": "/rest/api/3/role/{id}/actors",
+      "tags": [
+        "Project role actors"
+      ],
+      "summary": "Delete default actors from project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectRoleActorsForRole",
+      "method": "GET",
+      "path": "/rest/api/3/role/{id}/actors",
+      "tags": [
+        "Project role actors"
+      ],
+      "summary": "Get default actors for project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "addProjectRoleActorsToRole",
+      "method": "POST",
+      "path": "/rest/api/3/role/{id}/actors",
+      "tags": [
+        "Project role actors"
+      ],
+      "summary": "Add default actors to project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectRoles",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/role",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Get project roles for project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectRole",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/role/{id}",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Get project role for project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectRoleDetails",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/roledetails",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Get project role details",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllProjectRoles",
+      "method": "GET",
+      "path": "/rest/api/3/role",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Get all project roles",
+      "deprecated": false
+    },
+    {
+      "operationId": "createProjectRole",
+      "method": "POST",
+      "path": "/rest/api/3/role",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Create project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteProjectRole",
+      "method": "DELETE",
+      "path": "/rest/api/3/role/{id}",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Delete project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectRoleById",
+      "method": "GET",
+      "path": "/rest/api/3/role/{id}",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Get project role by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "partialUpdateProjectRole",
+      "method": "POST",
+      "path": "/rest/api/3/role/{id}",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Partial update project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "fullyUpdateProjectRole",
+      "method": "PUT",
+      "path": "/rest/api/3/role/{id}",
+      "tags": [
+        "Project roles"
+      ],
+      "summary": "Fully update project role",
+      "deprecated": false
+    },
+    {
+      "operationId": "createProjectWithCustomTemplate",
+      "method": "POST",
+      "path": "/rest/api/3/project-template",
+      "tags": [
+        "Project templates"
+      ],
+      "summary": "Create custom project",
+      "deprecated": false
+    },
+    {
+      "operationId": "editTemplate",
+      "method": "PUT",
+      "path": "/rest/api/3/project-template/edit-template",
+      "tags": [
+        "Project templates"
+      ],
+      "summary": "Edit a custom project template",
+      "deprecated": false
+    },
+    {
+      "operationId": "liveTemplate",
+      "method": "GET",
+      "path": "/rest/api/3/project-template/live-template",
+      "tags": [
+        "Project templates"
+      ],
+      "summary": "Gets a custom project template",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeTemplate",
+      "method": "DELETE",
+      "path": "/rest/api/3/project-template/remove-template",
+      "tags": [
+        "Project templates"
+      ],
+      "summary": "Deletes a custom project template",
+      "deprecated": false
+    },
+    {
+      "operationId": "saveTemplate",
+      "method": "POST",
+      "path": "/rest/api/3/project-template/save-template",
+      "tags": [
+        "Project templates"
+      ],
+      "summary": "Save a custom project template",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllProjectTypes",
+      "method": "GET",
+      "path": "/rest/api/3/project/type",
+      "tags": [
+        "Project types"
+      ],
+      "summary": "Get all project types",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectTypeByKey",
+      "method": "GET",
+      "path": "/rest/api/3/project/type/{projectTypeKey}",
+      "tags": [
+        "Project types"
+      ],
+      "summary": "Get project type by key",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAccessibleProjectTypeByKey",
+      "method": "GET",
+      "path": "/rest/api/3/project/type/{projectTypeKey}/accessible",
+      "tags": [
+        "Project types"
+      ],
+      "summary": "Get accessible project type by key",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllAccessibleProjectTypes",
+      "method": "GET",
+      "path": "/rest/api/3/project/type/accessible",
+      "tags": [
+        "Project types"
+      ],
+      "summary": "Get licensed project types",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectVersionsPaginated",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/version",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Get project versions paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectVersions",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/versions",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Get project versions",
+      "deprecated": false
+    },
+    {
+      "operationId": "createVersion",
+      "method": "POST",
+      "path": "/rest/api/3/version",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Create version",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteVersion",
+      "method": "DELETE",
+      "path": "/rest/api/3/version/{id}",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Delete version",
+      "deprecated": true
+    },
+    {
+      "operationId": "getVersion",
+      "method": "GET",
+      "path": "/rest/api/3/version/{id}",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Get version",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateVersion",
+      "method": "PUT",
+      "path": "/rest/api/3/version/{id}",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Update version",
+      "deprecated": false
+    },
+    {
+      "operationId": "mergeVersions",
+      "method": "PUT",
+      "path": "/rest/api/3/version/{id}/mergeto/{moveIssuesTo}",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Merge versions",
+      "deprecated": false
+    },
+    {
+      "operationId": "moveVersion",
+      "method": "POST",
+      "path": "/rest/api/3/version/{id}/move",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Move version",
+      "deprecated": false
+    },
+    {
+      "operationId": "getVersionRelatedIssues",
+      "method": "GET",
+      "path": "/rest/api/3/version/{id}/relatedIssueCounts",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Get version's related issues count",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRelatedWork",
+      "method": "GET",
+      "path": "/rest/api/3/version/{id}/relatedwork",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Get related work",
+      "deprecated": false
+    },
+    {
+      "operationId": "createRelatedWork",
+      "method": "POST",
+      "path": "/rest/api/3/version/{id}/relatedwork",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Create related work",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateRelatedWork",
+      "method": "PUT",
+      "path": "/rest/api/3/version/{id}/relatedwork",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Update related work",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteAndReplaceVersion",
+      "method": "POST",
+      "path": "/rest/api/3/version/{id}/removeAndSwap",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Delete and replace version",
+      "deprecated": false
+    },
+    {
+      "operationId": "getVersionUnresolvedIssues",
+      "method": "GET",
+      "path": "/rest/api/3/version/{id}/unresolvedIssueCount",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Get version's unresolved issues count",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteRelatedWork",
+      "method": "DELETE",
+      "path": "/rest/api/3/version/{versionId}/relatedwork/{relatedWorkId}",
+      "tags": [
+        "Project versions"
+      ],
+      "summary": "Delete related work",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllProjects",
+      "method": "GET",
+      "path": "/rest/api/3/project",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Get all projects",
+      "deprecated": true
+    },
+    {
+      "operationId": "createProject",
+      "method": "POST",
+      "path": "/rest/api/3/project",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Create project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getHierarchy",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectId}/hierarchy",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Get project issue type hierarchy",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteProject",
+      "method": "DELETE",
+      "path": "/rest/api/3/project/{projectIdOrKey}",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Delete project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProject",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Get project",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateProject",
+      "method": "PUT",
+      "path": "/rest/api/3/project/{projectIdOrKey}",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Update project",
+      "deprecated": false
+    },
+    {
+      "operationId": "archiveProject",
+      "method": "POST",
+      "path": "/rest/api/3/project/{projectIdOrKey}/archive",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Archive project",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteProjectAsynchronously",
+      "method": "POST",
+      "path": "/rest/api/3/project/{projectIdOrKey}/delete",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Delete project asynchronously",
+      "deprecated": false
+    },
+    {
+      "operationId": "restore",
+      "method": "POST",
+      "path": "/rest/api/3/project/{projectIdOrKey}/restore",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Restore deleted or archived project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllStatuses",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectIdOrKey}/statuses",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Get all statuses for project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getNotificationSchemeForProject",
+      "method": "GET",
+      "path": "/rest/api/3/project/{projectKeyOrId}/notificationscheme",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Get project notification scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRecent",
+      "method": "GET",
+      "path": "/rest/api/3/project/recent",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Get recent projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchProjects",
+      "method": "GET",
+      "path": "/rest/api/3/project/search",
+      "tags": [
+        "Projects"
+      ],
+      "summary": "Get projects paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "getScreenSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/screenscheme",
+      "tags": [
+        "Screen schemes"
+      ],
+      "summary": "Get screen schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createScreenScheme",
+      "method": "POST",
+      "path": "/rest/api/3/screenscheme",
+      "tags": [
+        "Screen schemes"
+      ],
+      "summary": "Create screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteScreenScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/screenscheme/{screenSchemeId}",
+      "tags": [
+        "Screen schemes"
+      ],
+      "summary": "Delete screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateScreenScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/screenscheme/{screenSchemeId}",
+      "tags": [
+        "Screen schemes"
+      ],
+      "summary": "Update screen scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllScreenTabFields",
+      "method": "GET",
+      "path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields",
+      "tags": [
+        "Screen tab fields"
+      ],
+      "summary": "Get all screen tab fields",
+      "deprecated": false
+    },
+    {
+      "operationId": "addScreenTabField",
+      "method": "POST",
+      "path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields",
+      "tags": [
+        "Screen tab fields"
+      ],
+      "summary": "Add screen tab field",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeScreenTabField",
+      "method": "DELETE",
+      "path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields/{id}",
+      "tags": [
+        "Screen tab fields"
+      ],
+      "summary": "Remove screen tab field",
+      "deprecated": false
+    },
+    {
+      "operationId": "moveScreenTabField",
+      "method": "POST",
+      "path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields/{id}/move",
+      "tags": [
+        "Screen tab fields"
+      ],
+      "summary": "Move screen tab field",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllScreenTabs",
+      "method": "GET",
+      "path": "/rest/api/3/screens/{screenId}/tabs",
+      "tags": [
+        "Screen tabs"
+      ],
+      "summary": "Get all screen tabs",
+      "deprecated": false
+    },
+    {
+      "operationId": "addScreenTab",
+      "method": "POST",
+      "path": "/rest/api/3/screens/{screenId}/tabs",
+      "tags": [
+        "Screen tabs"
+      ],
+      "summary": "Create screen tab",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteScreenTab",
+      "method": "DELETE",
+      "path": "/rest/api/3/screens/{screenId}/tabs/{tabId}",
+      "tags": [
+        "Screen tabs"
+      ],
+      "summary": "Delete screen tab",
+      "deprecated": false
+    },
+    {
+      "operationId": "renameScreenTab",
+      "method": "PUT",
+      "path": "/rest/api/3/screens/{screenId}/tabs/{tabId}",
+      "tags": [
+        "Screen tabs"
+      ],
+      "summary": "Update screen tab",
+      "deprecated": false
+    },
+    {
+      "operationId": "moveScreenTab",
+      "method": "POST",
+      "path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/move/{pos}",
+      "tags": [
+        "Screen tabs"
+      ],
+      "summary": "Move screen tab",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBulkScreenTabs",
+      "method": "GET",
+      "path": "/rest/api/3/screens/tabs",
+      "tags": [
+        "Screen tabs"
+      ],
+      "summary": "Get bulk screen tabs",
+      "deprecated": false
+    },
+    {
+      "operationId": "getScreensForField",
+      "method": "GET",
+      "path": "/rest/api/3/field/{fieldId}/screens",
+      "tags": [
+        "Screens"
+      ],
+      "summary": "Get screens for a field",
+      "deprecated": false
+    },
+    {
+      "operationId": "getScreens",
+      "method": "GET",
+      "path": "/rest/api/3/screens",
+      "tags": [
+        "Screens"
+      ],
+      "summary": "Get screens",
+      "deprecated": false
+    },
+    {
+      "operationId": "createScreen",
+      "method": "POST",
+      "path": "/rest/api/3/screens",
+      "tags": [
+        "Screens"
+      ],
+      "summary": "Create screen",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteScreen",
+      "method": "DELETE",
+      "path": "/rest/api/3/screens/{screenId}",
+      "tags": [
+        "Screens"
+      ],
+      "summary": "Delete screen",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateScreen",
+      "method": "PUT",
+      "path": "/rest/api/3/screens/{screenId}",
+      "tags": [
+        "Screens"
+      ],
+      "summary": "Update screen",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvailableScreenFields",
+      "method": "GET",
+      "path": "/rest/api/3/screens/{screenId}/availableFields",
+      "tags": [
+        "Screens"
+      ],
+      "summary": "Get available screen fields",
+      "deprecated": false
+    },
+    {
+      "operationId": "addFieldToDefaultScreen",
+      "method": "POST",
+      "path": "/rest/api/3/screens/addToDefault/{fieldId}",
+      "tags": [
+        "Screens"
+      ],
+      "summary": "Add field to default screen",
+      "deprecated": false
+    },
+    {
+      "operationId": "getServerInfo",
+      "method": "GET",
+      "path": "/rest/api/3/serverInfo",
+      "tags": [
+        "Server info"
+      ],
+      "summary": "Get Jira instance info",
+      "deprecated": false
+    },
+    {
+      "operationId": "ServiceRegistryResource.services_get",
+      "method": "GET",
+      "path": "/rest/atlassian-connect/1/service-registry",
+      "tags": [
+        "Service Registry"
+      ],
+      "summary": "Retrieve the attributes of service registries",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteStatusesById",
+      "method": "DELETE",
+      "path": "/rest/api/3/statuses",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Bulk delete Statuses",
+      "deprecated": false
+    },
+    {
+      "operationId": "getStatusesById",
+      "method": "GET",
+      "path": "/rest/api/3/statuses",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Bulk get statuses",
+      "deprecated": false
+    },
+    {
+      "operationId": "createStatuses",
+      "method": "POST",
+      "path": "/rest/api/3/statuses",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Bulk create statuses",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateStatuses",
+      "method": "PUT",
+      "path": "/rest/api/3/statuses",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Bulk update statuses",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectIssueTypeUsagesForStatus",
+      "method": "GET",
+      "path": "/rest/api/3/statuses/{statusId}/project/{projectId}/issueTypeUsages",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Get issue type usages by status and project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectUsagesForStatus",
+      "method": "GET",
+      "path": "/rest/api/3/statuses/{statusId}/projectUsages",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Get project usages by status",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowUsagesForStatus",
+      "method": "GET",
+      "path": "/rest/api/3/statuses/{statusId}/workflowUsages",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Get workflow usages by status",
+      "deprecated": false
+    },
+    {
+      "operationId": "getStatusesByName",
+      "method": "GET",
+      "path": "/rest/api/3/statuses/byNames",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Bulk get statuses by name",
+      "deprecated": false
+    },
+    {
+      "operationId": "search",
+      "method": "GET",
+      "path": "/rest/api/3/statuses/search",
+      "tags": [
+        "Status"
+      ],
+      "summary": "Search statuses paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "getTask",
+      "method": "GET",
+      "path": "/rest/api/3/task/{taskId}",
+      "tags": [
+        "Tasks"
+      ],
+      "summary": "Get task",
+      "deprecated": false
+    },
+    {
+      "operationId": "cancelTask",
+      "method": "POST",
+      "path": "/rest/api/3/task/{taskId}/cancel",
+      "tags": [
+        "Tasks"
+      ],
+      "summary": "Cancel task",
+      "deprecated": false
+    },
+    {
+      "operationId": "getTeams",
+      "method": "GET",
+      "path": "/rest/api/3/plans/plan/{planId}/team",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Get teams in plan paginated",
+      "deprecated": false
+    },
+    {
+      "operationId": "addAtlassianTeam",
+      "method": "POST",
+      "path": "/rest/api/3/plans/plan/{planId}/team/atlassian",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Add Atlassian team to plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeAtlassianTeam",
+      "method": "DELETE",
+      "path": "/rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Remove Atlassian team from plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAtlassianTeam",
+      "method": "GET",
+      "path": "/rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Get Atlassian team in plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateAtlassianTeam",
+      "method": "PUT",
+      "path": "/rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Update Atlassian team in plan",
+      "deprecated": false
+    },
+    {
+      "operationId": "createPlanOnlyTeam",
+      "method": "POST",
+      "path": "/rest/api/3/plans/plan/{planId}/team/planonly",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Create plan-only team",
+      "deprecated": false
+    },
+    {
+      "operationId": "deletePlanOnlyTeam",
+      "method": "DELETE",
+      "path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Delete plan-only team",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPlanOnlyTeam",
+      "method": "GET",
+      "path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Get plan-only team",
+      "deprecated": false
+    },
+    {
+      "operationId": "updatePlanOnlyTeam",
+      "method": "PUT",
+      "path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}",
+      "tags": [
+        "Teams in plan"
+      ],
+      "summary": "Update plan-only team",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSelectedTimeTrackingImplementation",
+      "method": "GET",
+      "path": "/rest/api/3/configuration/timetracking",
+      "tags": [
+        "Time tracking"
+      ],
+      "summary": "Get selected time tracking provider",
+      "deprecated": false
+    },
+    {
+      "operationId": "selectTimeTrackingImplementation",
+      "method": "PUT",
+      "path": "/rest/api/3/configuration/timetracking",
+      "tags": [
+        "Time tracking"
+      ],
+      "summary": "Select time tracking provider",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAvailableTimeTrackingImplementations",
+      "method": "GET",
+      "path": "/rest/api/3/configuration/timetracking/list",
+      "tags": [
+        "Time tracking"
+      ],
+      "summary": "Get all time tracking providers",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSharedTimeTrackingConfiguration",
+      "method": "GET",
+      "path": "/rest/api/3/configuration/timetracking/options",
+      "tags": [
+        "Time tracking"
+      ],
+      "summary": "Get time tracking settings",
+      "deprecated": false
+    },
+    {
+      "operationId": "setSharedTimeTrackingConfiguration",
+      "method": "PUT",
+      "path": "/rest/api/3/configuration/timetracking/options",
+      "tags": [
+        "Time tracking"
+      ],
+      "summary": "Set time tracking settings",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUiModifications",
+      "method": "GET",
+      "path": "/rest/api/3/uiModifications",
+      "tags": [
+        "UI modifications (apps)"
+      ],
+      "summary": "Get UI modifications",
+      "deprecated": false
+    },
+    {
+      "operationId": "createUiModification",
+      "method": "POST",
+      "path": "/rest/api/3/uiModifications",
+      "tags": [
+        "UI modifications (apps)"
+      ],
+      "summary": "Create UI modification",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteUiModification",
+      "method": "DELETE",
+      "path": "/rest/api/3/uiModifications/{uiModificationId}",
+      "tags": [
+        "UI modifications (apps)"
+      ],
+      "summary": "Delete UI modification",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateUiModification",
+      "method": "PUT",
+      "path": "/rest/api/3/uiModifications/{uiModificationId}",
+      "tags": [
+        "UI modifications (apps)"
+      ],
+      "summary": "Update UI modification",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUserPropertyKeys",
+      "method": "GET",
+      "path": "/rest/api/3/user/properties",
+      "tags": [
+        "User properties"
+      ],
+      "summary": "Get user property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteUserProperty",
+      "method": "DELETE",
+      "path": "/rest/api/3/user/properties/{propertyKey}",
+      "tags": [
+        "User properties"
+      ],
+      "summary": "Delete user property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUserProperty",
+      "method": "GET",
+      "path": "/rest/api/3/user/properties/{propertyKey}",
+      "tags": [
+        "User properties"
+      ],
+      "summary": "Get user property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setUserProperty",
+      "method": "PUT",
+      "path": "/rest/api/3/user/properties/{propertyKey}",
+      "tags": [
+        "User properties"
+      ],
+      "summary": "Set user property",
+      "deprecated": false
+    },
+    {
+      "operationId": "findBulkAssignableUsers",
+      "method": "GET",
+      "path": "/rest/api/3/user/assignable/multiProjectSearch",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find users assignable to projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "findAssignableUsers",
+      "method": "GET",
+      "path": "/rest/api/3/user/assignable/search",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find users assignable to issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "findUsersWithAllPermissions",
+      "method": "GET",
+      "path": "/rest/api/3/user/permission/search",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find users with permissions",
+      "deprecated": false
+    },
+    {
+      "operationId": "findUsersForPicker",
+      "method": "GET",
+      "path": "/rest/api/3/user/picker",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find users for picker",
+      "deprecated": false
+    },
+    {
+      "operationId": "findUsers",
+      "method": "GET",
+      "path": "/rest/api/3/user/search",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find users",
+      "deprecated": false
+    },
+    {
+      "operationId": "findUsersByQuery",
+      "method": "GET",
+      "path": "/rest/api/3/user/search/query",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find users by query",
+      "deprecated": false
+    },
+    {
+      "operationId": "findUserKeysByQuery",
+      "method": "GET",
+      "path": "/rest/api/3/user/search/query/key",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find user keys by query",
+      "deprecated": false
+    },
+    {
+      "operationId": "findUsersWithBrowsePermission",
+      "method": "GET",
+      "path": "/rest/api/3/user/viewissue/search",
+      "tags": [
+        "User search"
+      ],
+      "summary": "Find users with browse permission",
+      "deprecated": false
+    },
+    {
+      "operationId": "removeUser",
+      "method": "DELETE",
+      "path": "/rest/api/3/user",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Delete user",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUser",
+      "method": "GET",
+      "path": "/rest/api/3/user",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get user",
+      "deprecated": false
+    },
+    {
+      "operationId": "createUser",
+      "method": "POST",
+      "path": "/rest/api/3/user",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Create user",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkGetUsers",
+      "method": "GET",
+      "path": "/rest/api/3/user/bulk",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Bulk get users",
+      "deprecated": false
+    },
+    {
+      "operationId": "bulkGetUsersMigration",
+      "method": "GET",
+      "path": "/rest/api/3/user/bulk/migration",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get account IDs for users",
+      "deprecated": false
+    },
+    {
+      "operationId": "resetUserColumns",
+      "method": "DELETE",
+      "path": "/rest/api/3/user/columns",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Reset user default columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUserDefaultColumns",
+      "method": "GET",
+      "path": "/rest/api/3/user/columns",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get user default columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "setUserColumns",
+      "method": "PUT",
+      "path": "/rest/api/3/user/columns",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Set user default columns",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUserEmail",
+      "method": "GET",
+      "path": "/rest/api/3/user/email",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get user email",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUserEmailBulk",
+      "method": "GET",
+      "path": "/rest/api/3/user/email/bulk",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get user email bulk",
+      "deprecated": false
+    },
+    {
+      "operationId": "getUserGroups",
+      "method": "GET",
+      "path": "/rest/api/3/user/groups",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get user groups",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllUsersDefault",
+      "method": "GET",
+      "path": "/rest/api/3/users",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get all users default",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllUsers",
+      "method": "GET",
+      "path": "/rest/api/3/users/search",
+      "tags": [
+        "Users"
+      ],
+      "summary": "Get all users",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWebhookById",
+      "method": "DELETE",
+      "path": "/rest/api/3/webhook",
+      "tags": [
+        "Webhooks"
+      ],
+      "summary": "Delete webhooks by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDynamicWebhooksForApp",
+      "method": "GET",
+      "path": "/rest/api/3/webhook",
+      "tags": [
+        "Webhooks"
+      ],
+      "summary": "Get dynamic webhooks for app",
+      "deprecated": false
+    },
+    {
+      "operationId": "registerDynamicWebhooks",
+      "method": "POST",
+      "path": "/rest/api/3/webhook",
+      "tags": [
+        "Webhooks"
+      ],
+      "summary": "Register dynamic webhooks",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFailedWebhooks",
+      "method": "GET",
+      "path": "/rest/api/3/webhook/failed",
+      "tags": [
+        "Webhooks"
+      ],
+      "summary": "Get failed webhooks",
+      "deprecated": false
+    },
+    {
+      "operationId": "refreshWebhooks",
+      "method": "PUT",
+      "path": "/rest/api/3/webhook/refresh",
+      "tags": [
+        "Webhooks"
+      ],
+      "summary": "Extend webhook life",
+      "deprecated": false
+    },
+    {
+      "operationId": "createWorkflowSchemeDraftFromParent",
+      "method": "POST",
+      "path": "/rest/api/3/workflowscheme/{id}/createdraft",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Create draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorkflowSchemeDraft",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}/draft",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Delete draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowSchemeDraft",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}/draft",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Get draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateWorkflowSchemeDraft",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}/draft",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Update draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteDraftDefaultWorkflow",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/default",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Delete draft default workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDraftDefaultWorkflow",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/default",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Get draft default workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateDraftDefaultWorkflow",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/default",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Update draft default workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorkflowSchemeDraftIssueType",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Delete workflow for issue type in draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowSchemeDraftIssueType",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Get workflow for issue type in draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "setWorkflowSchemeDraftIssueType",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Set workflow for issue type in draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "publishDraftWorkflowScheme",
+      "method": "POST",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/publish",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Publish draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteDraftWorkflowMapping",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/workflow",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Delete issue types for workflow in draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDraftWorkflow",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/workflow",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Get issue types for workflows in draft workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateDraftWorkflowMapping",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}/draft/workflow",
+      "tags": [
+        "Workflow scheme drafts"
+      ],
+      "summary": "Set issue types for workflow in workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowSchemeProjectAssociations",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/project",
+      "tags": [
+        "Workflow scheme project associations"
+      ],
+      "summary": "Get workflow scheme project associations",
+      "deprecated": false
+    },
+    {
+      "operationId": "assignSchemeToProject",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/project",
+      "tags": [
+        "Workflow scheme project associations"
+      ],
+      "summary": "Assign workflow scheme to project",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllWorkflowSchemes",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Get all workflow schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "createWorkflowScheme",
+      "method": "POST",
+      "path": "/rest/api/3/workflowscheme",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Create workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorkflowScheme",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Delete workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowScheme",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Get workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateWorkflowScheme",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Classic update workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteDefaultWorkflow",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}/default",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Delete default workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDefaultWorkflow",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}/default",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Get default workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateDefaultWorkflow",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}/default",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Update default workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorkflowSchemeIssueType",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Delete workflow for issue type in workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowSchemeIssueType",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Get workflow for issue type in workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "setWorkflowSchemeIssueType",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Set workflow for issue type in workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorkflowMapping",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflowscheme/{id}/workflow",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Delete issue types for workflow in workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflow",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{id}/workflow",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Get issue types for workflows in workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateWorkflowMapping",
+      "method": "PUT",
+      "path": "/rest/api/3/workflowscheme/{id}/workflow",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Set issue types for workflow in workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectUsagesForWorkflowScheme",
+      "method": "GET",
+      "path": "/rest/api/3/workflowscheme/{workflowSchemeId}/projectUsages",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Get projects which are using a given workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "switchWorkflowSchemeForProject",
+      "method": "POST",
+      "path": "/rest/api/3/workflowscheme/project/switch",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Switch workflow scheme for project",
+      "deprecated": false
+    },
+    {
+      "operationId": "readWorkflowSchemes",
+      "method": "POST",
+      "path": "/rest/api/3/workflowscheme/read",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Bulk get workflow schemes",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateSchemes",
+      "method": "POST",
+      "path": "/rest/api/3/workflowscheme/update",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Update workflow scheme",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRequiredWorkflowSchemeMappings",
+      "method": "POST",
+      "path": "/rest/api/3/workflowscheme/update/mappings",
+      "tags": [
+        "Workflow schemes"
+      ],
+      "summary": "Get required status mappings for workflow scheme update",
+      "deprecated": false
+    },
+    {
+      "operationId": "getStatusCategories",
+      "method": "GET",
+      "path": "/rest/api/3/statuscategory",
+      "tags": [
+        "Workflow status categories"
+      ],
+      "summary": "Get all status categories",
+      "deprecated": false
+    },
+    {
+      "operationId": "getStatusCategory",
+      "method": "GET",
+      "path": "/rest/api/3/statuscategory/{idOrKey}",
+      "tags": [
+        "Workflow status categories"
+      ],
+      "summary": "Get status category",
+      "deprecated": false
+    },
+    {
+      "operationId": "getStatuses",
+      "method": "GET",
+      "path": "/rest/api/3/status",
+      "tags": [
+        "Workflow statuses"
+      ],
+      "summary": "Get all statuses",
+      "deprecated": false
+    },
+    {
+      "operationId": "getStatus",
+      "method": "GET",
+      "path": "/rest/api/3/status/{idOrName}",
+      "tags": [
+        "Workflow statuses"
+      ],
+      "summary": "Get status",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowTransitionRuleConfigurations",
+      "method": "GET",
+      "path": "/rest/api/3/workflow/rule/config",
+      "tags": [
+        "Workflow transition rules"
+      ],
+      "summary": "Get workflow transition rule configurations",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateWorkflowTransitionRuleConfigurations",
+      "method": "PUT",
+      "path": "/rest/api/3/workflow/rule/config",
+      "tags": [
+        "Workflow transition rules"
+      ],
+      "summary": "Update workflow transition rule configurations",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorkflowTransitionRuleConfigurations",
+      "method": "PUT",
+      "path": "/rest/api/3/workflow/rule/config/delete",
+      "tags": [
+        "Workflow transition rules"
+      ],
+      "summary": "Delete workflow transition rule configurations",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteInactiveWorkflow",
+      "method": "DELETE",
+      "path": "/rest/api/3/workflow/{entityId}",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Delete inactive workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowProjectIssueTypeUsages",
+      "method": "GET",
+      "path": "/rest/api/3/workflow/{workflowId}/project/{projectId}/issueTypeUsages",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Get issue types in a project that are using a given workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectUsagesForWorkflow",
+      "method": "GET",
+      "path": "/rest/api/3/workflow/{workflowId}/projectUsages",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Get projects using a given workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowSchemeUsagesForWorkflow",
+      "method": "GET",
+      "path": "/rest/api/3/workflow/{workflowId}/workflowSchemes",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Get workflow schemes which are using a given workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "readWorkflowFromHistory",
+      "method": "POST",
+      "path": "/rest/api/3/workflow/history",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Read workflow version from history",
+      "deprecated": false
+    },
+    {
+      "operationId": "listWorkflowHistory",
+      "method": "POST",
+      "path": "/rest/api/3/workflow/history/list",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "List workflow history entries",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkflowsPaginated",
+      "method": "GET",
+      "path": "/rest/api/3/workflow/search",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Get workflows paginated",
+      "deprecated": true
+    },
+    {
+      "operationId": "readWorkflows",
+      "method": "POST",
+      "path": "/rest/api/3/workflows",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Bulk get workflows",
+      "deprecated": false
+    },
+    {
+      "operationId": "workflowCapabilities",
+      "method": "GET",
+      "path": "/rest/api/3/workflows/capabilities",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Get available workflow capabilities",
+      "deprecated": false
+    },
+    {
+      "operationId": "copyWorkflow",
+      "method": "POST",
+      "path": "/rest/api/3/workflows/copy",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Copy workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "createWorkflows",
+      "method": "POST",
+      "path": "/rest/api/3/workflows/create",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Bulk create workflows",
+      "deprecated": false
+    },
+    {
+      "operationId": "validateCreateWorkflows",
+      "method": "POST",
+      "path": "/rest/api/3/workflows/create/validation",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Validate create workflows",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDefaultEditor",
+      "method": "GET",
+      "path": "/rest/api/3/workflows/defaultEditor",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Get the user's default workflow editor",
+      "deprecated": false
+    },
+    {
+      "operationId": "readWorkflowPreviews",
+      "method": "POST",
+      "path": "/rest/api/3/workflows/preview",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Preview workflow",
+      "deprecated": false
+    },
+    {
+      "operationId": "searchWorkflows",
+      "method": "GET",
+      "path": "/rest/api/3/workflows/search",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Search workflows",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateWorkflows",
+      "method": "POST",
+      "path": "/rest/api/3/workflows/update",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Bulk update workflows",
+      "deprecated": false
+    },
+    {
+      "operationId": "validateUpdateWorkflows",
+      "method": "POST",
+      "path": "/rest/api/3/workflows/update/validation",
+      "tags": [
+        "Workflows"
+      ],
+      "summary": "Validate update workflows",
+      "deprecated": false
+    }
+  ]
+}
