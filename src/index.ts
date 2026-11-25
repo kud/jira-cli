@@ -25,7 +25,7 @@ import {
   registerSearchCommand,
 } from "./commands/misc.js"
 
-const program = new Command()
+export const program = new Command()
 
 program
   .name("jira")

@@ -1,0 +1,1056 @@
+{
+  "source": "https://developer.atlassian.com/cloud/jira/software/swagger.v3.json",
+  "version": "1001.0.0",
+  "operations": [
+    {
+      "operationId": "moveIssuesToBacklogForBoard",
+      "method": "POST",
+      "path": "/rest/agile/1.0/backlog/{boardId}/issue",
+      "tags": [
+        "Backlog"
+      ],
+      "summary": "Move issues to backlog for board",
+      "deprecated": false
+    },
+    {
+      "operationId": "moveIssuesToBacklog",
+      "method": "POST",
+      "path": "/rest/agile/1.0/backlog/issue",
+      "tags": [
+        "Backlog"
+      ],
+      "summary": "Move issues to backlog",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllBoards",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get all boards",
+      "deprecated": false
+    },
+    {
+      "operationId": "createBoard",
+      "method": "POST",
+      "path": "/rest/agile/1.0/board",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Create board",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteBoard",
+      "method": "DELETE",
+      "path": "/rest/agile/1.0/board/{boardId}",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Delete board",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoard",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForBacklog",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/backlog",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get issues for backlog",
+      "deprecated": true
+    },
+    {
+      "operationId": "getConfiguration",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/configuration",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get configuration",
+      "deprecated": false
+    },
+    {
+      "operationId": "getEpics",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/epic",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get epics",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoardIssuesForEpic",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/epic/{epicId}/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board issues for epic",
+      "deprecated": true
+    },
+    {
+      "operationId": "getIssuesWithoutEpicForBoard",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/epic/none/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get issues without epic for board",
+      "deprecated": true
+    },
+    {
+      "operationId": "getFeaturesForBoard",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/features",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get features for board",
+      "deprecated": false
+    },
+    {
+      "operationId": "toggleFeatures",
+      "method": "PUT",
+      "path": "/rest/agile/1.0/board/{boardId}/features",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Toggle features",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForBoard",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get issues for board",
+      "deprecated": true
+    },
+    {
+      "operationId": "moveIssuesToBoard",
+      "method": "POST",
+      "path": "/rest/agile/1.0/board/{boardId}/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Move issues to board",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjects",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/project",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get projects",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProjectsFull",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/project/full",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get projects full",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoardPropertyKeys",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/properties",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board property keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteBoardProperty",
+      "method": "DELETE",
+      "path": "/rest/agile/1.0/board/{boardId}/properties/{propertyKey}",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Delete board property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoardProperty",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/properties/{propertyKey}",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setBoardProperty",
+      "method": "PUT",
+      "path": "/rest/agile/1.0/board/{boardId}/properties/{propertyKey}",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Set board property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllQuickFilters",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/quickfilter",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get all quick filters",
+      "deprecated": false
+    },
+    {
+      "operationId": "getQuickFilter",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/quickfilter/{quickFilterId}",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get quick filter",
+      "deprecated": false
+    },
+    {
+      "operationId": "getReportsForBoard",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/reports",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get reports for board",
+      "deprecated": false
+    },
+    {
+      "operationId": "getAllSprints",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/sprint",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get all sprints",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoardIssuesForSprint",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/sprint/{sprintId}/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board issues for sprint",
+      "deprecated": true
+    },
+    {
+      "operationId": "getAllVersions",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/{boardId}/version",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get all versions",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoardByFilterId",
+      "method": "GET",
+      "path": "/rest/agile/1.0/board/filter/{filterId}",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board by filter id",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForBacklogJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/board/{boardId}/backlog",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get issues for backlog (enhanced)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getApproximateIssueCountForBacklog",
+      "method": "GET",
+      "path": "/rest/software/1.0/board/{boardId}/backlog/approximate-count",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get approximate issue count for backlog",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoardIssuesForEpicJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/board/{boardId}/epic/{epicId}/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board issues for epic (enhanced)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesWithoutEpicForBoardJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/board/{boardId}/epic/none/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get issues without epic for board (enhanced)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForBoardJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/board/{boardId}/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get issues for board (enhanced)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getApproximateIssueCountForBoard",
+      "method": "GET",
+      "path": "/rest/software/1.0/board/{boardId}/issue/approximate-count",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get approximate issue count for board",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBoardIssuesForSprintJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/board/{boardId}/sprint/{sprintId}/issue",
+      "tags": [
+        "Board"
+      ],
+      "summary": "Get board issues for sprint (enhanced)",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitBuilds",
+      "method": "POST",
+      "path": "/rest/builds/0.1/bulk",
+      "tags": [
+        "Builds"
+      ],
+      "summary": "Submit build data",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteBuildsByProperty",
+      "method": "DELETE",
+      "path": "/rest/builds/0.1/bulkByProperties",
+      "tags": [
+        "Builds"
+      ],
+      "summary": "Delete builds by Property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteBuildByKey",
+      "method": "DELETE",
+      "path": "/rest/builds/0.1/pipelines/{pipelineId}/builds/{buildNumber}",
+      "tags": [
+        "Builds"
+      ],
+      "summary": "Delete a build by key",
+      "deprecated": false
+    },
+    {
+      "operationId": "getBuildByKey",
+      "method": "GET",
+      "path": "/rest/builds/0.1/pipelines/{pipelineId}/builds/{buildNumber}",
+      "tags": [
+        "Builds"
+      ],
+      "summary": "Get a build by key",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitDeployments",
+      "method": "POST",
+      "path": "/rest/deployments/0.1/bulk",
+      "tags": [
+        "Deployments"
+      ],
+      "summary": "Submit deployment data",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteDeploymentsByProperty",
+      "method": "DELETE",
+      "path": "/rest/deployments/0.1/bulkByProperties",
+      "tags": [
+        "Deployments"
+      ],
+      "summary": "Delete deployments by Property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteDeploymentByKey",
+      "method": "DELETE",
+      "path": "/rest/deployments/0.1/pipelines/{pipelineId}/environments/{environmentId}/deployments/{deploymentSequenceNumber}",
+      "tags": [
+        "Deployments"
+      ],
+      "summary": "Delete a deployment by key",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDeploymentByKey",
+      "method": "GET",
+      "path": "/rest/deployments/0.1/pipelines/{pipelineId}/environments/{environmentId}/deployments/{deploymentSequenceNumber}",
+      "tags": [
+        "Deployments"
+      ],
+      "summary": "Get a deployment by key",
+      "deprecated": false
+    },
+    {
+      "operationId": "getDeploymentGatingStatusByKey",
+      "method": "GET",
+      "path": "/rest/deployments/0.1/pipelines/{pipelineId}/environments/{environmentId}/deployments/{deploymentSequenceNumber}/gating-status",
+      "tags": [
+        "Deployments"
+      ],
+      "summary": "Get deployment gating status by key",
+      "deprecated": false
+    },
+    {
+      "operationId": "storeDevelopmentInformation",
+      "method": "POST",
+      "path": "/rest/devinfo/0.10/bulk",
+      "tags": [
+        "Development Information"
+      ],
+      "summary": "Store development information",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteByProperties",
+      "method": "DELETE",
+      "path": "/rest/devinfo/0.10/bulkByProperties",
+      "tags": [
+        "Development Information"
+      ],
+      "summary": "Delete development information by properties",
+      "deprecated": false
+    },
+    {
+      "operationId": "existsByProperties",
+      "method": "GET",
+      "path": "/rest/devinfo/0.10/existsByProperties",
+      "tags": [
+        "Development Information"
+      ],
+      "summary": "Check if data exists for the supplied properties",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteRepository",
+      "method": "DELETE",
+      "path": "/rest/devinfo/0.10/repository/{repositoryId}",
+      "tags": [
+        "Development Information"
+      ],
+      "summary": "Delete repository",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRepository",
+      "method": "GET",
+      "path": "/rest/devinfo/0.10/repository/{repositoryId}",
+      "tags": [
+        "Development Information"
+      ],
+      "summary": "Get repository",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteEntity",
+      "method": "DELETE",
+      "path": "/rest/devinfo/0.10/repository/{repositoryId}/{entityType}/{entityId}",
+      "tags": [
+        "Development Information"
+      ],
+      "summary": "Delete development information entity",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitComponents",
+      "method": "POST",
+      "path": "/rest/devopscomponents/1.0/bulk",
+      "tags": [
+        "DevOps Components"
+      ],
+      "summary": "Submit DevOps Components",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteComponentsByProperty",
+      "method": "DELETE",
+      "path": "/rest/devopscomponents/1.0/bulkByProperties",
+      "tags": [
+        "DevOps Components"
+      ],
+      "summary": "Delete DevOps Components by Property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteComponentById",
+      "method": "DELETE",
+      "path": "/rest/devopscomponents/1.0/devopscomponents/{componentId}",
+      "tags": [
+        "DevOps Components"
+      ],
+      "summary": "Delete a Component by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getComponentById",
+      "method": "GET",
+      "path": "/rest/devopscomponents/1.0/devopscomponents/{componentId}",
+      "tags": [
+        "DevOps Components"
+      ],
+      "summary": "Get a Component by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getEpic",
+      "method": "GET",
+      "path": "/rest/agile/1.0/epic/{epicIdOrKey}",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Get epic",
+      "deprecated": false
+    },
+    {
+      "operationId": "partiallyUpdateEpic",
+      "method": "POST",
+      "path": "/rest/agile/1.0/epic/{epicIdOrKey}",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Partially update epic",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForEpic",
+      "method": "GET",
+      "path": "/rest/agile/1.0/epic/{epicIdOrKey}/issue",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Get issues for epic",
+      "deprecated": true
+    },
+    {
+      "operationId": "moveIssuesToEpic",
+      "method": "POST",
+      "path": "/rest/agile/1.0/epic/{epicIdOrKey}/issue",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Move issues to epic",
+      "deprecated": false
+    },
+    {
+      "operationId": "rankEpics",
+      "method": "PUT",
+      "path": "/rest/agile/1.0/epic/{epicIdOrKey}/rank",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Rank epics",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesWithoutEpic",
+      "method": "GET",
+      "path": "/rest/agile/1.0/epic/none/issue",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Get issues without epic",
+      "deprecated": true
+    },
+    {
+      "operationId": "removeIssuesFromEpic",
+      "method": "POST",
+      "path": "/rest/agile/1.0/epic/none/issue",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Remove issues from epic",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForEpicJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/epic/{epicIdOrKey}/issue",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Get issues for epic (enhanced)",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesWithoutEpicJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/epic/none/issue",
+      "tags": [
+        "Epic"
+      ],
+      "summary": "Get issues without epic (enhanced)",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitFeatureFlags",
+      "method": "POST",
+      "path": "/rest/featureflags/0.1/bulk",
+      "tags": [
+        "Feature Flags"
+      ],
+      "summary": "Submit Feature Flag data",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteFeatureFlagsByProperty",
+      "method": "DELETE",
+      "path": "/rest/featureflags/0.1/bulkByProperties",
+      "tags": [
+        "Feature Flags"
+      ],
+      "summary": "Delete Feature Flags by Property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteFeatureFlagById",
+      "method": "DELETE",
+      "path": "/rest/featureflags/0.1/flag/{featureFlagId}",
+      "tags": [
+        "Feature Flags"
+      ],
+      "summary": "Delete a Feature Flag by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getFeatureFlagById",
+      "method": "GET",
+      "path": "/rest/featureflags/0.1/flag/{featureFlagId}",
+      "tags": [
+        "Feature Flags"
+      ],
+      "summary": "Get a Feature Flag by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssue",
+      "method": "GET",
+      "path": "/rest/agile/1.0/issue/{issueIdOrKey}",
+      "tags": [
+        "Issue"
+      ],
+      "summary": "Get issue",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssueEstimationForBoard",
+      "method": "GET",
+      "path": "/rest/agile/1.0/issue/{issueIdOrKey}/estimation",
+      "tags": [
+        "Issue"
+      ],
+      "summary": "Get issue estimation for board",
+      "deprecated": false
+    },
+    {
+      "operationId": "estimateIssueForBoard",
+      "method": "PUT",
+      "path": "/rest/agile/1.0/issue/{issueIdOrKey}/estimation",
+      "tags": [
+        "Issue"
+      ],
+      "summary": "Estimate issue for board",
+      "deprecated": false
+    },
+    {
+      "operationId": "rankIssues",
+      "method": "PUT",
+      "path": "/rest/agile/1.0/issue/rank",
+      "tags": [
+        "Issue"
+      ],
+      "summary": "Rank issues",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitEntity",
+      "method": "POST",
+      "path": "/rest/operations/1.0/bulk",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Submit Incident or Review data",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteEntityByProperty",
+      "method": "DELETE",
+      "path": "/rest/operations/1.0/bulkByProperties",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Delete Incidents or Review by Property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteIncidentById",
+      "method": "DELETE",
+      "path": "/rest/operations/1.0/incidents/{incidentId}",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Delete a Incident by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIncidentById",
+      "method": "GET",
+      "path": "/rest/operations/1.0/incidents/{incidentId}",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Get a Incident by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getWorkspaces",
+      "method": "GET",
+      "path": "/rest/operations/1.0/linkedWorkspaces",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Get all Operations Workspace IDs or a specific Operations Workspace by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteWorkspaces",
+      "method": "DELETE",
+      "path": "/rest/operations/1.0/linkedWorkspaces/bulk",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Delete Operations Workpaces by Id",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitOperationsWorkspaces",
+      "method": "POST",
+      "path": "/rest/operations/1.0/linkedWorkspaces/bulk",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Submit Operations Workspace Ids",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteReviewById",
+      "method": "DELETE",
+      "path": "/rest/operations/1.0/post-incident-reviews/{reviewId}",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Delete a Review by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getReviewById",
+      "method": "GET",
+      "path": "/rest/operations/1.0/post-incident-reviews/{reviewId}",
+      "tags": [
+        "Operations"
+      ],
+      "summary": "Get a Review by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitRemoteLinks",
+      "method": "POST",
+      "path": "/rest/remotelinks/1.0/bulk",
+      "tags": [
+        "Remote Links"
+      ],
+      "summary": "Submit Remote Link data",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteRemoteLinksByProperty",
+      "method": "DELETE",
+      "path": "/rest/remotelinks/1.0/bulkByProperties",
+      "tags": [
+        "Remote Links"
+      ],
+      "summary": "Delete Remote Links by Property",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteRemoteLinkById",
+      "method": "DELETE",
+      "path": "/rest/remotelinks/1.0/remotelink/{remoteLinkId}",
+      "tags": [
+        "Remote Links"
+      ],
+      "summary": "Delete a Remote Link by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getRemoteLinkById",
+      "method": "GET",
+      "path": "/rest/remotelinks/1.0/remotelink/{remoteLinkId}",
+      "tags": [
+        "Remote Links"
+      ],
+      "summary": "Get a Remote Link by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitVulnerabilities",
+      "method": "POST",
+      "path": "/rest/security/1.0/bulk",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Submit Vulnerability data",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteVulnerabilitiesByProperty",
+      "method": "DELETE",
+      "path": "/rest/security/1.0/bulkByProperties",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Delete Vulnerabilities by Property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getLinkedWorkspaces",
+      "method": "GET",
+      "path": "/rest/security/1.0/linkedWorkspaces",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Get linked Security Workspaces",
+      "deprecated": false
+    },
+    {
+      "operationId": "getLinkedWorkspaceById",
+      "method": "GET",
+      "path": "/rest/security/1.0/linkedWorkspaces/{workspaceId}",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Get a linked Security Workspace by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteLinkedWorkspaces",
+      "method": "DELETE",
+      "path": "/rest/security/1.0/linkedWorkspaces/bulk",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Delete linked Security Workspaces",
+      "deprecated": false
+    },
+    {
+      "operationId": "submitWorkspaces",
+      "method": "POST",
+      "path": "/rest/security/1.0/linkedWorkspaces/bulk",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Submit Security Workspaces to link",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteVulnerabilityById",
+      "method": "DELETE",
+      "path": "/rest/security/1.0/vulnerability/{vulnerabilityId}",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Delete a Vulnerability by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "getVulnerabilityById",
+      "method": "GET",
+      "path": "/rest/security/1.0/vulnerability/{vulnerabilityId}",
+      "tags": [
+        "Security Information"
+      ],
+      "summary": "Get a Vulnerability by ID",
+      "deprecated": false
+    },
+    {
+      "operationId": "createSprint",
+      "method": "POST",
+      "path": "/rest/agile/1.0/sprint",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Create sprint",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteSprint",
+      "method": "DELETE",
+      "path": "/rest/agile/1.0/sprint/{sprintId}",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Delete sprint",
+      "deprecated": false
+    },
+    {
+      "operationId": "getSprint",
+      "method": "GET",
+      "path": "/rest/agile/1.0/sprint/{sprintId}",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Get sprint",
+      "deprecated": false
+    },
+    {
+      "operationId": "partiallyUpdateSprint",
+      "method": "POST",
+      "path": "/rest/agile/1.0/sprint/{sprintId}",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Partially update sprint",
+      "deprecated": false
+    },
+    {
+      "operationId": "updateSprint",
+      "method": "PUT",
+      "path": "/rest/agile/1.0/sprint/{sprintId}",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Update sprint",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForSprint",
+      "method": "GET",
+      "path": "/rest/agile/1.0/sprint/{sprintId}/issue",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Get issues for sprint",
+      "deprecated": true
+    },
+    {
+      "operationId": "moveIssuesToSprintAndRank",
+      "method": "POST",
+      "path": "/rest/agile/1.0/sprint/{sprintId}/issue",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Move issues to sprint and rank",
+      "deprecated": false
+    },
+    {
+      "operationId": "getPropertiesKeys",
+      "method": "GET",
+      "path": "/rest/agile/1.0/sprint/{sprintId}/properties",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Get properties keys",
+      "deprecated": false
+    },
+    {
+      "operationId": "deleteProperty",
+      "method": "DELETE",
+      "path": "/rest/agile/1.0/sprint/{sprintId}/properties/{propertyKey}",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Delete property",
+      "deprecated": false
+    },
+    {
+      "operationId": "getProperty",
+      "method": "GET",
+      "path": "/rest/agile/1.0/sprint/{sprintId}/properties/{propertyKey}",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Get property",
+      "deprecated": false
+    },
+    {
+      "operationId": "setProperty",
+      "method": "PUT",
+      "path": "/rest/agile/1.0/sprint/{sprintId}/properties/{propertyKey}",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Set property",
+      "deprecated": false
+    },
+    {
+      "operationId": "swapSprint",
+      "method": "POST",
+      "path": "/rest/agile/1.0/sprint/{sprintId}/swap",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Swap sprint",
+      "deprecated": false
+    },
+    {
+      "operationId": "getIssuesForSprintJSIS",
+      "method": "GET",
+      "path": "/rest/software/1.0/sprint/{sprintId}/issue",
+      "tags": [
+        "Sprint"
+      ],
+      "summary": "Get issues for sprint (enhanced)",
+      "deprecated": false
+    }
+  ]
+}
