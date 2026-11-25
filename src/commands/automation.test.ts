@@ -15,6 +15,7 @@ import {
   rulePayload,
 } from "./automation.js"
 import { isExitError } from "./context.js"
+import { setOpener } from "./fallback.js"
 
 vi.mock("./context.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./context.js")>()
@@ -317,9 +318,78 @@ describe("jira automation list", () => {
     expect(isExitError(error) && error.code).toBe(4)
     const message = (error as Error).message
     expect(message).toMatch(/Project settings > Automation/)
-    expect(message).toContain(
-      "open: https://acme.atlassian.net/jira/software/c/projects/SHOP/settings/automate",
+    expect(message).toMatch(
+      /^Managing automation rules for project SHOP — permission refusal\./,
     )
+    expect(message).toContain(
+      "\nOpen this now:\nhttps://acme.atlassian.net/jira/software/c/projects/SHOP/settings/automate\n",
+    )
+    expect(message).toContain("Ask for it: a Jira admin")
+    expect(message).toContain("the Administer Jira global permission")
+    expect(message).toContain("`jira automation list --project SHOP`")
+  })
+
+  it("with --open, launches the project's automation page and only that", async () => {
+    const opener = vi.fn()
+    const previous = setOpener(opener)
+    client.request = vi.fn(async (path: string, init?: RequestInit) => {
+      if (path === "/_edge/tenant_info") return { cloudId: CLOUD_ID }
+      if (path === "/rest/api/3/project/SHOP")
+        return {
+          id: "10001",
+          key: "SHOP",
+          projectTypeKey: "software",
+          style: "next-gen",
+        }
+      if (path.startsWith("/rest/api/3/mypermissions"))
+        return {
+          permissions: {
+            ADMINISTER: { havePermission: false },
+            ADMINISTER_PROJECTS: { havePermission: true },
+          },
+        }
+      throw jiraApiError(403, init?.method ?? "GET", path, "")
+    })
+
+    try {
+      await parse(["disable", UUID, "--project", "SHOP"]).catch(() => undefined)
+      expect(opener).not.toHaveBeenCalled()
+
+      const error = await parse([
+        "disable",
+        UUID,
+        "--project",
+        "SHOP",
+        "--open",
+      ]).catch((e: unknown) => e)
+      expect(isExitError(error) && error.code).toBe(4)
+      expect(opener).toHaveBeenCalledExactlyOnceWith(
+        "https://acme.atlassian.net/jira/software/projects/SHOP/settings/automate",
+      )
+    } finally {
+      setOpener(previous)
+    }
+  })
+
+  it("without a project, keeps the plain explanation and opens nothing", async () => {
+    const opener = vi.fn()
+    const previous = setOpener(opener)
+    client.request = routes((path, init) => {
+      throw jiraApiError(403, init?.method ?? "GET", path, "")
+    })
+
+    try {
+      const error = await parse(["get", UUID, "--open"]).catch(
+        (e: unknown) => e,
+      )
+      const message = (error as Error).message
+      expect(message).toMatch(/^Automation API refused GET \(403\)/)
+      expect(message).not.toMatch(/Open this now/)
+      expect(message).toContain("pass --project <KEY>")
+      expect(opener).not.toHaveBeenCalled()
+    } finally {
+      setOpener(previous)
+    }
   })
 
   it("on a 403, gives no page to an account that is not a project admin", async () => {

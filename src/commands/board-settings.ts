@@ -4,6 +4,7 @@ import { table, truncate } from "../output/format.js"
 import { context, exitError, printJson, type Context } from "./context.js"
 import {
   addCardColor,
+  boardSettingsUrl,
   explainPrivateApiFailure,
   getEditModel,
   PRIVATE_API_HELP,
@@ -12,9 +13,27 @@ import {
   setCardColorStrategy,
   strategyId,
   updateCardColor,
+  type BoardFallback,
   type CardColor,
   type EditModel,
 } from "./greenhopper.js"
+import { refuse } from "./fallback.js"
+
+type Fallback = Omit<BoardFallback, "boardId">
+
+const OPEN_HELP = "if Jira refuses, open the board's settings page in a browser"
+
+/**
+ * The site's base URL for a refusal's link. Reading it must not turn a
+ * refusal into a missing-environment error, so a broken config gives none.
+ */
+const siteUrl = (): string | undefined => {
+  try {
+    return context().config.baseUrl
+  } catch {
+    return undefined
+  }
+}
 
 type Request = JiraClient["request"]
 
@@ -109,11 +128,15 @@ const boardIdOf = (raw: string): number => {
 const readEditModel = async (
   ctx: Context,
   boardId: number,
+  fallback?: Fallback,
 ): Promise<EditModel> => {
   try {
     return await getEditModel(ctx.client.request, boardId)
   } catch (error) {
-    throw explainPrivateApiFailure(error, boardId)
+    throw explainPrivateApiFailure(error, boardId, {
+      baseUrl: ctx.config.baseUrl,
+      ...fallback,
+    })
   }
 }
 
@@ -199,17 +222,38 @@ export const formatChange = (c: Change): string =>
  * account cannot make them; a write that would only answer 403 is not worth
  * sending.
  */
-const assertCanEdit = (model: EditModel, boardId: number): void => {
+const assertCanEdit = (
+  model: EditModel,
+  boardId: number,
+  fallback: Fallback,
+): void => {
   if (model.canEdit === false || model.cardColorConfig?.canEdit === false)
-    throw exitError(
+    throw refuse(
       4,
-      `Jira says this account cannot edit board ${boardId}'s settings (canEdit: false).\n` +
-        "It needs board admin on this board, or project admin on the board's location.\n" +
-        `Check with: jira whoami --permissions --board ${boardId}`,
+      {
+        kind: "permission",
+        action: fallback.action,
+        object: `board ${boardId}`,
+        url: fallback.baseUrl
+          ? boardSettingsUrl(fallback.baseUrl, boardId, fallback.tab)
+          : undefined,
+        permission: `board admin on board ${boardId} (or project admin on the board's location)`,
+        command: fallback.command,
+        detail:
+          `Jira says this account cannot edit board ${boardId}'s settings (canEdit: false).\n` +
+          "It needs board admin on this board, or project admin on the board's location.\n" +
+          `Check with: jira whoami --permissions --board ${boardId}`,
+      },
+      fallback.open,
     )
 }
 
-type WriteOptions = { yes?: boolean; json?: boolean; privateApi?: boolean }
+type WriteOptions = {
+  yes?: boolean
+  json?: boolean
+  privateApi?: boolean
+  open?: boolean
+}
 
 /**
  * Every colour write is a dry run unless --yes says otherwise: print what
@@ -224,6 +268,7 @@ const runWrite = async (
   options: WriteOptions,
   apply: () => Promise<unknown>,
   took: (after: EditModel) => boolean,
+  fallback: Fallback,
 ): Promise<void> => {
   if (changes.length === 0) {
     if (options.json)
@@ -241,9 +286,9 @@ const runWrite = async (
   try {
     await apply()
   } catch (error) {
-    throw explainPrivateApiFailure(error, boardId)
+    throw explainPrivateApiFailure(error, boardId, fallback)
   }
-  const applied = took(await readEditModel(ctx, boardId))
+  const applied = took(await readEditModel(ctx, boardId, fallback))
   if (!applied) process.exitCode = 1
   if (options.json)
     return printJson({ board: boardId, dryRun: false, changes, applied })
@@ -388,6 +433,12 @@ const renderColours = (ctx: Context, model: EditModel): string[] => {
   ]
 }
 
+const colourFallback = (
+  action: string,
+  command: string,
+  open: boolean | undefined,
+): Fallback => ({ action, tab: "cardColors", command, open })
+
 // ---------------------------------------------------------------- commands
 
 /**
@@ -402,6 +453,7 @@ export const registerBoardSettingsCommands = (board: Command): void => {
     )
     .option("--private-api", PRIVATE_API_HELP)
     .option("--json", "emit JSON")
+    .option("--open", OPEN_HELP)
     .addHelpText(
       "after",
       `
@@ -418,18 +470,26 @@ Examples:
     .action(
       async (
         raw: string,
-        options: { privateApi?: boolean; json?: boolean },
+        options: { privateApi?: boolean; json?: boolean; open?: boolean },
       ) => {
         const boardId = boardIdOf(raw)
         const ctx = context()
         const request = ctx.client.request
+        const fallback: Fallback = {
+          action: "Reading the board's private settings",
+          baseUrl: ctx.config.baseUrl,
+          command: `jira board settings ${boardId} --private-api`,
+          open: options.open,
+        }
         const [config, features, quickFilters, statuses, model] =
           await Promise.all([
             getBoardSettingsConfiguration(request, boardId),
             orUnavailable(getBoardFeatures(request, boardId)),
             orUnavailable(listQuickFilters(request, boardId)),
             ctx.client.getStatuses(),
-            options.privateApi ? readEditModel(ctx, boardId) : undefined,
+            options.privateApi
+              ? readEditModel(ctx, boardId, fallback)
+              : undefined,
           ])
         if (options.json)
           return printJson({
@@ -481,15 +541,26 @@ Examples:
     .description("a board's swimlanes (private API)")
     .option("--private-api", PRIVATE_API_HELP)
     .option("--json", "emit JSON")
+    .option("--open", OPEN_HELP)
     .action(
       async (
         raw: string,
-        options: { privateApi?: boolean; json?: boolean },
+        options: { privateApi?: boolean; json?: boolean; open?: boolean },
       ) => {
         const boardId = boardIdOf(raw)
-        requirePrivateApi(options.privateApi, "jira board swimlanes")
+        const fallback: Fallback = {
+          action: "Reading swimlanes",
+          tab: "swimlanes",
+          command: `jira board swimlanes ${boardId}`,
+          open: options.open,
+        }
+        requirePrivateApi(options.privateApi, "jira board swimlanes", {
+          ...fallback,
+          boardId,
+          baseUrl: siteUrl(),
+        })
         const ctx = context()
-        const model = await readEditModel(ctx, boardId)
+        const model = await readEditModel(ctx, boardId, fallback)
         if (options.json) return printJson(model.swimlanesConfig ?? null)
         process.stdout.write(`${renderSwimlanes(ctx, model).join("\n")}\n`)
       },
@@ -502,6 +573,7 @@ Examples:
     .argument("[id]", "board ID")
     .option("--private-api", PRIVATE_API_HELP)
     .option("--json", "emit JSON")
+    .option("--open", OPEN_HELP)
     .addHelpText(
       "after",
       `
@@ -521,13 +593,22 @@ Examples:
     .action(
       async (
         raw: string | undefined,
-        options: { privateApi?: boolean; json?: boolean },
+        options: { privateApi?: boolean; json?: boolean; open?: boolean },
       ) => {
         if (raw === undefined) return colours.help()
         const boardId = boardIdOf(raw)
-        requirePrivateApi(options.privateApi, "jira board colours")
+        const fallback = colourFallback(
+          "Reading card colours",
+          `jira board colours ${boardId}`,
+          options.open,
+        )
+        requirePrivateApi(options.privateApi, "jira board colours", {
+          ...fallback,
+          boardId,
+          baseUrl: siteUrl(),
+        })
         const ctx = context()
-        const model = await readEditModel(ctx, boardId)
+        const model = await readEditModel(ctx, boardId, fallback)
         if (options.json) return printJson(model.cardColorConfig ?? null)
         process.stdout.write(`${renderColours(ctx, model).join("\n")}\n`)
       },
@@ -545,6 +626,7 @@ Examples:
       .option("--private-api", PRIVATE_API_HELP)
       .option("--yes", "apply the change; without it, only show the diff")
       .option("--json", "emit the planned or applied change as JSON")
+      .option("--open", OPEN_HELP)
 
   writeOptions(
     colours
@@ -556,10 +638,19 @@ Examples:
     const options = withParent(own)
     const boardId = boardIdOf(raw)
     const target = parseStrategy(name)
-    requirePrivateApi(options.privateApi, "jira board colours strategy")
+    const fallback = colourFallback(
+      "Changing card colours",
+      `jira board colours strategy ${boardId} ${name}`,
+      options.open,
+    )
+    requirePrivateApi(options.privateApi, "jira board colours strategy", {
+      ...fallback,
+      boardId,
+      baseUrl: siteUrl(),
+    })
     const ctx = context()
-    const model = await readEditModel(ctx, boardId)
-    assertCanEdit(model, boardId)
+    const model = await readEditModel(ctx, boardId, fallback)
+    assertCanEdit(model, boardId, { baseUrl: ctx.config.baseUrl, ...fallback })
     const before = currentStrategy(model)
     const changes: Change[] =
       before === target
@@ -578,6 +669,7 @@ Examples:
       options,
       () => setCardColorStrategy(ctx.client.request, boardId, target),
       (after) => currentStrategy(after) === target,
+      fallback,
     )
   })
 
@@ -598,10 +690,22 @@ Examples:
       const options = withParent(own)
       const boardId = boardIdOf(raw)
       const hex = parseHex(hexRaw)
-      requirePrivateApi(options.privateApi, "jira board colours set")
+      const fallback = colourFallback(
+        "Changing card colours",
+        `jira board colours set ${boardId} '${value}' ${hex}`,
+        options.open,
+      )
+      requirePrivateApi(options.privateApi, "jira board colours set", {
+        ...fallback,
+        boardId,
+        baseUrl: siteUrl(),
+      })
       const ctx = context()
-      const model = await readEditModel(ctx, boardId)
-      assertCanEdit(model, boardId)
+      const model = await readEditModel(ctx, boardId, fallback)
+      assertCanEdit(model, boardId, {
+        baseUrl: ctx.config.baseUrl,
+        ...fallback,
+      })
       const strategy = currentStrategy(model)
       const known = coloursFor(model, strategy)
 
@@ -625,6 +729,7 @@ Examples:
             coloursFor(after, strategy).some(
               (c) => c.value === value && sameColour(c.color, hex),
             ),
+          fallback,
         )
       }
 
@@ -666,6 +771,7 @@ Examples:
           (after.cardColorConfig?.cardColors ?? []).some(
             (c) => String(c.id) === colorId && sameColour(c.color, hex),
           ),
+        fallback,
       )
     },
   )
@@ -677,10 +783,19 @@ Examples:
   ).action(async (raw: string, colorId: string, own: WriteOptions) => {
     const options = withParent(own)
     const boardId = boardIdOf(raw)
-    requirePrivateApi(options.privateApi, "jira board colours remove")
+    const fallback = colourFallback(
+      "Changing card colours",
+      `jira board colours remove ${boardId} ${colorId}`,
+      options.open,
+    )
+    requirePrivateApi(options.privateApi, "jira board colours remove", {
+      ...fallback,
+      boardId,
+      baseUrl: siteUrl(),
+    })
     const ctx = context()
-    const model = await readEditModel(ctx, boardId)
-    assertCanEdit(model, boardId)
+    const model = await readEditModel(ctx, boardId, fallback)
+    assertCanEdit(model, boardId, { baseUrl: ctx.config.baseUrl, ...fallback })
     const found = (model.cardColorConfig?.cardColors ?? []).find(
       (c) => String(c.id) === colorId,
     )
@@ -704,6 +819,7 @@ Examples:
         !(after.cardColorConfig?.cardColors ?? []).some(
           (c) => String(c.id) === colorId,
         ),
+      fallback,
     )
   })
 }

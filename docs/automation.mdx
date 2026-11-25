@@ -23,13 +23,29 @@ jira automation enable 0192e5ac-0e25-71de-ba7b-d972e6a2049a
 | `automation enable <uuid>`  |                                                                   |
 | `automation disable <uuid>` |                                                                   |
 
-Every subcommand also takes `--host <site|api>`.
+Every subcommand also takes `--host <site|api>`, `--open` and `-p, --project <key>` (see When Jira refuses).
 
 ## Permissions
 
 These use Atlassian's Automation REST API with the same classic API token as everything else; nothing new to configure. The account needs the **Jira administrator** global permission. Jira answers even a project admin with a bare 403. The CLI explains it, then checks the account's permissions and says whether it is a project admin (on the `--project` given to `list`, otherwise on any project) who can manage those rules in the Jira web UI instead, under Project settings > Automation, unless a Jira admin has turned off "Allow project administrators to manage project rules". It exits 4 either way. `jira whoami --permissions --project SHOP` runs the same check on its own.
 
-When `list` was given `--project` and the account administers that project, the message also prints a link to the project's automation page, derived from the project type: `/jira/software/projects/SHOP/settings/automate` for a team-managed software project, `/jira/software/c/projects/SHOP/settings/automate` for a company-managed one, `/jira/core/projects/…` for business and `/jira/servicedesk/projects/…` for service projects. Atlassian documents the menu path, not these URLs, so the menu path stays next to the link in case it does not open, and a project that cannot be read gets no link at all.
+### When Jira refuses
+
+With a project known (`--project`, which every subcommand takes for this), the 403 opens with what failed and which kind of refusal it is, then the page to open and a request ready to paste to a Jira admin. `--open` launches the page in the browser too; the exit code stays 4.
+
+```sh
+$ jira automation disable 0192e5ac-0e25-71de-ba7b-d972e6a2049a --project SHOP --open
+jira: Managing automation rules for project SHOP — permission refusal.
+…
+Open this now:
+https://myorg.atlassian.net/jira/software/projects/SHOP/settings/automate
+Ask for it: a Jira admin
+  Could you grant my account the Administer Jira global permission? I need it to manage automation rules …
+```
+
+Without a project the message is the explanation alone, with no page.
+
+The link appears only when the account administers that project, or its permissions could not be read. It is the project's automation page, derived from the project type: `/jira/software/projects/SHOP/settings/automate` for a team-managed software project, `/jira/software/c/projects/SHOP/settings/automate` for a company-managed one, `/jira/core/projects/…` for business and `/jira/servicedesk/projects/…` for service projects. Atlassian documents the menu path, not these URLs, so the menu path stays next to the link in case it does not open, and a project that cannot be read gets no link at all.
 
 ```sh
 jira whoami --permissions --project SHOP

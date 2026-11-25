@@ -59,6 +59,21 @@ Every change is a dry run until `--yes`: it prints what would change, one `befor
 
 The write calls follow Jira Server's board API and have not been verified on every Cloud site. If Jira answers 404, 405 or 410, the CLI says the private API did not answer and may have changed. Changing board settings needs board admin, or project admin on the board's location; when Jira already reports the board as not editable, the CLI refuses before writing and exits 4. `jira whoami --permissions --board 42` checks board admin.
 
+Whenever one of these is refused (no `--private-api`, a 403, or a 404, 405 or 410), the message names the kind of refusal, links the board's settings page for that section and says who to ask: a Jira admin for a permission, Atlassian for a missing API, with a search of Atlassian's public tracker and a one-line feature request to paste. `--open` launches the page too; exit codes do not change.
+
+```sh
+$ jira board swimlanes 42 --open
+jira: Reading swimlanes for board 42 — no public API.
+…
+Open this now:
+https://myorg.atlassian.net/secure/RapidView.jspa?rapidView=42&tab=swimlanes
+Ask for it: Atlassian
+  Raise a feature request: "Public REST API to read and change a board's swimlanes"
+  Check for an existing one first: https://jira.atlassian.com/issues/?jql=…
+```
+
+These are the classic board-config URLs. As far as is known they redirect to the current settings page on Cloud; that has not been verified.
+
 ## Sprints
 
 ```sh

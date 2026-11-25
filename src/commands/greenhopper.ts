@@ -1,5 +1,5 @@
 import { isJiraApiError, type JiraClient } from "@kud/jira"
-import { exitError } from "./context.js"
+import { refuse, type FeatureSearch } from "./fallback.js"
 
 /**
  * Every call to Jira's private board API (GreenHopper, /rest/greenhopper/1.0)
@@ -25,18 +25,93 @@ export const PRIVATE_API_HELP =
   "use Jira's private API for boards (unsupported by Atlassian, may change without notice)"
 
 /**
+ * The board configuration tabs, as the classic board-config page names them.
+ */
+export type BoardTab =
+  | "cardColors"
+  | "swimlanes"
+  | "quickFilters"
+  | "columns"
+  | "cardLayout"
+  | "workingDays"
+  | "estimation"
+
+/**
+ * The web page for a board's settings, optionally on one tab. This is the
+ * classic board-config URL, chosen because it needs only the board ID: the
+ * newer /jira/software/c/projects/{KEY}/boards/{id}/settings/… form needs the
+ * project, which a board does not always have. As far as is known it
+ * redirects to the current settings page on Cloud; that is not verified.
+ */
+export const boardSettingsUrl = (
+  baseUrl: string,
+  boardId: number,
+  tab?: BoardTab,
+): string =>
+  `${baseUrl.replace(/\/+$/, "")}/secure/RapidView.jspa?rapidView=${boardId}` +
+  (tab ? `&tab=${tab}` : "")
+
+/** What a refusal needs to point at the right board page. */
+export type BoardFallback = {
+  boardId: number
+  /** The section, as a sentence start: "Reading swimlanes". */
+  action: string
+  tab?: BoardTab
+  baseUrl?: string
+  command?: string
+  open?: boolean
+}
+
+const SECTION: Partial<Record<BoardTab, string>> = {
+  cardColors: "card colours",
+  swimlanes: "swimlanes",
+}
+
+const featureSearch = (tab: BoardTab | undefined): FeatureSearch => {
+  const section = (tab && SECTION[tab]) ?? "board configuration"
+  return {
+    project: "JSWCLOUD",
+    // Atlassian's tracker is written in American English.
+    text: `${section.replace("colours", "colors")} REST API`,
+    summary: `Public REST API to read and change a board's ${section}`,
+  }
+}
+
+const urlOf = (f: BoardFallback): string | undefined =>
+  f.baseUrl ? boardSettingsUrl(f.baseUrl, f.boardId, f.tab) : undefined
+
+/**
  * The private-only commands refuse to run without the flag, so nobody leans
- * on an unsupported API without having said so.
+ * on an unsupported API without having said so. The refusal still points at
+ * the web page that does the same thing.
  */
 export const requirePrivateApi = (
   enabled: boolean | undefined,
   what: string,
+  fallback?: BoardFallback,
 ): void => {
   if (enabled) return
-  throw exitError(
-    2,
+  const detail =
     `${what} relies on Jira's private board API, which Atlassian does not support\n` +
-      "and may change without notice. Re-run with --private-api to use it anyway.",
+    "and may change without notice. Re-run with --private-api to use it anyway."
+  if (!fallback)
+    throw refuse(2, {
+      kind: "no-api",
+      action: what,
+      object: "this board",
+      detail,
+    })
+  throw refuse(
+    2,
+    {
+      kind: "no-api",
+      action: fallback.action,
+      object: `board ${fallback.boardId}`,
+      url: urlOf(fallback),
+      search: featureSearch(fallback.tab),
+      detail,
+    },
+    fallback.open,
   )
 }
 
@@ -155,25 +230,50 @@ export const removeCardColor = (
  * A private API answers its own breakage with 404, 405 or 410, which reads
  * as a bug in the caller unless someone says otherwise. 403 here means the
  * board's settings are closed to this account, which board admin or project
- * admin on the board's location opens.
+ * admin on the board's location opens. Both point at the board's web page.
  */
 export const explainPrivateApiFailure = (
   error: unknown,
   boardId: number,
+  fallback?: Partial<Omit<BoardFallback, "boardId">>,
 ): unknown => {
   if (!isJiraApiError(error)) return error
+  const f: BoardFallback = {
+    action: "Reading the board's settings",
+    ...fallback,
+    boardId,
+  }
   if ([404, 405, 410].includes(error.status))
-    return exitError(
+    return refuse(
       1,
-      `Jira's private board API did not answer this call (${error.status} on ${error.method}); it may have changed.\n` +
-        `Board ${boardId} may also not exist. The supported commands (jira board view, jira board settings) still work.`,
+      {
+        kind: "no-api",
+        action: f.action,
+        object: `board ${boardId}`,
+        url: urlOf(f),
+        search: featureSearch(f.tab),
+        detail:
+          `Jira's private board API did not answer this call (${error.status} on ${error.method}); it may have changed.\n` +
+          `Board ${boardId} may also not exist. The supported commands (jira board view, jira board settings) still work.`,
+      },
+      f.open,
     )
   if (error.status === 403)
-    return exitError(
+    return refuse(
       4,
-      `Jira refused board ${boardId}'s settings (403).\n` +
-        "It needs board admin on this board, or project admin on the board's location.\n" +
-        `Check with: jira whoami --permissions --board ${boardId}`,
+      {
+        kind: "permission",
+        action: f.action,
+        object: `board ${boardId}`,
+        url: urlOf(f),
+        permission: `board admin on board ${boardId} (or project admin on the board's location)`,
+        command: f.command,
+        detail:
+          `Jira refused board ${boardId}'s settings (403).\n` +
+          "It needs board admin on this board, or project admin on the board's location.\n" +
+          `Check with: jira whoami --permissions --board ${boardId}`,
+      },
+      f.open,
     )
   return error
 }

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { palette } from "../output/format.js"
 import { registerBoardCommands } from "./agile.js"
 import { isExitError } from "./context.js"
+import { setOpener } from "./fallback.js"
 import { PRIVATE_API_HELP, type EditModel } from "./greenhopper.js"
 
 vi.mock("./context.js", async (importOriginal) => {
@@ -274,6 +275,43 @@ describe("the --private-api gate", () => {
     expect(client.request).not.toHaveBeenCalled()
   })
 
+  it("points at the board's settings tab and asks Atlassian", async () => {
+    const error = await failure(["swimlanes", "42"])
+    const message = (error as Error).message
+
+    expect(message).toMatch(/^Reading swimlanes for board 42 — no public API\./)
+    expect(message).toContain(
+      "\nOpen this now:\nhttps://acme.atlassian.net/secure/RapidView.jspa?rapidView=42&tab=swimlanes\n",
+    )
+    expect(message).toContain("Ask for it: Atlassian")
+    expect(message).toContain("https://jira.atlassian.com/issues/?jql=")
+  })
+
+  it("with --open, launches that tab and nothing without it", async () => {
+    const opener = vi.fn()
+    const previous = setOpener(opener)
+    try {
+      await failure(["colours", "set", "42", "Bug", "#fff"])
+      expect(opener).not.toHaveBeenCalled()
+
+      const error = await failure([
+        "colours",
+        "set",
+        "42",
+        "Bug",
+        "#fff",
+        "--open",
+      ])
+      expect(isExitError(error) && error.code).toBe(2)
+      expect(opener).toHaveBeenCalledExactlyOnceWith(
+        "https://acme.atlassian.net/secure/RapidView.jspa?rapidView=42&tab=cardColors",
+      )
+      expect(client.request).not.toHaveBeenCalled()
+    } finally {
+      setOpener(previous)
+    }
+  })
+
   it("lists swimlanes with the flag", async () => {
     await parse(["swimlanes", "42", "--private-api"])
     expect(stdout()).toContain("  Expedite  priority = Highest\n")
@@ -330,6 +368,42 @@ describe("private API failures", () => {
     expect((error as Error).message).toMatch(/board admin/)
     expect((error as Error).message).toContain(
       "jira whoami --permissions --board 42",
+    )
+    expect((error as Error).message).toMatch(
+      /^Reading card colours for board 42 — permission refusal\./,
+    )
+    expect((error as Error).message).toContain("Ask for it: a Jira admin")
+  })
+
+  it("with --open, launches the card colours tab on a 403", async () => {
+    const opener = vi.fn()
+    const previous = setOpener(opener)
+    client.request = vi.fn(async (path: string) => {
+      throw jiraApiError(403, "GET", path, "")
+    })
+    try {
+      await failure(["colours", "42", "--private-api", "--open"])
+      expect(opener).toHaveBeenCalledExactlyOnceWith(
+        "https://acme.atlassian.net/secure/RapidView.jspa?rapidView=42&tab=cardColors",
+      )
+    } finally {
+      setOpener(previous)
+    }
+  })
+
+  it("names a 404 as no public API, with the page", async () => {
+    const reads = router()
+    client.request = vi.fn(async (path: string) => {
+      if (path === EDIT_MODEL) throw jiraApiError(404, "GET", path, "")
+      return reads(path)
+    })
+
+    const error = await failure(["settings", "42", "--private-api"])
+
+    expect(isExitError(error) && error.code).toBe(1)
+    expect((error as Error).message).toMatch(/— no public API\./)
+    expect((error as Error).message).toContain(
+      "\nhttps://acme.atlassian.net/secure/RapidView.jspa?rapidView=42\n",
     )
   })
 })
