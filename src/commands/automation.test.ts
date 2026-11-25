@@ -290,6 +290,52 @@ describe("jira automation list", () => {
     expect(message).not.toMatch(/https?:\/\//)
   })
 
+  it("on a 403, gives a project admin the project's automation page, menu path kept", async () => {
+    client.request = vi.fn(async (path: string, init?: RequestInit) => {
+      if (path === "/_edge/tenant_info") return { cloudId: CLOUD_ID }
+      if (path === "/rest/api/3/project/SHOP")
+        return { id: "10001", key: "SHOP", projectTypeKey: "software", style: "classic" }
+      if (path.startsWith("/rest/api/3/mypermissions"))
+        return {
+          permissions: {
+            ADMINISTER: { havePermission: false },
+            ADMINISTER_PROJECTS: { havePermission: true },
+          },
+        }
+      throw jiraApiError(403, init?.method ?? "GET", path, "")
+    })
+
+    const error = await parse(["list", "--project", "SHOP"]).catch(
+      (e: unknown) => e,
+    )
+
+    expect(isExitError(error) && error.code).toBe(4)
+    const message = (error as Error).message
+    expect(message).toMatch(/Project settings > Automation/)
+    expect(message).toContain(
+      "open: https://acme.atlassian.net/jira/software/c/projects/SHOP/settings/automate",
+    )
+  })
+
+  it("on a 403, gives no page to an account that is not a project admin", async () => {
+    client.request = routes((path, init) => {
+      if (path.startsWith("/rest/api/3/mypermissions"))
+        return {
+          permissions: {
+            ADMINISTER: { havePermission: false },
+            ADMINISTER_PROJECTS: { havePermission: false },
+          },
+        }
+      throw jiraApiError(403, init?.method ?? "GET", path, "")
+    })
+
+    const error = await parse(["list", "--project", "SHOP"]).catch(
+      (e: unknown) => e,
+    )
+
+    expect((error as Error).message).not.toMatch(/open:/)
+  })
+
   it("rejects an unknown --state before calling anything", async () => {
     await expect(parse(["list", "--state", "paused"])).rejects.toThrow(
       /ENABLED or DISABLED/,

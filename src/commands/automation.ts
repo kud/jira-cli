@@ -9,6 +9,7 @@ import {
   warnIfTruncated,
   type Context,
 } from "./context.js"
+import { readProjectAutomationUrl } from "./automation-ui.js"
 import { adminPermissions, type AdminPermissions } from "./permissions.js"
 
 /**
@@ -69,6 +70,7 @@ const resolveCloudId = async (
 export const explainAuthFailure = (
   error: unknown,
   permissions?: AdminPermissions,
+  uiUrl?: string,
 ): unknown => {
   if (!isJiraApiError(error)) return error
   if (error.status === 401)
@@ -86,19 +88,26 @@ export const explainAuthFailure = (
         "Managing automation rules needs the Jira administrator global permission\n" +
         "(Administer Jira) on the account behind ATLASSIAN_API_TOKEN; project admin is not enough,\n" +
         "even for rules scoped to that project. Ask a Jira admin to grant it, or to run the command.\n" +
-        webUiHint(permissions),
+        webUiHint(permissions, uiUrl),
     )
   return error
 }
 
 /**
  * The web UI is the route a project admin still has, so the 403 says whether
- * this account is one. No deep link: Atlassian documents the path through
- * the menus, not a URL for a project's automation page, and a guessed URL
- * that 404s is worse than none.
+ * this account is one, and for a known project, where to go. Atlassian
+ * documents the path through the menus, not a URL for a project's automation
+ * page; a project admin kept asking for the link anyway, so the URL is now
+ * derived from the project's type and style (projectAutomationUrl). It is
+ * not verified against every site, which is why the menu path stays next to
+ * it as the fallback, and why a failed project read drops the URL rather
+ * than guessing one.
  * https://support.atlassian.com/automation/kb/guide-explaining-how-automation-administration-permissions-work/
  */
-export const webUiHint = (permissions?: AdminPermissions): string => {
+export const webUiHint = (
+  permissions?: AdminPermissions,
+  uiUrl?: string,
+): string => {
   const restriction =
     "unless a Jira admin has turned off 'Allow project administrators to manage project rules'."
   if (!permissions)
@@ -111,7 +120,8 @@ export const webUiHint = (permissions?: AdminPermissions): string => {
   if (permissions.project)
     return permissions.projectAdmin
       ? `This account is a project admin on ${permissions.project}, so it can manage ${permissions.project}'s rules in the\n` +
-          `Jira web UI (Project settings > Automation), ${restriction}`
+          `Jira web UI (Project settings > Automation), ${restriction}` +
+          (uiUrl ? `\nopen: ${uiUrl}` : "")
       : `This account is not a project admin on ${permissions.project} either, so the web UI will refuse it too.`
   return permissions.projectAdmin
     ? "This account is a project admin on at least one project, so it can manage that project's rules\n" +
@@ -154,7 +164,15 @@ const automation = async (
         isJiraApiError(error) && error.status === 403
           ? await probePermissions(ctx.client, project)
           : undefined
-      throw explainAuthFailure(error, permissions)
+      const uiUrl =
+        project && permissions?.projectAdmin && !permissions.globalAdmin
+          ? await readProjectAutomationUrl(
+              ctx.client,
+              ctx.config.baseUrl,
+              project,
+            )
+          : undefined
+      throw explainAuthFailure(error, permissions, uiUrl)
     }
   }
   return { ctx, cloudId, call }

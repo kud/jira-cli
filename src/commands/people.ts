@@ -6,6 +6,7 @@ import {
   boardAdmin,
   formatAdminPermissions,
 } from "./permissions.js"
+import { readProjectAutomationUrl } from "./automation-ui.js"
 
 export const registerUserCommands = (program: Command): void => {
   const user = program.command("user").description("find people")
@@ -59,6 +60,11 @@ Board admin is a role of its own: it grants board settings, not project
 permissions, so moving issues into a sprint still needs Schedule issues and
 Edit issues on their project.
 
+The automation row says whether the Automation REST API will take this
+account (it needs Administer Jira). With --project, a project admin also gets
+the link to that project's automation page in the web UI, derived from the
+project type (Project settings > Automation if the link does not open).
+
 Examples:
   jira whoami --permissions
   jira whoami --permissions --project SHOP --board 42
@@ -91,7 +97,19 @@ Examples:
             : undefined,
           boardId !== undefined ? boardAdmin(ctx.client, boardId) : undefined,
         ])
-        const permissions = admin && (board ? { ...admin, board } : admin)
+        const uiUrl =
+          admin?.project && admin.projectAdmin
+            ? await readProjectAutomationUrl(
+                ctx.client,
+                ctx.config.baseUrl,
+                admin.project,
+              )
+            : undefined
+        const permissions = admin && {
+          ...admin,
+          automation: { api: admin.globalAdmin, ...(uiUrl ? { uiUrl } : {}) },
+          ...(board ? { board } : {}),
+        }
         if (options.json)
           return printJson(permissions ? { ...me, permissions } : me)
         process.stdout.write(
