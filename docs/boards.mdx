@@ -27,6 +27,38 @@ jira board epics 42
 
 `board list` takes `--project <key>`; `board issues` takes `-q, --jql <jql>` to narrow results. All take `--json`.
 
+## Board settings
+
+```sh
+jira board settings 42          # columns and statuses, WIP limits, estimation, ranking, sub-filter, features, quick filters
+jira board quickfilters 42      # id, name, JQL and description of each quick filter
+```
+
+Both read Jira's public Agile API and take `--json`.
+
+### Private API (unsupported)
+
+Swimlanes, card colours, card layout, working days and board admins are not in the public API. Jira's own board settings page reads them from a private API that Atlassian does not document or support, and may change without notice. These commands use it only when given `--private-api`; without it they exit 2 and say why.
+
+```sh
+jira board settings 42 --private-api   # adds swimlanes, card colours, card layout, working days, board admins
+jira board swimlanes 42 --private-api
+jira board colours 42 --private-api    # alias: colors
+```
+
+Card colours can be changed too:
+
+```sh
+jira board colours strategy 42 priority --private-api          # none, issuetype, priority, assignee or queries
+jira board colours set 42 Bug '#d04437' --private-api           # the colour for an issue type, priority or assignee
+jira board colours set 42 'priority = Highest' '#f00' --add --private-api   # a new query colour
+jira board colours remove 42 7 --private-api                   # by the ID `colours` lists
+```
+
+Every change is a dry run until `--yes`: it prints what would change, one `before → after` line each, changes nothing and exits 0. With `--yes` it applies the change, reads the board back and says whether the change shows; if it does not, it exits 1. `--json` prints the planned or applied change. Colours must be `#rgb` or `#rrggbb`.
+
+The write calls follow Jira Server's board API and have not been verified on every Cloud site. If Jira answers 404, 405 or 410, the CLI says the private API did not answer and may have changed. Changing board settings needs board admin, or project admin on the board's location; when Jira already reports the board as not editable, the CLI refuses before writing and exits 4. `jira whoami --permissions --board 42` checks board admin.
+
 ## Sprints
 
 ```sh
