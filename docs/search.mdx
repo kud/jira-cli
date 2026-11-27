@@ -22,6 +22,22 @@ jira user search ada --project ABC
 
 `user search <query>` takes `-p, --project <key>` to restrict to users assignable on that project, and `-n, --limit <n>` (default 20).
 
+## Saved filters
+
+```sh
+jira meta filters                                   # every filter you can see
+jira filter view 10200                              # JQL, owner, shares with their IDs
+jira filter create --name 'Open bugs' --jql 'type = Bug AND resolution IS EMPTY'
+jira filter edit 10200 --jql 'type = Bug ORDER BY priority DESC'
+jira filter share 10200 --project ABC               # or --project ABC --role Developers
+jira filter share 10200 --group shop-leads          # or --user <account id or email>
+jira filter share 10200 --logged-in                 # or --public, where the site allows it
+jira filter unshare 10200 7                         # share ID from filter view
+jira filter delete 10200 --yes
+```
+
+A new filter is private until shared. `share` adds one view share per call: exactly one of `--project` (with an optional `--role`), `--group`, `--user`, `--logged-in` or `--public`. It needs the global *Share dashboards and filters* permission, and a refusal says so. `edit` and `delete` work only for the owner, someone the filter is shared with for editing, or a Jira admin; when Jira refuses, the error names the owner. `delete` asks first, and needs `--yes` when stdin is not a terminal. `view`, `create`, `edit` and `share` take `--json`.
+
 ## Instance metadata
 
 `jira meta` shows what your Jira supports, useful for getting names right before creating things:

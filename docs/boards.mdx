@@ -20,10 +20,13 @@ jira project statuses ABC
 ```sh
 jira board list --project ABC
 jira board view 42              # columns, their statuses, and the board's filter
+jira board filter 42            # the board's saved filter: JQL, owner, shares
 jira board issues 42 --jql 'assignee = currentUser()'
 jira board backlog 42
 jira board epics 42
 ```
+
+`board filter` names the filter's owner when it is not you: that is who can change the board's JQL. If the filter is not shared with you, it says so and exits 4.
 
 `board list` takes `--project <key>`; `board issues` takes `-q, --jql <jql>` to narrow results. All take `--json`.
 

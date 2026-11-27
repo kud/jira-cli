@@ -11,6 +11,7 @@ All commands live under `jira issue`. `ls` works as an alias for `list` wherever
 jira issue list                              # yours, most recently updated first
 jira issue list --status 'In Progress'
 jira issue list --project ABC --sprint current
+jira issue list --board 42 --quickfilter 'Only bugs'
 jira issue view ABC-123 --comments
 jira issue view ABC-123 --fields status,assignee,issuelinks
 jira issue open ABC-123
@@ -28,8 +29,12 @@ jira issue history ABC-123
 | `--sprint <name>`       | sprint name, or `current` for open sprints |
 | `-l, --label <label>`   | label                                      |
 | `-q, --jql <jql>`       | raw JQL, replacing all other filters       |
+| `--board <id>`          | issues in the board's saved filter         |
+| `--quickfilter <name>`  | narrow `--board` by a quick filter         |
 | `-n, --limit <n>`       | maximum issues (default 50)                |
 | `--json`                | emit JSON                                  |
+
+With `--board`, the board's own filter is the scope: the default project and the "assigned to you" fallback no longer apply, and any other flag (or `--jql`) narrows it further. `--quickfilter` takes a quick filter's name, case-insensitively, or its ID; an unknown or ambiguous name lists the board's quick filters. The board's ORDER BY stands unless `--jql` brings its own.
 
 `issue view` lists links and subtasks. `--fields` takes a comma-separated list and trims both plain text and `--json` output; the key and summary always stay. `issue open --print` prints the URL instead of opening a browser.
 
