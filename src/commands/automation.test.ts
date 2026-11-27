@@ -1,8 +1,8 @@
-import { mkdtempSync, writeFileSync } from "node:fs"
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { Command } from "commander"
-import { jiraApiError, type JiraClient } from "@kud/jira"
+import { createJiraClient, jiraApiError, type JiraClient } from "@kud/jira"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { palette } from "../output/format.js"
 import {
@@ -12,7 +12,9 @@ import {
   nextCursor,
   projectAri,
   registerAutomationCommands,
+  resolveRuleUuid,
   rulePayload,
+  stableJson,
 } from "./automation.js"
 import { isExitError } from "./context.js"
 
@@ -373,5 +375,232 @@ describe("jira automation enable and disable", () => {
     )!
     expect((call[1] as RequestInit).method).toBe("PUT")
     expect(bodyOf(call)).toEqual({ value })
+  })
+})
+
+/**
+ * These drive the real client with a fake fetch, so method, URL, query,
+ * headers and status handling are the ones that would go over the wire.
+ */
+type Exchange = { method: string; url: string; body: unknown }
+
+const wire = (
+  respond: (exchange: Exchange) => { status?: number; json?: unknown },
+) => {
+  const exchanges: Exchange[] = []
+  const fetch = vi.fn(
+    async (input: string | URL | Request, init?: RequestInit) => {
+      const exchange = {
+        method: init?.method ?? "GET",
+        url: String(input),
+        body: init?.body ? JSON.parse(init.body as string) : undefined,
+      }
+      exchanges.push(exchange)
+      if (exchange.url.endsWith("/_edge/tenant_info"))
+        return new Response(JSON.stringify({ cloudId: CLOUD_ID }))
+      if (exchange.url.includes("/rest/api/3/mypermissions"))
+        return new Response(
+          JSON.stringify({
+            permissions: {
+              ADMINISTER: { havePermission: false },
+              ADMINISTER_PROJECTS: { havePermission: false },
+            },
+          }),
+        )
+      const { status = 200, json } = respond(exchange)
+      return new Response(json === undefined ? "" : JSON.stringify(json), {
+        status,
+      })
+    },
+  )
+  client = createJiraClient({
+    baseUrl: "https://acme.atlassian.net",
+    email: "user@example.com",
+    token: "unused",
+    fetch: fetch as unknown as typeof globalThis.fetch,
+  }) as unknown as typeof client
+  return exchanges
+}
+
+const RULE = {
+  rule: {
+    uuid: UUID,
+    name: "Close stale ACME issues",
+    state: "ENABLED",
+    trigger: {
+      type: "jira.issue.event.trigger:created",
+      value: { b: 2, a: 1 },
+    },
+    components: [
+      { type: "jira.issue.transition", value: { z: true, m: [3, 1, 2] } },
+      { type: "jira.issue.comment", value: { body: "stale" } },
+    ],
+  },
+  connections: [],
+}
+
+/** The same rule with every object's keys in another order. */
+const RULE_SHUFFLED = {
+  connections: [],
+  rule: {
+    components: [
+      { value: { m: [3, 1, 2], z: true }, type: "jira.issue.transition" },
+      { value: { body: "stale" }, type: "jira.issue.comment" },
+    ],
+    trigger: {
+      value: { a: 1, b: 2 },
+      type: "jira.issue.event.trigger:created",
+    },
+    state: "ENABLED",
+    name: "Close stale ACME issues",
+    uuid: UUID,
+  },
+}
+
+describe("stableJson", () => {
+  it("sorts keys at every depth and keeps array order", () => {
+    expect(stableJson({ b: { y: 1, x: [2, 1] }, a: null })).toBe(
+      '{\n  "a": null,\n  "b": {\n    "x": [\n      2,\n      1\n    ],\n    "y": 1\n  }\n}\n',
+    )
+  })
+
+  it("is the same text whatever order the keys came in", () => {
+    expect(stableJson(RULE_SHUFFLED)).toBe(stableJson(RULE))
+  })
+})
+
+describe("resolveRuleUuid", () => {
+  it("passes a UUID through without a call", async () => {
+    const call = vi.fn()
+    expect(await resolveRuleUuid(call, UUID)).toBe(UUID)
+    expect(call).not.toHaveBeenCalled()
+  })
+
+  it("refuses something that is neither", async () => {
+    await expect(resolveRuleUuid(vi.fn(), "close-stale")).rejects.toThrow(
+      /neither a rule UUID nor a numeric rule ID/,
+    )
+  })
+})
+
+describe("over the wire", () => {
+  it("list: POSTs the summary search, lower-case --state, and follows pages", async () => {
+    const exchanges = wire(({ url, body }) => {
+      if (!url.endsWith("/rule/summary")) return { status: 404 }
+      return (body as { cursor?: string }).cursor
+        ? {
+            json: {
+              data: [{ uuid: "b", name: "two", state: "DISABLED" }],
+              links: {},
+            },
+          }
+        : {
+            json: {
+              data: [{ uuid: "a", name: "one", state: "DISABLED" }],
+              links: { next: "?cursor=page2" },
+            },
+          }
+    })
+
+    await parse(["list", "--state", "disabled", "--json"])
+
+    const searches = exchanges.filter((e) => e.url === `${SITE}/rule/summary`)
+    expect(searches.map((e) => [e.method, e.body])).toEqual([
+      ["POST", { limit: 100, state: "DISABLED" }],
+      ["POST", { limit: 99, state: "DISABLED", cursor: "page2" }],
+    ])
+    expect(JSON.parse(stdout())).toEqual([
+      { uuid: "a", name: "one", state: "DISABLED" },
+      { uuid: "b", name: "two", state: "DISABLED" },
+    ])
+  })
+
+  it("get: GETs the rule by UUID and prints it with --json", async () => {
+    const exchanges = wire(({ url }) =>
+      url === `${SITE}/rule/${UUID}` ? { json: RULE } : { status: 404 },
+    )
+
+    await parse(["get", UUID, "--json"])
+
+    expect(exchanges.at(-1)).toMatchObject({
+      method: "GET",
+      url: `${SITE}/rule/${UUID}`,
+    })
+    expect(JSON.parse(stdout())).toEqual(RULE)
+  })
+
+  it("get: resolves a numeric rule ID through the summaries, across pages", async () => {
+    const exchanges = wire(({ url, body }) => {
+      if (url === `${SITE}/rule/${UUID}`) return { json: RULE }
+      if (!url.endsWith("/rule/summary")) return { status: 404 }
+      return (body as { cursor?: string }).cursor
+        ? {
+            json: {
+              data: [{ id: 4242, uuid: UUID, name: "x", state: "ENABLED" }],
+              links: {},
+            },
+          }
+        : {
+            json: {
+              data: [{ id: 1, uuid: "other", name: "y", state: "ENABLED" }],
+              links: { next: "?cursor=p2" },
+            },
+          }
+    })
+
+    await parse(["get", "4242"])
+
+    expect(exchanges.map((e) => `${e.method} ${e.url}`)).toEqual([
+      "GET https://acme.atlassian.net/_edge/tenant_info",
+      `POST ${SITE}/rule/summary`,
+      `POST ${SITE}/rule/summary`,
+      `GET ${SITE}/rule/${UUID}`,
+    ])
+  })
+
+  it("get: says so when no rule has that numeric ID", async () => {
+    wire(() => ({ json: { data: [], links: {} } }))
+    await expect(parse(["get", "999"])).rejects.toThrow(
+      /no automation rule with ID 999/,
+    )
+  })
+
+  it("export: writes the same bytes for the same rule in any key order", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "jira-automation-export-"))
+    let body: unknown = RULE
+    wire(({ url }) =>
+      url.startsWith(`${SITE}/rule/${UUID}`) ? { json: body } : { status: 404 },
+    )
+
+    await parse(["export", UUID, "-o", join(dir, "a.json")])
+    body = RULE_SHUFFLED
+    await parse(["export", UUID, "-o", join(dir, "b.json")])
+
+    const a = readFileSync(join(dir, "a.json"), "utf8")
+    expect(readFileSync(join(dir, "b.json"), "utf8")).toBe(a)
+    expect(a).toBe(stableJson(RULE))
+    expect(a.indexOf('"connections"')).toBeLessThan(a.indexOf('"rule"'))
+    expect(stdout()).toBe("")
+  })
+
+  it("export: prints to stdout without -o and passes --redact through", async () => {
+    const exchanges = wire(() => ({ json: RULE }))
+
+    await parse(["export", UUID, "--redact"])
+
+    expect(exchanges.at(-1)?.url).toBe(
+      `${SITE}/rule/${UUID}?redactSensitiveFields=true`,
+    )
+    expect(stdout()).toBe(stableJson(RULE))
+  })
+
+  it("export: a 403 names the missing permission, exit 4", async () => {
+    wire(() => ({ status: 403 }))
+
+    const error = await parse(["export", UUID]).catch((e: unknown) => e)
+
+    expect(isExitError(error) && error.code).toBe(4)
+    expect((error as Error).message).toMatch(/Administer Jira/)
+    expect((error as Error).message).toMatch(/project admin is not enough/)
   })
 })

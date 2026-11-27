@@ -1,11 +1,13 @@
 ---
 title: 🤖 Automation rules
-description: List, export, import, update and switch Jira Automation rules from the terminal.
+description: List, read, export, create, update and switch Jira Automation rules from the terminal.
 ---
 
 ```sh
 jira automation list --project SHOP          # --state ENABLED|DISABLED, --limit, --json
 jira automation get 0192e5ac-0e25-71de-ba7b-d972e6a2049a > rule.json
+jira automation get 4242                     # the numeric ID from the rule's web UI URL
+jira automation export 0192e5ac-0e25-71de-ba7b-d972e6a2049a -o rules/close-stale.json
 jira automation update 0192e5ac-0e25-71de-ba7b-d972e6a2049a --file rule.json
 jira automation create --file rule.json      # prints the new rule's UUID; - reads stdin
 jira automation disable 0192e5ac-0e25-71de-ba7b-d972e6a2049a
@@ -17,13 +19,18 @@ jira automation enable 0192e5ac-0e25-71de-ba7b-d972e6a2049a
 | Command                     | Options                                                           |
 | --------------------------- | ----------------------------------------------------------------- |
 | `automation list`           | `-p, --project`, `--state`, `-n, --limit` (default 100), `--json` |
-| `automation get <uuid>`     | `--redact` hides sensitive fields such as web request secrets     |
+| `automation get <rule>`     | `--redact` hides sensitive fields such as web request secrets     |
+| `automation export <rule>`  | `-o, --output <file>`, `--redact`                                 |
 | `automation create`         | `-f, --file <path>` (required), `-` for stdin                     |
 | `automation update <uuid>`  | `-f, --file <path>` (required)                                    |
 | `automation enable <uuid>`  |                                                                   |
 | `automation disable <uuid>` |                                                                   |
 
-Every subcommand also takes `--host <site|api>`.
+`<rule>` is the rule's UUID or its numeric ID; a numeric ID is looked up through the rule summaries, so it costs one search page per hundred rules. `--state` takes either case. Every subcommand also takes `--host <site|api>`.
+
+## Export for git
+
+`export` prints the same JSON as `get`, with every object's keys sorted and a trailing newline, so exporting an unchanged rule twice gives identical bytes and a diff shows only what changed in the rule. Array order is kept, since a rule's components run in that order. The export holds the rule in full, secrets in web request actions included; `--redact` is worth considering before committing one.
 
 ## Permissions
 
@@ -33,7 +40,7 @@ There is no link to that page: Atlassian documents the menu path, not a URL for 
 
 ## File shape
 
-`create` and `update` accept what `get` prints, `{ "rule": { … } }`, or a bare rule object.
+`create` and `update` accept what `get` and `export` print, `{ "rule": { … } }`, or a bare rule object.
 
 ## Cloud ID and host
 

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { readFileSync, writeFileSync } from "node:fs"
 import type { Command } from "commander"
 import { isJiraApiError, type JiraClient } from "@kud/jira"
 import { table } from "../output/format.js"
@@ -163,6 +163,7 @@ const automation = async (
 type RuleState = "ENABLED" | "DISABLED"
 
 type RuleSummary = {
+  id?: number | string
   uuid: string
   name: string
   state: RuleState | string
@@ -214,6 +215,54 @@ const readRuleFile = (file: string): object => {
 
 const STATES = new Set(["ENABLED", "DISABLED"])
 
+/**
+ * Keys sorted at every depth, two-space indent, trailing newline: the same
+ * rule exported twice is byte-identical, so a diff in git is a change to the
+ * rule and never an artefact of the order Jira happened to serialise it in.
+ * Array order is kept, because in a rule it is meaning (the component chain).
+ */
+export const stableJson = (value: unknown): string => {
+  const sort = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(sort)
+    if (v === null || typeof v !== "object") return v
+    return Object.fromEntries(
+      Object.keys(v)
+        .sort()
+        .map((k) => [k, sort((v as Record<string, unknown>)[k])]),
+    )
+  }
+  return `${JSON.stringify(sort(value), null, 2)}\n`
+}
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/**
+ * The rule endpoints take a UUID. The numeric ID a person sees in the rule's
+ * URL in the web UI is matched against the summaries' `id`, page by page,
+ * which costs a full scan in the worst case but needs no endpoint beyond the
+ * search already used by `list`.
+ */
+export const resolveRuleUuid = async (
+  call: Automation["call"],
+  ref: string,
+): Promise<string> => {
+  if (UUID_PATTERN.test(ref)) return ref
+  if (!/^\d+$/.test(ref))
+    throw exitError(1, `'${ref}' is neither a rule UUID nor a numeric rule ID`)
+  let cursor: string | undefined
+  do {
+    const page = await call<RuleSummaryPage>("/rule/summary", {
+      method: "POST",
+      body: JSON.stringify({ limit: 100, ...(cursor ? { cursor } : {}) }),
+    })
+    const match = (page?.data ?? []).find((r) => String(r.id) === ref)
+    if (match) return match.uuid
+    cursor = nextCursor(page?.links?.next)
+  } while (cursor)
+  throw exitError(1, `no automation rule with ID ${ref}`)
+}
+
 type HostOption = { host?: string }
 
 const hostOption = (command: Command): Command =>
@@ -242,7 +291,7 @@ const setState = (
 export const registerAutomationCommands = (program: Command): void => {
   const automationCommand = program
     .command("automation")
-    .description("list, read, create and switch Jira Automation rules")
+    .description("list, read, export, create and switch Jira Automation rules")
     .addHelpText(
       "after",
       `
@@ -252,6 +301,7 @@ ATLASSIAN_API_TOKEN (a classic API token). Project admin is not enough.
 Examples:
   jira automation list --project SHOP
   jira automation get 0192e5ac-0e25-71de-ba7b-d972e6a2049a > rule.json
+  jira automation export 0192e5ac-0e25-71de-ba7b-d972e6a2049a -o rules/close-stale.json
   jira automation update 0192e5ac-0e25-71de-ba7b-d972e6a2049a --file rule.json
   jira automation disable 0192e5ac-0e25-71de-ba7b-d972e6a2049a
 `,
@@ -262,7 +312,7 @@ Examples:
       .command("list")
       .description("list rules, optionally only those scoped to a project")
       .option("-p, --project <key>", "only rules scoped to this project")
-      .option("--state <state>", "ENABLED or DISABLED")
+      .option("--state <state>", "ENABLED or DISABLED (any case)")
       .option("-n, --limit <n>", "maximum rules to return", "100")
       .option("--json", "emit JSON"),
   ).action(
@@ -332,19 +382,58 @@ Examples:
     },
   )
 
-  hostOption(
-    automationCommand
-      .command("get <uuid>")
-      .description("print a rule's full configuration as JSON")
-      .option(
-        "--redact",
-        "redact sensitive fields such as secrets in web requests",
-      ),
-  ).action(async (uuid: string, options: HostOption & { redact?: boolean }) => {
+  const redactOption = (command: Command): Command =>
+    command.option(
+      "--redact",
+      "redact sensitive fields such as secrets in web requests",
+    )
+
+  const fetchRule = async (
+    ref: string,
+    options: HostOption & { redact?: boolean },
+  ): Promise<unknown> => {
     const { call } = await automation(options.host)
+    const uuid = await resolveRuleUuid(call, ref)
     const query = options.redact ? "?redactSensitiveFields=true" : ""
-    printJson(await call(`/rule/${encodeURIComponent(uuid)}${query}`))
+    return call(`/rule/${encodeURIComponent(uuid)}${query}`)
+  }
+
+  hostOption(
+    redactOption(
+      automationCommand
+        .command("get <rule>")
+        .description(
+          "print a rule's full configuration as JSON (rule UUID or numeric ID)",
+        )
+        .option("--json", "emit JSON (the only output; kept for symmetry)"),
+    ),
+  ).action(async (ref: string, options: HostOption & { redact?: boolean }) => {
+    printJson(await fetchRule(ref, options))
   })
+
+  hostOption(
+    redactOption(
+      automationCommand
+        .command("export <rule>")
+        .description(
+          "write a rule as stable JSON with sorted keys, fit for git (rule UUID or numeric ID)",
+        )
+        .option("-o, --output <file>", "write to this file instead of stdout"),
+    ),
+  ).action(
+    async (
+      ref: string,
+      options: HostOption & { redact?: boolean; output?: string },
+    ) => {
+      const text = stableJson(await fetchRule(ref, options))
+      if (!options.output) {
+        process.stdout.write(text)
+        return
+      }
+      writeFileSync(options.output, text)
+      process.stderr.write(`exported ${ref} to ${options.output}\n`)
+    },
+  )
 
   hostOption(
     automationCommand
