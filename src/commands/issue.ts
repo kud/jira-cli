@@ -9,6 +9,7 @@ import {
   warnIfTruncated,
   type Context,
 } from "./context.js"
+import { andJql, boardScope, splitOrderBy } from "./filter.js"
 import {
   registerIssueWriteCommands,
   resolveTransition,
@@ -17,7 +18,40 @@ import {
 
 import { buildJql, jqlEscape, type ListOptions as JqlOptions } from "@kud/jira"
 
-type ListOptions = JqlOptions & { limit: string; json?: boolean }
+type ListOptions = JqlOptions & {
+  limit: string
+  json?: boolean
+  board?: string
+  quickfilter?: string
+}
+
+const hasOwnFilters = (o: ListOptions): boolean =>
+  !!(o.mine || o.assignee || o.project || o.status || o.label || o.sprint)
+
+/**
+ * With --board the board's own filter is the scope, so neither the default
+ * project nor buildJql's "assigned to you" fallback applies. Other flags
+ * narrow it; their generated ORDER BY is dropped so the board's order stands,
+ * while an explicit --jql keeps its own.
+ */
+const listJql = async (ctx: Context, options: ListOptions): Promise<string> => {
+  if (!options.board) {
+    if (options.quickfilter)
+      throw exitError(1, "--quickfilter needs --board <id>")
+    return buildJql(options, ctx.config.defaultProject)
+  }
+  const scope = await boardScope(
+    ctx.client.request,
+    options.board,
+    options.quickfilter,
+  )
+  const narrowed = options.jql
+    ? options.jql
+    : hasOwnFilters(options)
+      ? splitOrderBy(buildJql(options, undefined)).where
+      : ""
+  return andJql([...scope, narrowed])
+}
 
 const issueColumns = (ctx: Context): Column<JiraIssue>[] => [
   { header: "KEY", value: (i) => i.key },
@@ -44,12 +78,14 @@ export const registerIssueCommands = (program: Command): void => {
     .option("-p, --project <key>", "project key")
     .option("--sprint <name>", "sprint name, or 'current' for open sprints")
     .option("-l, --label <label>", "label")
-    .option("-q, --jql <jql>", "raw JQL, replacing all other filters")
+    .option("-q, --jql <jql>", "raw JQL, replacing all other filters (narrows --board)")
+    .option("--board <id>", "issues in this board's filter")
+    .option("--quickfilter <name>", "narrow --board by one of its quick filters")
     .option("-n, --limit <n>", "maximum issues to return", "50")
     .option("--json", "emit JSON")
     .action(async (options: ListOptions) => {
       const ctx = context()
-      const jql = buildJql(options, ctx.config.defaultProject)
+      const jql = await listJql(ctx, options)
       const limit = Number(options.limit)
       const issues = await ctx.client.searchIssues(jql, { limit })
 

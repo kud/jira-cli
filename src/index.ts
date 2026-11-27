@@ -13,6 +13,10 @@ import {
   registerEpicCommands,
   registerSprintCommands,
 } from "./commands/agile.js"
+import {
+  registerBoardFilterCommand,
+  registerFilterCommands,
+} from "./commands/filter.js"
 import { registerIssueCommands } from "./commands/issue.js"
 import { registerCountCommand, registerMetaCommands } from "./commands/meta.js"
 import { registerUserCommands } from "./commands/people.js"
@@ -51,6 +55,8 @@ Examples:
   jira attachment list ABC-123
   jira attachment read ABC-123 error.log | grep -i timeout
   jira search 'project = ABC AND created >= -7d' --json | jq '.[].key'
+  jira issue list --board 42 --quickfilter 'Only bugs'
+  jira filter share 10200 --project ABC
   jira automation list --project ABC
   jira workflow for Bug --project ABC
   jira whoami --permissions --project ABC
@@ -64,6 +70,10 @@ registerFieldsCommand(program)
 registerInitCommand(program)
 registerProjectCommands(program)
 registerBoardCommands(program)
+registerBoardFilterCommand(
+  program.commands.find((c) => c.name() === "board") as Command,
+)
+registerFilterCommands(program)
 registerSprintCommands(program)
 registerBacklogCommand(program)
 registerEpicCommands(program)
