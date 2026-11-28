@@ -40,18 +40,18 @@
     "@kud/ink-ui": "0.47.0",
     "@kud/jira": "0.7.0",
     "@kud/jira-ink": "0.17.1",
-    "commander": "14.0.1",
+    "commander": "15.1.0",
     "ink": "8.0.0",
     "react": "19.3.1"
   },
   "devDependencies": {
     "@kud/cli-testing": "0.1.0",
-    "@types/node": "24.10.1",
+    "@types/node": "26.6.10",
     "@types/react": "19.3.2",
     "ink-testing-library": "4.0.0",
-    "tsup": "8.5.0",
+    "tsup": "9.0.0",
     "tsx": "4.23.15",
-    "typescript": "5.9.3",
-    "vitest": "3.2.4"
+    "typescript": "7.0.2",
+    "vitest": "5.1.1"
   }
 }
